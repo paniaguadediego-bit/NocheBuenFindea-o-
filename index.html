@@ -1406,7 +1406,10 @@ function calcularIniciales(nombres) {
 // Si varias iniciales empiezan por la misma letra (PP y PF, Ed y Es), cada una de esas
 // bolas lleva un aro de un color distinto (por orden alfabético de los nombres) para distinguirlas.
 // Devuelve 0 si la inicial no se repite, o 1, 2, 3… (el color del aro).
+// Aros desactivados por ahora: para volver a ponerlos, cambia USAR_AROS a true
+const USAR_AROS = false;
 function aroInicial(nombre, ini) {
+  if (!USAR_AROS) return 0;
   const letra = (n) => normalizar((ini[n] || n).charAt(0));
   const cuenta = {};
   for (const n of Object.keys(ini)) cuenta[letra(n)] = (cuenta[letra(n)] || 0) + 1;
