@@ -6,7 +6,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 
 ## Arquitectura (no cambiar sin consultar)
 
-- Un único `index.html` con HTML, CSS y JS inline, sin frameworks, sin build y sin dependencias externas, salvo Google Fonts (Fraunces, Shrikhand y Work Sans, con fuentes de respaldo). Se sirve con GitHub Pages desde este repo. Única excepción: `logo.jpg` (el cartel de la fiesta), que sale en grande en la pantalla de elegir nombre, como franja al final de cada pestaña y en miniatura arriba a la izquierda (botón para volver a Fechas).
+- Un único `index.html` con HTML, CSS y JS inline, sin frameworks, sin build y sin dependencias externas, salvo Google Fonts (Fraunces, Shrikhand y Work Sans, con fuentes de respaldo). Se sirve con GitHub Pages desde este repo. Excepciones: `compartir.jpg` (1200×630, la imagen de la vista previa al compartir el enlace en WhatsApp, puesta con las etiquetas og: del `<head>`) y `logo.jpg` (el cartel de la fiesta), que sale en grande en la pantalla de elegir nombre, como franja al final de cada pestaña y en miniatura arriba a la izquierda (botón para volver a Fechas).
 - Los datos viven en otro repo privado, `nochebuen-datos`, en el archivo `datos.json`.
 - Lectura y escritura con la API de contenidos de GitHub:
   - GET https://api.github.com/repos/paniaguadediego-bit/nochebuen-datos/contents/datos.json
@@ -125,4 +125,5 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Al terminar, explicar cómo probarlo desde el móvil.
 - No añadir funciones que no estén aquí sin preguntar.
 - Nunca escribir la clave ni ningún token en ningún archivo.
+- El botón "atrás" del móvil cierra la ventana abierta (Adviento, puerta, día del calendario, guía, presentación) como la ✕: cada ventana se apunta en el historial con abrirCapa/cerrarCapa.
 - Pablo autoriza a hacer commit, push y fusionar PRs en este repo sin pedir permiso, salvo que diga lo contrario.

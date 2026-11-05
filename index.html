@@ -5,6 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#B3261E">
 <title>NocheBuenFindeaño</title>
+<!-- Vista previa al compartir el enlace (WhatsApp, Telegram…): usan esta imagen y estos textos -->
+<meta name="description" content="Familia de Adoce · Elige fecha, apunta lo que traes, prepara tu charla y juega. ¡Nos vemos en la NocheBuenFindeaño!">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NocheBuenFindeaño">
+<meta property="og:title" content="NocheBuenFindeaño 2026-2027 🎄">
+<meta property="og:description" content="Familia de Adoce · Elige fecha, apunta lo que traes, prepara tu charla y juega.">
+<meta property="og:url" content="https://paniaguadediego-bit.github.io/NocheBuenFindea-o-/">
+<meta property="og:image" content="https://paniaguadediego-bit.github.io/NocheBuenFindea-o-/compartir.jpg">
+<meta property="og:image:secure_url" content="https://paniaguadediego-bit.github.io/NocheBuenFindea-o-/compartir.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Papá Noel brindando con cava junto al reloj de las campanadas">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="logo.jpg">
+<link rel="apple-touch-icon" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Shrikhand&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -1397,6 +1414,35 @@ function mostrar(id) {
 /* =====================================================================
    DATOS: rellenar campos que falten (archivo antiguo o editado a mano)
    ===================================================================== */
+/* =====================================================================
+   VENTANAS Y BOTÓN "ATRÁS" DEL MÓVIL
+   Cada ventana que se abre se apunta en el historial del navegador.
+   Así, el botón de atrás del móvil la cierra (como la ✕) en vez de salir de la app.
+   ===================================================================== */
+const capas = [];   // ventanas abiertas, la última encima
+let ignorarPop = 0; // "atrás" que provocamos nosotros al cerrar con la ✕
+
+function abrirCapa(id, ocultar) {
+  if (capas.some((c) => c.id === id)) return;
+  capas.push({ id, ocultar });
+  try { history.pushState({ capa: id }, ""); } catch (e) {}
+}
+
+function cerrarCapa(id) {
+  const i = capas.findIndex((c) => c.id === id);
+  if (i < 0) return;
+  const eraLaDeArriba = i === capas.length - 1;
+  const [c] = capas.splice(i, 1);
+  c.ocultar();
+  if (eraLaDeArriba) { ignorarPop++; history.back(); } // quitamos su apunte del historial
+}
+
+window.addEventListener("popstate", () => {
+  if (ignorarPop > 0) { ignorarPop--; return; }
+  const c = capas.pop(); // botón atrás: se cierra la ventana de arriba
+  if (c) c.ocultar();
+});
+
 function esObjeto(x) { return !!x && typeof x === "object" && !Array.isArray(x); }
 
 function completar(d) {
@@ -2151,11 +2197,12 @@ function abrirDia(id) {
   diaAbierto = id;
   pintarDia();
   $("modal-dia").hidden = false;
+  abrirCapa("dia", () => { diaAbierto = null; $("modal-dia").hidden = true; });
 }
 
 function cerrarDia() {
   diaAbierto = null;
-  $("modal-dia").hidden = true;
+  cerrarCapa("dia");
 }
 
 function pintarDia() {
@@ -3011,6 +3058,7 @@ async function lanzarPresentacion(ruta) {
     if (!a) { aviso("No encuentro la presentación. ¿La han quitado?"); return; }
     $("visor-marco").srcdoc = a.texto;
     $("visor").hidden = false;
+    abrirCapa("visor", ocultarPresentacion);
     try { if ($("visor").requestFullscreen) await $("visor").requestFullscreen(); } catch (e) {}
     setTimeout(() => $("visor-marco").focus(), 300);
   } catch (e) {
@@ -3019,7 +3067,9 @@ async function lanzarPresentacion(ruta) {
   }
 }
 
-async function cerrarPresentacion() {
+function cerrarPresentacion() { cerrarCapa("visor"); }
+
+async function ocultarPresentacion() {
   $("visor").hidden = true;
   $("visor-marco").srcdoc = "";
   try { if (document.fullscreenElement === $("visor")) await document.exitFullscreen(); } catch (e) {}
@@ -3371,10 +3421,11 @@ function abrirPuerta(n) {
   $("puerta-cuerpo")._html = null;
   pintarPuerta();
   $("modal-puerta").hidden = false;
+  abrirCapa("puerta", () => { puertaAbierta = null; $("modal-puerta").hidden = true; });
 }
 function cerrarPuerta() {
   puertaAbierta = null;
-  $("modal-puerta").hidden = true;
+  cerrarCapa("puerta");
 }
 
 /* =====================================================================
@@ -3466,8 +3517,12 @@ programarRelectura();
 $("btn-inicio").addEventListener("click", () => irA("fechas"));
 
 // --- Calendario de Adviento ---
-$("btn-adviento").addEventListener("click", () => { $("adviento").hidden = false; pintarAdviento(); });
-$("adviento-cerrar").addEventListener("click", () => { $("adviento").hidden = true; });
+$("btn-adviento").addEventListener("click", () => {
+  $("adviento").hidden = false;
+  pintarAdviento();
+  abrirCapa("adviento", () => { $("adviento").hidden = true; });
+});
+$("adviento-cerrar").addEventListener("click", () => cerrarCapa("adviento"));
 $("puertas").addEventListener("click", (e) => {
   const b = e.target.closest("[data-puerta]");
   if (b) abrirPuerta(Number(b.dataset.puerta));
@@ -3743,9 +3798,12 @@ $("comida-lista").addEventListener("click", (e) => {
 
 // --- Charlas ---
 $("cha-copiar").addEventListener("click", copiarPrompt);
-$("cha-guia").addEventListener("click", () => { $("modal-guia").hidden = false; });
-$("guia-cerrar").addEventListener("click", () => { $("modal-guia").hidden = true; });
-$("modal-guia").addEventListener("click", (e) => { if (e.target.id === "modal-guia") $("modal-guia").hidden = true; });
+$("cha-guia").addEventListener("click", () => {
+  $("modal-guia").hidden = false;
+  abrirCapa("guia", () => { $("modal-guia").hidden = true; });
+});
+$("guia-cerrar").addEventListener("click", () => cerrarCapa("guia"));
+$("modal-guia").addEventListener("click", (e) => { if (e.target.id === "modal-guia") cerrarCapa("guia"); });
 $("cha-guardar").addEventListener("click", pulsarGuardarCharla);
 $("cha-cancelar").addEventListener("click", () => { limpiarFormCharla(); pintarCharlas(); });
 $("charlas-lista").addEventListener("click", (e) => {
