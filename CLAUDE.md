@@ -87,9 +87,13 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Mientras hay una ronda de juego abierta, se relee cada 10 s (GitHub permite ~5.000 lecturas por hora con la misma clave, entre todos).
 - Presentaciones: en Charlas → "📎 Mi presentación" cada uno sube su archivo .html o pega el código (máx. 900 KB). Se guarda en `nochebuen-datos/presentaciones/<idCharla>.html` y la charla guarda la ruta en `presentacion`. En Fiesta, "▶ Lanzar presentación" la abre a pantalla completa en un iframe con sandbox="allow-scripts" (sin allow-same-origin, para que no pueda leer la clave).
 
-## Sugerencias
+## Cartas (el tablón) y Reyes Magos
 
-- Botón "💡 Tablón" en la barra inferior. Abre un muro que ve todo el grupo: cualquiera escribe una sugerencia (máx. 280 caracteres) y cada uno puede borrar las suyas (con confirmación).
+- Pestaña "💌 Cartas" en la barra inferior: se escribe una carta en papel antiguo a los Reyes Magos o a Papá Noel (campo `para`: "reyes" o "noel" en cada elemento de `sugerencias`, máx. 400 caracteres). El buzón muestra todas como sobres con sello y lacre; cada uno borra las suyas.
+- Tu Rey Mago: `reyes` = { nombre: "melchor" | "gaspar" | "baltasar" }. Su cara (🤴🏻 🤴🏼 🤴🏿) sale junto al nombre en la cabecera, las cartas y el carbón.
+- Carbón dulce: `carbon` = [ { id, de, para, motivo, fecha } ]. Ranking de quién tiene más; cada uno quita el que puso. También se ve en la tele (Fiesta → ⚫ Carbón).
+- Roscón de Reyes (Fiesta → 👑 Roscón): al partirlo se sortean la figurita (rey de la noche) y el haba (paga el roscón); se guarda en `roscon` = { figurita, haba, fecha }. Solo Pablo o la Tele lo parten.
+- Decoración de Reyes: estrella de Oriente que cruza la cabecera, caravana de los Reyes en camello en la pantalla de entrada y corona 👑 en la fecha que va ganando.
 
 ## Diseño
 
