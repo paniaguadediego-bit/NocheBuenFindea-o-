@@ -7,7 +7,7 @@
 <title>NocheBuenFindeaño</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Shrikhand&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   /* ===== Colores y tipos (ver CLAUDE.md → Diseño) ===== */
   :root {
@@ -19,7 +19,8 @@
     --texto: #2A1E17;
     --tarjeta: #FFFDF7;
     --borde: #E2D3B5;
-    --titulos: "Shrikhand", Georgia, "Times New Roman", serif;
+    --titulos: "Fraunces", Georgia, "Times New Roman", serif;
+    --logo: "Shrikhand", Georgia, "Times New Roman", serif; /* solo para el nombre de la fiesta */
     --cuerpo: "Work Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
   * { box-sizing: border-box; }
@@ -713,6 +714,87 @@
   body.modo-tele .roscon-giro { font-size: clamp(40px, 7vw, 90px); }
 
   @media (prefers-reduced-motion: reduce) { .cometa, .caravana { display: none; } }
+
+  /* =====================================================================
+     LETRA, ICONO DEL CALENDARIO, MODO TELE EN MÓVIL Y ADVIENTO
+     ===================================================================== */
+  /* Títulos en Fraunces (serif retro, legible). El nombre de la fiesta sigue en Shrikhand */
+  h1, h2, h3, .hero b, .grande, .crono, .cuenta, .ganador, .carta-saludo, .roscon-giro, .cita,
+  .presenta .quien, .plegable summary, .campanadas .numero, .campanadas .feliz, .campanadas .titulo-camp, .puerta-num {
+    font-weight: 800; letter-spacing: -.01em;
+  }
+  header h1 #cab-nombre, .pantalla h1.logo-texto { font-family: var(--logo); font-weight: 400; letter-spacing: 0; }
+
+  /* Icono de Fechas: hoja de calendario con el 24 de diciembre */
+  .ico-cal {
+    width: 22px; height: 23px; border-radius: 4px; overflow: hidden; background: #fff; display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(0,0,0,.35); color: var(--texto); font-family: var(--titulos); line-height: 1;
+  }
+  .ico-cal b { background: var(--rojo); color: #fff; font: 700 7px/8px var(--cuerpo); letter-spacing: .04em; }
+  .ico-cal span { font-size: 13px; font-weight: 800; line-height: 15px; }
+
+  /* Modo tele: que nada se salga por los lados y botón de salir siempre visible */
+  #t-fiesta > * { min-width: 0; }
+  body.modo-tele #t-fiesta { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  .salir-tele {
+    position: fixed; z-index: 55; top: calc(10px + env(safe-area-inset-top)); right: calc(10px + env(safe-area-inset-right));
+    min-height: 36px; padding: 4px 12px; border-radius: 999px; border: 1.5px solid var(--dorado);
+    background: rgba(31,77,58,.92); color: var(--dorado-texto); font-weight: 700; font-size: 14px; box-shadow: 0 3px 10px rgba(0,0,0,.3);
+  }
+  body:not(.modo-tele) .salir-tele { display: none; }
+  @media (max-width: 700px) {
+    body.modo-tele #t-fiesta, body.modo-tele #t-fiesta.vista-juego { grid-template-columns: minmax(0, 1fr); }
+    body.modo-tele main { padding-top: calc(54px + env(safe-area-inset-top)); }
+    body.modo-tele .presenta .quien { font-size: 36px; }
+    body.modo-tele .presenta .tema { font-size: 18px; }
+    body.modo-tele .crono { font-size: 88px; }
+    body.modo-tele #fie-tele { display: none; } /* ya está el botón flotante de salir */
+    body.modo-tele .heroes { grid-template-columns: 1fr; }
+  }
+
+  /* ===== Calendario de Adviento ===== */
+  .adviento {
+    position: fixed; inset: 0; z-index: 40; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+    background:
+      radial-gradient(1.5px 1.5px at 15% 12%, #FFE9A8 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 80% 8%, #FFE9A8 50%, transparent 51%),
+      radial-gradient(1px 1px at 55% 20%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 30% 40%, #fff 50%, transparent 51%),
+      radial-gradient(120% 70% at 50% 0%, #2C664C 0%, #163828 60%, #0E2419 100%);
+    color: var(--crema);
+  }
+  .adviento-caja { max-width: 560px; margin: 0 auto; }
+  .adviento-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .adviento h2 { color: var(--dorado-texto); margin: 0; font-size: 22px; }
+  .adviento h2::after { display: none; }
+  .adviento .suave { color: #E9DFC6; }
+  .puertas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+  .puerta {
+    position: relative; aspect-ratio: 1 / 1.1; border-radius: 10px; border: 2px solid var(--dorado); padding: 0;
+    display: grid; place-items: center; color: var(--dorado-texto);
+    box-shadow: inset 0 0 0 3px rgba(0,0,0,.12), 0 3px 0 rgba(0,0,0,.35);
+  }
+  .puerta:nth-child(3n) { background: linear-gradient(160deg, #CF3D31, #8E1C15); }
+  .puerta:nth-child(3n+1) { background: linear-gradient(160deg, #2C664C, #163828); }
+  .puerta:nth-child(3n+2) { background: linear-gradient(160deg, #A8861B, #6E5410); color: #FFF6E0; }
+  .puerta::before { /* lazo */
+    content: ""; position: absolute; inset: 0; border-radius: 8px; pointer-events: none;
+    background: linear-gradient(90deg, transparent 46%, rgba(255,233,168,.35) 46% 54%, transparent 54%);
+  }
+  .puerta-num { font-family: var(--titulos); font-size: 26px; line-height: 1; text-shadow: 0 2px 0 rgba(0,0,0,.3); position: relative; }
+  .puerta .marca { position: absolute; bottom: 3px; right: 4px; font-size: 12px; }
+  .puerta .hueco { position: absolute; top: 3px; left: 4px; font-size: 11px; }
+  .puerta.hoy { animation: llamada 1.6s ease-in-out infinite; }
+  @keyframes llamada { 0%, 100% { box-shadow: inset 0 0 0 3px rgba(0,0,0,.12), 0 3px 0 rgba(0,0,0,.35), 0 0 0 0 rgba(242,201,76,.7); } 50% { box-shadow: inset 0 0 0 3px rgba(0,0,0,.12), 0 3px 0 rgba(0,0,0,.35), 0 0 0 6px rgba(242,201,76,0); } }
+  .puerta.abierta { background: linear-gradient(160deg, #FFF6D9, #F2E2B6) !important; color: var(--verde); }
+  .puerta.abierta .puerta-num { font-size: 16px; text-shadow: none; position: absolute; top: 4px; left: 6px; }
+  .puerta.abierta::after { content: "🎁"; font-size: 26px; }
+  .puerta.abierta::before { display: none; }
+  .puerta-contenido { animation: abrirPuerta .5s cubic-bezier(.2,.8,.2,1); }
+  @keyframes abrirPuerta { from { transform: perspective(600px) rotateY(-70deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  .puerta-texto { font-size: 17px; font-style: italic; white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0; }
+  .leyenda-adv { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; margin-top: 10px; color: #E9DFC6; }
 </style>
 </head>
 <body>
@@ -787,6 +869,10 @@
   <main>
     <!-- Pestaña FECHAS -->
     <section id="t-fechas" data-tab>
+      <button id="btn-adviento" class="hero hero-rojo hero-marquesina ancho" style="margin-bottom:10px">
+        <span class="hero-ico">🚪</span>
+        <span><b>Calendario de Adviento</b><small id="adviento-sub">24 puertas con sorpresas del grupo</small></span>
+      </button>
       <div id="fechas-ganando"></div>
 
       <div class="tarjeta">
@@ -1049,7 +1135,7 @@
   </main>
 
   <nav aria-label="Secciones">
-    <button data-ir="fechas"><span class="ico">📅</span>Fechas</button>
+    <button data-ir="fechas"><span class="ico"><span class="ico-cal" aria-hidden="true"><b>DIC</b><span>24</span></span></span>Fechas</button>
     <button data-ir="comida"><span class="ico">🍗</span>Comida</button>
     <button data-ir="charlas"><span class="ico">📺</span>Charlas</button>
     <button data-ir="juegos"><span class="ico">🎲</span>Juegos</button>
@@ -1075,6 +1161,32 @@
   <div id="camp-uvas" class="uvas"></div>
   <button id="camp-cerrar" class="btn btn-borde">Cerrar</button>
 </div>
+
+<!-- Calendario de Adviento (pantalla entera) -->
+<div id="adviento" class="adviento" hidden>
+  <div class="adviento-caja">
+    <div class="adviento-cab">
+      <h2>🚪 Calendario de Adviento</h2>
+      <button id="adviento-cerrar" class="btn btn-borde btn-peque" aria-label="Cerrar">✕</button>
+    </div>
+    <p class="suave" id="adviento-info" style="margin:6px 0 0"></p>
+    <div class="puertas" id="puertas"></div>
+    <div class="leyenda-adv"><span>✍️ la has rellenado tú</span><span>🎀 ya tiene sorpresa</span><span>➕ libre para rellenar</span><span>🔒 aún cerrada</span></div>
+  </div>
+</div>
+
+<!-- Ventana de una puerta -->
+<div id="modal-puerta" class="modal-fondo" hidden style="z-index:45">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="puerta-titulo">
+    <h2 id="puerta-titulo"></h2>
+    <div id="puerta-cuerpo"></div>
+    <div class="acciones">
+      <button id="puerta-cerrar" class="btn btn-borde">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<button id="salir-tele" class="salir-tele">✕ Salir del modo tele</button>
 
 <!-- Ventana para votar un día desde el calendario -->
 <div id="modal-dia" class="modal-fondo" hidden>
@@ -1319,6 +1431,12 @@ function completar(d) {
   }
   // Reyes Magos: rey favorito de cada uno, carbón y roscón
   if (!esObjeto(d.reyes)) d.reyes = {};
+  // Calendario de Adviento: { puertas: { "5": { autor, texto, fecha } } }
+  if (!esObjeto(d.adviento)) d.adviento = {};
+  if (!esObjeto(d.adviento.puertas)) d.adviento.puertas = {};
+  for (const [n, pu] of Object.entries(d.adviento.puertas)) {
+    if (!(Number(n) >= 1 && Number(n) <= 24) || !esObjeto(pu) || typeof pu.autor !== "string" || typeof pu.texto !== "string") delete d.adviento.puertas[n];
+  }
   d.carbon = (Array.isArray(d.carbon) ? d.carbon : []).filter((c) => esObjeto(c) && ["id", "de", "para", "motivo"].every((k) => typeof c[k] === "string"));
   if (!esObjeto(d.roscon) || typeof d.roscon.figurita !== "string" || typeof d.roscon.haba !== "string") d.roscon = null;
   if (!Array.isArray(d.sugerencias)) d.sugerencias = [];
@@ -1568,6 +1686,7 @@ function pintar() {
   pintarCharlas();
   pintarJuegos();
   pintarSugerencias();
+  pintarAdviento();
   pintarFiesta();
   pintarVivo();
   pintarPresentacionMia();
@@ -3066,6 +3185,109 @@ function pulsarPartirRoscon() {
 }
 
 /* =====================================================================
+   CALENDARIO DE ADVIENTO (1-24 de diciembre; lo rellena el grupo)
+   ===================================================================== */
+const ANO_ADVIENTO = 2026;
+// Orden "desordenado" de las puertas, como en los calendarios de verdad
+const ORDEN_PUERTAS = [17, 3, 22, 9, 1, 14, 6, 20, 11, 24, 5, 15, 8, 19, 2, 12, 23, 7, 16, 4, 21, 10, 18, 13];
+let puertaAbierta = null;
+
+function rellenarPuerta(d, n, autor, texto) {
+  const p = d.adviento.puertas[n];
+  if (p && p.autor !== autor) return false; // ya es de otra persona
+  if (p && p.texto === texto) return false;
+  d.adviento.puertas[n] = { autor, texto, fecha: new Date().toISOString() };
+}
+function vaciarPuerta(d, n, autor) {
+  const p = d.adviento.puertas[n];
+  if (!p || p.autor !== autor) return false;
+  delete d.adviento.puertas[n];
+}
+
+// ¿Se puede abrir ya la puerta n? (desde el día n de diciembre)
+function puertaDisponible(n) {
+  return new Date() >= new Date(ANO_ADVIENTO, 11, n);
+}
+function hoyAdviento() {
+  const h = new Date();
+  return h.getFullYear() === ANO_ADVIENTO && h.getMonth() === 11 && h.getDate() <= 24 ? h.getDate() : null;
+}
+// Cuántas puertas puede rellenar cada uno (24 entre todos, a partes iguales y redondeando hacia arriba)
+function maxPuertas() { return Math.max(2, Math.ceil(24 / Math.max(jugadores().length, 1))); }
+function misPuertas() { return Object.entries(datos.adviento.puertas).filter(([, p]) => p.autor === yo).map(([n]) => Number(n)); }
+
+function pintarAdviento() {
+  const puertas = datos.adviento.puertas;
+  const llenas = Object.keys(puertas).length;
+  const hoy = hoyAdviento();
+  const mias = misPuertas().length;
+  // Subtítulo de la tarjeta de Fechas
+  const antes = new Date() < new Date(ANO_ADVIENTO, 11, 1);
+  $("adviento-sub").textContent = hoy ? `¡Hoy se abre la puerta ${hoy}!` :
+    antes ? `${llenas} de 24 puertas con sorpresa · rellena las tuyas` : "Todas las puertas abiertas 🎄";
+  if ($("adviento").hidden) return;
+
+  $("adviento-info").textContent = esTele()
+    ? `${llenas} de 24 puertas tienen sorpresa. Cada puerta se abre su día de diciembre.`
+    : `Cada uno rellena hasta ${maxPuertas()} puertas con una sorpresa para el grupo (un chiste, un recuerdo, un reto, un enlace…). Cada puerta se abre su día de diciembre y se descubre quién la escribió. Llevas ${mias} de ${maxPuertas()} · ${llenas} de 24 rellenas.`;
+  $("puertas").innerHTML = ORDEN_PUERTAS.map((n) => {
+    const p = puertas[n];
+    const abierta = puertaDisponible(n);
+    const clases = ["puerta"];
+    if (abierta) clases.push("abierta");
+    if (n === hoy) clases.push("hoy");
+    let marca = "";
+    if (!abierta) marca = p ? (p.autor === yo ? "✍️" : "🎀") : (esTele() ? "" : "➕");
+    return `<button class="${clases.join(" ")}" data-puerta="${n}" aria-label="Puerta ${n}${abierta ? ", abierta" : ""}">
+      <span class="puerta-num">${n}</span>${!abierta ? `<span class="hueco">🔒</span>` : ""}${marca ? `<span class="marca">${marca}</span>` : ""}
+    </button>`;
+  }).join("");
+  if (puertaAbierta) pintarPuerta();
+}
+
+// Pone enlaces clicables en el texto (solo http/https)
+function conEnlaces(texto) {
+  return esc(texto).replace(/https?:\/\/[^\s<]+/g, (u) => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+}
+
+function pintarPuerta() {
+  const n = puertaAbierta;
+  const p = datos.adviento.puertas[n];
+  $("puerta-titulo").textContent = `🚪 Puerta ${n} · ${etiquetaFecha(`${ANO_ADVIENTO}-12-${String(n).padStart(2, "0")}`)}`;
+  let html;
+  if (puertaDisponible(n)) {
+    html = p
+      ? `<div class="puerta-contenido caja-ronda"><div class="puerta-texto">${conEnlaces(p.texto)}</div><div class="suave">— Sorpresa de <b>${esc(p.autor)}</b> ${reyDe(p.autor)}</div></div>`
+      : `<div class="puerta-contenido caja-ronda"><p>🎁 Esta puerta se quedó vacía… ¡alguien se despistó! Hoy toca brindar por el despistado 🥂</p></div>`;
+  } else if (esTele()) {
+    html = `<p>🔒 Se abre el ${n} de diciembre.</p>`;
+  } else if (p && p.autor !== yo) {
+    html = `<p>🎀 Esta puerta ya tiene una sorpresa de alguien. Se abre el <b>${n} de diciembre</b>.</p>`;
+  } else if (!p && misPuertas().length >= maxPuertas()) {
+    html = `<p>Ya has rellenado tus ${maxPuertas()} puertas. ¡Deja alguna para los demás! 😉</p>`;
+  } else {
+    html = `<p class="suave" style="margin:0 0 6px">${p ? "Tu sorpresa (solo la ves tú hasta que se abra):" : "Escribe una sorpresa para el grupo. Nadie la verá hasta el " + n + " de diciembre."}</p>
+      <textarea id="puerta-texto" class="campo campo-texto" maxlength="300" placeholder="Un chiste, un recuerdo, un reto para el grupo, un enlace a una canción…">${p ? esc(p.texto) : ""}</textarea>
+      <div class="acciones">
+        <button id="puerta-guardar" class="btn btn-rojo">🎀 Guardar sorpresa</button>
+        ${p ? `<button id="puerta-vaciar" class="btn btn-borde">🗑️ Vaciar</button>` : ""}
+      </div>`;
+  }
+  ponerHtml($("puerta-cuerpo"), html);
+}
+
+function abrirPuerta(n) {
+  puertaAbierta = n;
+  $("puerta-cuerpo")._html = null;
+  pintarPuerta();
+  $("modal-puerta").hidden = false;
+}
+function cerrarPuerta() {
+  puertaAbierta = null;
+  $("modal-puerta").hidden = true;
+}
+
+/* =====================================================================
    PESTAÑAS
    ===================================================================== */
 function irA(tab) {
@@ -3152,6 +3374,33 @@ programarRelectura();
 
 // Botón del logo (arriba a la izquierda): volver a Fechas, arriba del todo
 $("btn-inicio").addEventListener("click", () => irA("fechas"));
+
+// --- Calendario de Adviento ---
+$("btn-adviento").addEventListener("click", () => { $("adviento").hidden = false; pintarAdviento(); });
+$("adviento-cerrar").addEventListener("click", () => { $("adviento").hidden = true; });
+$("puertas").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-puerta]");
+  if (b) abrirPuerta(Number(b.dataset.puerta));
+});
+$("puerta-cerrar").addEventListener("click", cerrarPuerta);
+$("modal-puerta").addEventListener("click", (e) => {
+  if (e.target.id === "modal-puerta") { cerrarPuerta(); return; }
+  const n = puertaAbierta;
+  if (e.target.closest("#puerta-guardar")) {
+    const texto = $("puerta-texto").value.trim();
+    if (!texto) return;
+    cerrarPuerta();
+    guardar(`${yo} rellena una puerta del Adviento`, (d) => rellenarPuerta(d, n, yo, texto));
+    aviso(`🎀 Sorpresa guardada en la puerta ${n}`);
+  }
+  if (e.target.closest("#puerta-vaciar") && confirm("¿Vaciar esta puerta?")) {
+    cerrarPuerta();
+    guardar(`${yo} vacía una puerta del Adviento`, (d) => vaciarPuerta(d, n, yo));
+  }
+});
+
+// Botón flotante para salir del modo tele (también en el móvil)
+$("salir-tele").addEventListener("click", () => { if (document.body.classList.contains("modo-tele")) alternarModoTele(); });
 
 // --- Fiesta ---
 $("fie-tele").addEventListener("click", alternarModoTele);
