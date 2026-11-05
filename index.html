@@ -192,6 +192,12 @@
   .punto.quizas.aro1 { --color-aro: #8A6A10; }
   .punto.quizas.aro4 { --color-aro: #5A4A3E; }
 
+  /* Cabecera del ranking con el selector de orden */
+  .ranking-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .ranking-cab h2 { margin: 0; flex: 1; min-width: 0; }
+  .orden-ranking { flex: none; grid-template-columns: auto auto; margin: 0; padding: 3px; }
+  .orden-ranking button { min-height: 30px; padding: 0 10px; font-size: 13px; }
+
   /* ===== Calendario ===== */
   .cal-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
   .cal-cab h3 { margin: 0; text-transform: capitalize; }
@@ -1326,7 +1332,8 @@ let shaActual = null;  // versión de datos.json que tenemos
 let guardando = 0;     // cuántos guardados hay en marcha
 let colaGuardado = Promise.resolve(); // para guardar los cambios de uno en uno
 let graficaAnimada = false; // la gráfica solo se anima la primera vez
-let mesVisto = null;   // mes que enseña el calendario: { a: 2026, m: 11 } (m de 0 a 11)
+let mesVisto = null;
+let ordenRanking = leerLocal("nb_orden") === "fecha" ? "fecha" : "votos"; // cómo ordena cada uno el ranking   // mes que enseña el calendario: { a: 2026, m: 11 } (m de 0 a 11)
 
 /* =====================================================================
    UTILIDADES
@@ -1804,16 +1811,24 @@ function pintarFechas() {
   pintarGrafica(fechas);
   pintarDia();
   // Ranking: más puntos primero; si empatan, la más temprana
-  // Las fechas se enseñan en orden de calendario; la corona va en la que más puntos tiene (o las empatadas)
-  const cronologico = [...fechas].sort((a, b) => a.id.localeCompare(b.id));
+  // Ranking por puntos (si empatan, la más temprana). La posición y la corona salen de aquí.
+  const ranking = [...fechas].sort((a, b) => b.r.puntos - a.r.puntos || a.id.localeCompare(b.id));
+  const posicion = Object.fromEntries(ranking.map((f, i) => [f.id, i + 1]));
   const maxPuntos = Math.max(0, ...fechas.map((f) => f.r.puntos));
+  // Orden de la lista: por votos (normal) o por fecha (si la persona lo elige; se recuerda en su móvil)
+  const lista = ordenRanking === "fecha" ? [...fechas].sort((a, b) => a.id.localeCompare(b.id)) : ranking;
 
-  // --- Lista de fechas (en orden cronológico) ---
+  // --- Lista de fechas ---
   if (!fechas.length) {
     $("fechas-lista").innerHTML = `<div class="tarjeta"><p>Todavía no hay fechas. Toca un día del calendario para proponer la primera 👆</p></div>`;
   } else {
     const oficial = datos.evento.fechaOficial;
-    $("fechas-lista").innerHTML = `<h2>Ranking</h2><p class="suave" style="margin:-4px 0 8px">Toca tu voto otra vez para quitarlo.</p>` + cronologico.map((f) => {
+    $("fechas-lista").innerHTML = `<div class="ranking-cab"><h2>Ranking</h2>
+      <div class="segmentos orden-ranking" role="group" aria-label="Ordenar">
+        <button data-orden="votos" aria-pressed="${ordenRanking !== "fecha"}">🏆 Votos</button>
+        <button data-orden="fecha" aria-pressed="${ordenRanking === "fecha"}">📅 Fecha</button>
+      </div></div>
+      <p class="suave" style="margin:-4px 0 8px">Toca tu voto otra vez para quitarlo.</p>` + lista.map((f) => {
       const mio = (datos.votos[f.id] || {})[yo];
       const botonVoto = (resp, icono) =>
         `<button class="voto ${resp}" data-votar="${esc(f.id)}" data-resp="${resp}" aria-pressed="${mio === resp}">${icono}<br>${TEXTO_VOTO[resp]}</button>`;
@@ -1827,7 +1842,7 @@ function pintarFechas() {
       return `
         <div class="tarjeta ${esOficial ? "oficial" : ""}" data-tarjeta-fecha="${esc(f.id)}">
           <div class="fecha-cab">
-            <h3>${maxPuntos > 0 && f.r.puntos === maxPuntos ? "👑 " : ""}${esc(f.etiqueta)} ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>
+            <h3>${maxPuntos > 0 && f.r.puntos === maxPuntos ? "👑 " : ""}${posicion[f.id]}. ${esc(f.etiqueta)} ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>
             <span class="puntos">${f.r.puntos} pts</span>
           </div>
           <div class="votos" role="group" aria-label="Tu voto para ${esc(f.etiqueta)}">
@@ -3492,6 +3507,15 @@ $("dia-votos").addEventListener("click", (e) => {
 $("dia-blanco").addEventListener("click", () => votarDia(null));
 $("dia-cerrar").addEventListener("click", cerrarDia);
 $("modal-dia").addEventListener("click", (e) => { if (e.target.id === "modal-dia") cerrarDia(); });
+
+// Cambiar el orden del ranking (votos o fecha)
+$("fechas-lista").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-orden]");
+  if (!b) return;
+  ordenRanking = b.dataset.orden;
+  guardarLocal("nb_orden", ordenRanking);
+  pintarFechas();
+});
 
 // Votar y marcar oficial (botones que se pintan dentro de la lista)
 $("fechas-lista").addEventListener("click", (e) => {
