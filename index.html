@@ -199,6 +199,11 @@
   .orden-ranking button { min-height: 30px; padding: 0 10px; font-size: 13px; }
 
   /* ===== Calendario ===== */
+  /* Calendario seguido nov-dic: diciembre con un tono algo más cálido y "DIC" en el día 1 */
+  .cal-dia.mes-dic:not(.candidata):not(.oficial):not(.pasado) { background: #FFF9EE; }
+  .cal-dia { position: relative; }
+  .cal-mes { position: absolute; top: 1px; left: 3px; font: 800 8px/1 var(--cuerpo); color: var(--rojo); letter-spacing: .03em; }
+  .cal-cab { justify-content: center; }
   .cal-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
   .cal-cab h3 { margin: 0; text-transform: capitalize; }
   .cal-flecha { min-width: 40px; min-height: 36px; border-radius: 10px; border: 2px solid var(--borde); background: #fff; color: var(--verde); font-size: 20px; font-weight: 700; }
@@ -918,9 +923,7 @@
 
       <div class="tarjeta">
         <div class="cal-cab">
-          <button id="cal-antes" class="cal-flecha" aria-label="Mes anterior">‹</button>
-          <h3 id="cal-titulo"></h3>
-          <button id="cal-despues" class="cal-flecha" aria-label="Mes siguiente">›</button>
+          <h3 id="cal-titulo">Noviembre – Diciembre 2026</h3>
         </div>
         <div id="cal-rejilla" class="cal-rejilla"></div>
         <p class="suave" style="margin:6px 0 0">Toca un día para votarlo. Si aún no es candidato, se añade al votar.</p>
@@ -1335,7 +1338,6 @@ let shaActual = null;  // versión de datos.json que tenemos
 let guardando = 0;     // cuántos guardados hay en marcha
 let colaGuardado = Promise.resolve(); // para guardar los cambios de uno en uno
 let graficaAnimada = false; // la gráfica solo se anima la primera vez
-let mesVisto = null;
 let ordenRanking = leerLocal("nb_orden") === "fecha" ? "fecha" : "votos"; // cómo ordena cada uno el ranking   // mes que enseña el calendario: { a: 2026, m: 11 } (m de 0 a 11)
 
 /* =====================================================================
@@ -1918,29 +1920,24 @@ function idDeDia(a, m, d) {
   return `${a}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
+// El calendario va seguido del lunes 16 de noviembre al 31 de diciembre (cambia aquí las fechas)
+const CAL_INICIO = new Date(2026, 10, 16); // meses de 0 a 11: 10 = noviembre
+const CAL_FIN = new Date(2026, 11, 31);
+
 function pintarCalendario(fechas, ini) {
   const hoy = new Date();
   const idHoy = idDeDia(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-  // Primera vez: el mes de la primera fecha candidata que no haya pasado (o el actual)
-  if (!mesVisto) {
-    const prox = fechas.find((f) => f.id >= idHoy) || fechas[0];
-    const [a, m] = prox ? prox.id.split("-").map(Number) : [hoy.getFullYear(), hoy.getMonth() + 1];
-    mesVisto = { a, m: m - 1 };
-  }
-  const { a, m } = mesVisto;
-  $("cal-titulo").textContent = `${MESES_LARGOS[m]} ${a}`;
-
   const porId = Object.fromEntries(fechas.map((f) => [f.id, f]));
   const oficial = datos.evento.fechaOficial;
-  const huecos = (new Date(a, m, 1).getDay() + 6) % 7; // semana empieza en lunes
-  const diasMes = new Date(a, m + 1, 0).getDate();
 
   let html = ["L", "M", "X", "J", "V", "S", "D"].map((d) => `<div class="cal-dia-semana">${d}</div>`).join("");
-  for (let i = 0; i < huecos; i++) html += `<div class="cal-dia vacio"></div>`;
-  for (let d = 1; d <= diasMes; d++) {
-    const id = idDeDia(a, m, d);
+  // Huecos hasta el lunes, por si el inicio no cae en lunes
+  for (let i = 0; i < (CAL_INICIO.getDay() + 6) % 7; i++) html += `<div class="cal-dia vacio"></div>`;
+  for (let dia = new Date(CAL_INICIO); dia <= CAL_FIN; dia.setDate(dia.getDate() + 1)) {
+    const d = dia.getDate();
+    const id = idDeDia(dia.getFullYear(), dia.getMonth(), d);
     const f = porId[id];
-    const clases = ["cal-dia"];
+    const clases = ["cal-dia", dia.getMonth() === 11 ? "mes-dic" : "mes-nov"];
     if (f) clases.push("candidata");
     if (id === oficial) clases.push("oficial");
     if (id === idHoy) clases.push("hoy");
@@ -1948,20 +1945,12 @@ function pintarCalendario(fechas, ini) {
     if (pasado) clases.push("pasado");
     html += `<button class="${clases.join(" ")}" data-dia="${id}" ${pasado ? "disabled" : ""}
               aria-label="${etiquetaFecha(id)}${f ? ", fecha candidata" : ""}">
+              ${d === 1 ? `<span class="cal-mes">${MESES[dia.getMonth()].toUpperCase()}</span>` : ""}
               <span class="num">${d}</span>
               ${f ? `<span class="cal-puntos">${puntosHtml(f.r, ini)}</span>` : ""}
             </button>`;
   }
   $("cal-rejilla").innerHTML = html;
-}
-
-function moverMes(paso) {
-  let { a, m } = mesVisto;
-  m += paso;
-  if (m < 0) { m = 11; a--; }
-  if (m > 11) { m = 0; a++; }
-  mesVisto = { a, m };
-  pintarFechas();
 }
 
 /* =====================================================================
@@ -3494,8 +3483,6 @@ document.querySelector("nav").addEventListener("click", (e) => {
 });
 
 // Calendario: flechas y tocar un día
-$("cal-antes").addEventListener("click", () => moverMes(-1));
-$("cal-despues").addEventListener("click", () => moverMes(1));
 $("cal-rejilla").addEventListener("click", (e) => {
   const b = e.target.closest("[data-dia]");
   if (!b || b.disabled) return;
