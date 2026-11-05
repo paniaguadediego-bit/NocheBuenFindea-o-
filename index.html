@@ -26,6 +26,9 @@
   html, body { margin: 0; }
   body {
     background: var(--crema);
+    /* Lunares suaves de fondo, estilo papel de regalo */
+    background-image: radial-gradient(rgba(201,162,39,.13) 1.5px, transparent 1.6px);
+    background-size: 22px 22px;
     color: var(--texto);
     font-family: var(--cuerpo);
     font-size: 16px;
@@ -34,7 +37,7 @@
   }
   h1, h2, h3 { font-family: var(--titulos); font-weight: 400; margin: 0 0 .4em; line-height: 1.15; }
   h2 { font-size: 24px; color: var(--rojo); }
-  h3 { font-size: 20px; color: var(--verde); }
+  h3 { font-size: 18px; color: var(--verde); }
   button, input, select { font: inherit; }
   button { cursor: pointer; }
   [hidden] { display: none !important; }
@@ -55,33 +58,45 @@
   /* ===== Cabecera roja con borde punteado dorado ===== */
   header {
     position: sticky; top: 0; z-index: 10;
+    margin-bottom: 10px;
     background: var(--rojo);
     color: var(--crema);
     border-bottom: 4px dotted var(--dorado);
-    padding: calc(10px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
-             10px calc(16px + env(safe-area-inset-left));
+    padding: calc(8px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right))
+             8px calc(12px + env(safe-area-inset-left));
   }
   header h1 { font-size: 26px; margin: 0; color: var(--crema); }
   .cab-fila { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .cab-oficial { margin-top: 4px; font-size: 15px; font-weight: 600; color: #FFE9A8; }
   .cab-yo { font-size: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .btn-cambiar {
-    min-height: 44px; padding: 0 12px; border-radius: 10px;
-    background: transparent; color: var(--crema); border: 2px solid var(--crema); font-weight: 600; font-size: 14px;
+    flex: none; min-height: 44px; padding: 2px 10px; border-radius: 10px;
+    background: transparent; color: var(--crema); border: 2px solid var(--crema); font-weight: 700; font-size: 14px;
+    display: flex; flex-direction: column; align-items: center; line-height: 1.15;
   }
-  .estado-guardado { font-size: 14px; min-height: 1.4em; margin-top: 2px; color: var(--crema); opacity: .95; }
+  .btn-cambiar span { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .btn-cambiar small { font-size: 14px; font-weight: 400; opacity: .9; }
+  /* "Guardando…" / "Guardado": pastilla flotante encima de las pestañas */
+  .estado-guardado {
+    position: fixed; left: calc(12px + env(safe-area-inset-left)); bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 15;
+    background: var(--verde); color: var(--dorado-texto); font-size: 14px; font-weight: 600;
+    padding: 6px 12px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    animation: aparecer .25s ease-out;
+  }
+  .estado-guardado:empty { display: none; }
 
   /* ===== Contenido ===== */
   main {
     max-width: 640px; margin: 0 auto;
-    padding: 16px calc(16px + env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+    padding: 12px calc(12px + env(safe-area-inset-right)) calc(150px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
   }
   .tarjeta {
     background: var(--tarjeta);
     border: 2px solid var(--borde);
     border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 14px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 3px 0 var(--borde);
   }
   .tarjeta.ganando { border-color: var(--dorado); box-shadow: 0 0 0 3px rgba(201,162,39,.25); }
   .tarjeta.oficial { border-color: var(--verde); }
@@ -113,9 +128,9 @@
   .fecha-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .fecha-cab h3 { margin: 0; }
   .puntos { font-weight: 700; color: var(--rojo); white-space: nowrap; }
-  .votos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 8px; }
+  .votos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 8px 0 6px; }
   .voto {
-    min-height: 48px; border-radius: 12px; border: 2px solid var(--borde); background: #fff;
+    min-height: 44px; line-height: 1.1; border-radius: 12px; border: 2px solid var(--borde); background: #fff;
     color: var(--texto); font-weight: 600; font-size: 14px; padding: 4px;
   }
   .voto[aria-pressed="true"].si { background: var(--verde); border-color: var(--verde); color: #fff; }
@@ -125,10 +140,10 @@
   .veto-texto { color: var(--rojo); }
 
   /* ===== Puntos con iniciales (verde = sí, amarillo = si hace falta, rojo = veto) ===== */
-  .puntos-fila { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .puntos-fila { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
   .punto {
     display: inline-flex; align-items: center; justify-content: center;
-    min-width: 28px; height: 28px; padding: 0 5px; border-radius: 999px;
+    min-width: 26px; height: 26px; padding: 0 5px; border-radius: 999px;
     font-size: 14px; font-weight: 700; line-height: 1;
   }
   .punto.si { background: var(--verde); color: #fff; }
@@ -142,7 +157,7 @@
   .cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
   .cal-dia-semana { text-align: center; font-size: 14px; font-weight: 700; color: #5A4A3E; padding: 2px 0; }
   .cal-dia {
-    min-height: 52px; border-radius: 10px; border: 2px solid transparent; background: #fff;
+    min-height: 44px; border-radius: 10px; border: 2px solid transparent; background: #fff;
     color: var(--texto); padding: 3px 1px; display: flex; flex-direction: column; align-items: center; gap: 2px;
     font-size: 14px; font-weight: 600;
   }
@@ -162,15 +177,26 @@
   .btn-inicio { flex: none; width: 48px; height: 48px; padding: 0; border: 2px solid var(--dorado); border-radius: 12px; overflow: hidden; background: var(--crema); }
   /* Se amplía el cartel para que se vea la cara de Papá Noel */
   .btn-inicio img { width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(2.4); transform-origin: 45% 45%; }
-  header h1 { font-size: clamp(15px, 4.2vw, 26px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cab-yo { flex: none; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .cab-textos { min-width: 0; }
+  header h1 { font-size: clamp(17px, 5vw, 26px); display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; }
+  header h1 #cab-nombre { white-space: nowrap; }
+  .anos { font-family: var(--cuerpo); font-weight: 700; font-size: 14px; color: var(--dorado-texto); white-space: nowrap; }
+  .subtitulo { font-size: 14px; font-style: italic; color: #FFE9A8; }
   /* Franja del cartel al final de cada pestaña */
   .banner { display: block; width: 100%; height: 150px; object-fit: cover; object-position: 50% 46%; border-radius: 16px; border: 2px solid var(--borde); margin: 4px 0 8px; }
 
   /* ===== Comida, charlas y juegos ===== */
-  .item { border-top: 1px solid var(--borde); padding: 10px 0; }
+  .item { border-top: 1px dashed var(--borde); padding: 8px 0; display: flex; align-items: center; gap: 8px; }
+  .item-texto { flex: 1; min-width: 0; }
+  .item-botones { display: flex; gap: 4px; flex: none; }
+  .icono {
+    min-width: 44px; min-height: 44px; border-radius: 12px; border: 2px solid var(--borde);
+    background: #fff; font-size: 18px; padding: 0 8px; font-weight: 700; color: var(--verde);
+  }
+  .cat-titulo { font-weight: 700; color: var(--verde); margin: 10px 0 0; font-size: 16px; }
+  .cat-titulo:first-of-type { margin-top: 2px; }
   .item:first-of-type { border-top: 0; }
-  .item-titulo { font-weight: 700; font-size: 17px; }
+  .item-titulo { font-weight: 700; font-size: 16px; }
   .etiqueta {
     display: inline-block; background: #FBE3DF; color: #7A1A14; border-radius: 999px;
     font-size: 14px; font-weight: 600; padding: 2px 10px; margin-top: 4px;
@@ -179,6 +205,7 @@
   .acciones { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
   .acciones .btn { flex: 1; min-width: 120px; }
   .btn-peque { min-height: 44px; padding: 6px 12px; font-size: 14px; }
+  .acciones .btn-peque { flex: 0 1 auto; min-width: 0; }
   .aviso-vacio { color: #7A1A14; font-weight: 600; margin: 0; }
   .casilla { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; margin: 8px 0; }
   .casilla input { width: 24px; height: 24px; accent-color: var(--verde); }
@@ -205,8 +232,76 @@
     display: inline-block; background: var(--verde); color: var(--dorado-texto);
     font-weight: 700; font-size: 14px; border-radius: 999px; padding: 2px 10px; margin-bottom: 6px;
   }
-  .ganando h2 { margin-bottom: .2em; }
-  .grande { font-family: var(--titulos); font-size: 30px; color: var(--verde); }
+  .grande { font-family: var(--titulos); font-size: 24px; color: var(--verde); }
+  .ganando { display: flex; align-items: center; gap: 12px; }
+  .ganando .copa { font-size: 36px; animation: balanceo 2.5s ease-in-out infinite; }
+  .ganando .rotulo { font-size: 14px; font-weight: 700; color: var(--rojo); text-transform: uppercase; letter-spacing: .05em; }
+
+  /* ===== Gráfica de votos por fecha ===== */
+  .graf-fila { display: grid; grid-template-columns: 64px 1fr 34px; align-items: center; gap: 8px; margin: 6px 0; }
+  .graf-et { font-size: 14px; font-weight: 700; white-space: nowrap; }
+  .graf-barra { display: flex; height: 26px; border-radius: 999px; overflow: hidden; background: #EFE4CC; transform-origin: left; }
+  .graf-barra.anima { animation: crecer .9s cubic-bezier(.2,.8,.2,1) both; }
+  .graf-tramo { display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; min-width: 0; overflow: hidden; }
+  .graf-tramo.si { background: var(--verde); color: #fff; }
+  .graf-tramo.quizas { background: var(--dorado-texto); color: var(--texto); }
+  .graf-tramo.no { background: #8A7A6E; color: #fff; }
+  .graf-tramo.veto { background: var(--rojo); color: #fff; }
+  .graf-pts { font-weight: 700; color: var(--rojo); text-align: right; font-size: 14px; }
+  .leyenda { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 14px; margin-top: 8px; }
+  .leyenda i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+
+  /* ===== Formularios plegables (para que todo ocupe menos) ===== */
+  .plegable summary {
+    list-style: none; cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--titulos); font-size: 18px; color: var(--rojo);
+  }
+  .plegable summary::-webkit-details-marker { display: none; }
+  .plegable summary::after { content: "＋"; font-family: var(--cuerpo); font-weight: 700; color: var(--verde); transition: transform .25s; }
+  .plegable[open] summary::after { transform: rotate(45deg); }
+  .plegable[open] > :not(summary) { animation: aparecer .25s ease-out; }
+
+  /* ===== Botón y muro de sugerencias ===== */
+  .fab {
+    position: fixed; right: calc(14px + env(safe-area-inset-right)); bottom: calc(80px + env(safe-area-inset-bottom)); z-index: 15;
+    width: 56px; height: 56px; border-radius: 50%; border: 3px solid var(--dorado); background: var(--rojo);
+    font-size: 26px; box-shadow: 0 4px 12px rgba(0,0,0,.3); animation: saltito 2.8s ease-in-out 1s 2;
+  }
+  .sug { border-top: 1px dashed var(--borde); padding: 8px 0; display: flex; gap: 8px; align-items: flex-start; }
+  .sug p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .campo-texto { min-height: 88px; resize: vertical; }
+
+  /* ===== Guirnalda de luces bajo la cabecera ===== */
+  .guirnalda {
+    position: absolute; left: 0; right: 0; bottom: -10px; height: 10px; pointer-events: none;
+    background:
+      radial-gradient(circle, #F2C94C 0 3px, transparent 3.5px) 0 0 / 48px 10px repeat-x,
+      radial-gradient(circle, #7BD389 0 3px, transparent 3.5px) 16px 0 / 48px 10px repeat-x,
+      radial-gradient(circle, #FF8A80 0 3px, transparent 3.5px) 32px 0 / 48px 10px repeat-x;
+    animation: parpadeo 1.6s ease-in-out infinite alternate;
+  }
+
+  /* ===== Animaciones básicas ===== */
+  @keyframes aparecer { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes crecer { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes balanceo { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+  @keyframes parpadeo { from { opacity: .55; } to { opacity: 1; } }
+  @keyframes saltito { 0%, 20%, 100% { transform: none; } 8% { transform: translateY(-8px); } 14% { transform: translateY(0); } }
+  @keyframes flotar { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-6px) rotate(1deg); } }
+  section[data-tab]:not([hidden]) { animation: aparecer .3s ease-out; }
+  .pantalla:not([hidden]) .caja { animation: aparecer .4s ease-out; }
+  .logo-grande { animation: flotar 5s ease-in-out infinite; }
+  .modal-fondo:not([hidden]) { animation: aparecer .2s ease-out; }
+  .modal-fondo:not([hidden]) .modal { animation: subir .3s cubic-bezier(.2,.8,.2,1); }
+  @keyframes subir { from { transform: translateY(40px); } to { transform: none; } }
+  #aviso:not([hidden]) { animation: aparecer .25s ease-out; }
+  .btn, .voto, .icono, .cal-dia, .cal-flecha, nav button, .fab, .btn-cambiar, .btn-inicio { transition: transform .1s, background-color .2s; }
+  .btn:active, .voto:active, .icono:active, .cal-dia:active, .cal-flecha:active, nav button:active, .fab:active, .btn-cambiar:active, .btn-inicio:active { transform: scale(.94); }
+  .cal-dia.candidata:not(.oficial) { box-shadow: inset 0 0 0 1px #fff; }
+  /* Quien prefiera menos movimiento en su móvil, no ve animaciones */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
 
   /* ===== Pestañas inferiores verdes, activa en dorado ===== */
   nav {
@@ -288,16 +383,17 @@
     <div class="cab-fila">
       <div class="cab-izq">
         <button id="btn-inicio" class="btn-inicio" aria-label="Volver al inicio"><img src="logo.jpg" alt=""></button>
-        <h1 id="cab-nombre">NocheBuenFindeaño</h1>
+        <div class="cab-textos">
+          <h1><span id="cab-nombre">NocheBuenFindeaño</span><span class="anos" id="cab-anos"></span></h1>
+          <div class="subtitulo" id="cab-subtitulo"></div>
+        </div>
       </div>
-      <div class="cab-yo">
-        <span id="cab-yo"></span>
-        <button id="btn-cambiar" class="btn-cambiar">Cambiar</button>
-      </div>
+      <button id="btn-cambiar" class="btn-cambiar" aria-label="Cambiar de nombre"><span id="cab-yo"></span><small>Cambiar</small></button>
     </div>
     <div id="cab-oficial" class="cab-oficial" hidden></div>
-    <div id="estado" class="estado-guardado" aria-live="polite"></div>
+    <div class="guirnalda"></div>
   </header>
+  <div id="estado" class="estado-guardado" aria-live="polite"></div>
 
   <main>
     <!-- Pestaña FECHAS -->
@@ -311,17 +407,10 @@
           <button id="cal-despues" class="cal-flecha" aria-label="Mes siguiente">›</button>
         </div>
         <div id="cal-rejilla" class="cal-rejilla"></div>
-        <p class="suave" style="margin:8px 0 0">Toca un día para añadirlo como candidato, o una fecha marcada para ir a votarla.</p>
+        <p class="suave" style="margin:6px 0 0">Toca un día para proponerlo, o una fecha marcada para votarla.</p>
       </div>
 
-      <div class="tarjeta">
-        <h3>Añadir fecha candidata</h3>
-        <div class="fila">
-          <input id="inp-fecha" type="date" class="campo" aria-label="Fecha candidata">
-          <button id="btn-anadir-fecha" class="btn btn-rojo">Añadir</button>
-        </div>
-        <div id="fecha-error" class="error-texto"></div>
-      </div>
+      <div id="fechas-grafica"></div>
 
       <div id="fechas-lista"></div>
       <div id="fechas-faltan"></div>
@@ -330,8 +419,8 @@
     <!-- Pestañas que llegan en otras sesiones -->
     <!-- Pestaña COMIDA -->
     <section id="t-comida" data-tab hidden>
-      <div class="tarjeta" id="com-form">
-        <h3 id="com-form-titulo">¿Qué traes?</h3>
+      <details class="tarjeta plegable" id="com-form">
+        <summary id="com-form-titulo">🥘 ¿Qué traes?</summary>
         <label for="com-plato">Plato o bebida</label>
         <input id="com-plato" class="campo" maxlength="60" placeholder="Ej.: Tortilla de patatas">
         <label for="com-cat">Categoría</label>
@@ -343,7 +432,7 @@
           <button id="com-guardar" class="btn btn-rojo">Apuntar</button>
           <button id="com-cancelar" class="btn btn-borde" hidden>Cancelar</button>
         </div>
-      </div>
+      </details>
       <div id="comida-lista"></div>
     </section>
 
@@ -357,8 +446,8 @@
           <button id="cha-guia" class="btn btn-borde">📖 Ver la guía</button>
         </div>
       </div>
-      <div class="tarjeta" id="cha-form">
-        <h3 id="cha-form-titulo">Apúntate</h3>
+      <details class="tarjeta plegable" id="cha-form">
+        <summary id="cha-form-titulo">🎤 Apúntate a dar una charla</summary>
         <label for="cha-tema">Tema</label>
         <input id="cha-tema" class="campo" maxlength="80" placeholder="Ej.: El mundo secreto del café">
         <label for="cha-enlace">Enlace a la presentación (opcional)</label>
@@ -369,14 +458,14 @@
           <button id="cha-guardar" class="btn btn-rojo">Apuntarme</button>
           <button id="cha-cancelar" class="btn btn-borde" hidden>Cancelar</button>
         </div>
-      </div>
+      </details>
       <div id="charlas-lista"></div>
     </section>
 
     <!-- Pestaña JUEGOS -->
     <section id="t-juegos" data-tab hidden>
-      <div class="tarjeta" id="jue-form">
-        <h3 id="jue-form-titulo">¿Traes un juego?</h3>
+      <details class="tarjeta plegable" id="jue-form">
+        <summary id="jue-form-titulo">🎲 ¿Traes un juego?</summary>
         <label for="jue-juego">Juego</label>
         <input id="jue-juego" class="campo" maxlength="40" placeholder="Ej.: Dixit">
         <label for="jue-jugadores">Número de jugadores</label>
@@ -386,7 +475,7 @@
           <button id="jue-guardar" class="btn btn-rojo">Apuntar juego</button>
           <button id="jue-cancelar" class="btn btn-borde" hidden>Cancelar</button>
         </div>
-      </div>
+      </details>
       <div id="juegos-lista"></div>
     </section>
 
@@ -405,10 +494,26 @@
 
 <div id="aviso" role="status" hidden></div>
 
+<!-- Muro de sugerencias (lo ve todo el grupo) -->
+<button id="btn-sugerencias" class="fab" aria-label="Sugerencias" hidden>💡</button>
+<div id="modal-sug" class="modal-fondo" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sug-titulo">
+    <h2 id="sug-titulo">💡 Sugerencias</h2>
+    <p class="suave">¿Una idea para la fiesta o para la app? Escríbela aquí y la verá todo el grupo.</p>
+    <textarea id="sug-texto" class="campo campo-texto" maxlength="280" placeholder="Ej.: ¿y si hacemos amigo invisible?"></textarea>
+    <div id="sug-error" class="error-texto"></div>
+    <div class="acciones">
+      <button id="sug-enviar" class="btn btn-rojo">Enviar</button>
+      <button id="sug-cerrar" class="btn btn-borde">Cerrar</button>
+    </div>
+    <div id="sug-lista" style="margin-top:12px"></div>
+  </div>
+</div>
+
 <!-- Ventana con la guía de las charlas (contenido de guia.md) -->
 <div id="modal-guia" class="modal-fondo" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="guia-titulo">
-    <h2 id="guia-titulo">Cómo preparar tu charla en 10 minutos</h2>
+    <h2 id="guia-titulo">Cómo preparar tu charla en menos de 5 minutos</h2>
     <p>Piensa en la IA como un camarero: tú eliges el plato y él lo prepara.</p>
     <ol>
       <li><b>Copia</b> el prompt con el botón "Copiar prompt" y pégalo en tu IA (ChatGPT, Claude, Gemini…).</li>
@@ -464,6 +569,13 @@ const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/content
 // Solo esta persona puede marcar la fecha oficial
 const ORGANIZADOR = "Pablo";
 
+// Lo que se ve en la cabecera
+const ANOS = "2026-2027";
+const SUBTITULO = "Familia de Adoce";
+
+// Iniciales fijas para algunos nombres (en minúsculas y sin tildes)
+const INICIALES_FIJAS = { pablo: "PP", patri: "PF" };
+
 // Cada cuánto se releen los datos mientras la app está visible
 const RELEER_CADA_MS = 30000;
 
@@ -485,6 +597,7 @@ let datos = null;      // contenido de datos.json
 let shaActual = null;  // versión de datos.json que tenemos
 let guardando = 0;     // cuántos guardados hay en marcha
 let colaGuardado = Promise.resolve(); // para guardar los cambios de uno en uno
+let graficaAnimada = false; // la gráfica solo se anima la primera vez
 let mesVisto = null;   // mes que enseña el calendario: { a: 2026, m: 11 } (m de 0 a 11)
 
 /* =====================================================================
@@ -542,6 +655,8 @@ function calcularIniciales(nombres) {
   const limpio = (n) => n.replace(/\s+/g, "");
   const res = {};
   for (const n of lista) {
+    const fija = INICIALES_FIJAS[normalizar(n)];
+    if (fija) { res[n] = fija; continue; }
     let largo = 1;
     while (largo < limpio(n).length &&
            lista.some((o) => o !== n && normalizar(limpio(o).slice(0, largo)) === normalizar(limpio(n).slice(0, largo)))) largo++;
@@ -552,6 +667,7 @@ function calcularIniciales(nombres) {
 }
 
 // Fila de puntos de colores de una fecha (sí, si hace falta, veto)
+// (los puntos "no" no se pintan)
 function puntosHtml(r, ini) {
   const uno = (nombre, tipo) => `<span class="punto ${tipo}" title="${esc(nombre)}: ${TEXTO_VOTO[tipo]}">${esc(ini[nombre] || nombre.charAt(0))}</span>`;
   return [...r.si.map((n) => uno(n, "si")), ...r.quizas.map((n) => uno(n, "quizas")), ...r.veto.map((n) => uno(n, "veto"))].join("");
@@ -580,6 +696,7 @@ function estado(texto, borrarLuego) {
 // Muestra solo una pantalla
 function mostrar(id) {
   for (const p of ["p-sin-clave", "p-clave-mala", "p-cargando", "p-nombre", "p-app"]) $(p).hidden = p !== id;
+  $("btn-sugerencias").hidden = id !== "p-app";
 }
 
 /* =====================================================================
@@ -616,6 +733,13 @@ function completar(d) {
     texto(j, "juego"); texto(j, "jugadores");
     if (!Array.isArray(j.votos)) j.votos = [];
     j.votos = [...new Set(j.votos.filter((n) => typeof n === "string"))];
+  }
+  if (!Array.isArray(d.sugerencias)) d.sugerencias = [];
+  d.sugerencias = d.sugerencias.filter((x) => x && typeof x === "object" && typeof x.texto === "string");
+  for (const x of d.sugerencias) {
+    if (typeof x.id !== "string" || !x.id) x.id = nuevoId();
+    if (typeof x.nombre !== "string") x.nombre = "";
+    if (typeof x.fecha !== "string") x.fecha = "";
   }
   if (!d.ajustes || typeof d.ajustes !== "object") d.ajustes = {};
   if (typeof d.ajustes.minutosCharla !== "number") d.ajustes.minutosCharla = 3;
@@ -739,10 +863,12 @@ function anadirFecha(d, id) {
   d.fechas.sort((a, b) => a.id.localeCompare(b.id));
 }
 
+// respuesta: "si", "quizas", "no", "veto", o null para quitar el voto
 function votar(d, fechaId, nombre, respuesta) {
   if (!d.votos[fechaId] || typeof d.votos[fechaId] !== "object") d.votos[fechaId] = {};
-  if (d.votos[fechaId][nombre] === respuesta) return false;
-  d.votos[fechaId][nombre] = respuesta; // "si", "quizas", "no" o "veto"
+  if ((d.votos[fechaId][nombre] || null) === respuesta) return false;
+  if (respuesta) d.votos[fechaId][nombre] = respuesta;
+  else delete d.votos[fechaId][nombre];
 }
 
 function marcarOficial(d, fechaId) {
@@ -816,12 +942,15 @@ function pintar() {
   pintarComida();
   pintarCharlas();
   pintarJuegos();
+  pintarSugerencias();
 }
 
 function pintarCabecera() {
   $("cab-nombre").textContent = datos.evento.nombre;
-  document.title = datos.evento.nombre;
-  $("cab-yo").textContent = `Hola, ${yo}`;
+  $("cab-anos").textContent = ANOS;
+  $("cab-subtitulo").textContent = SUBTITULO;
+  document.title = `${datos.evento.nombre} ${ANOS}`;
+  $("cab-yo").textContent = yo;
   const of = datos.evento.fechaOficial;
   const cab = $("cab-oficial");
   if (of) {
@@ -848,60 +977,58 @@ function pintarFechas() {
   const fechas = datos.fechas.map((f) => ({ ...f, r: recuento(f.id) }));
   const ini = calcularIniciales([...datos.participantes, ...fechas.flatMap((f) => Object.keys(datos.votos[f.id] || {}))]);
   pintarCalendario(fechas, ini);
+  pintarGrafica(fechas);
   // Ranking: más puntos primero; si empatan, la más temprana
   const ranking = [...fechas].sort((a, b) => b.r.puntos - a.r.puntos || a.id.localeCompare(b.id));
 
-  // --- Tarjeta "Va ganando" ---
+  // --- Tarjeta "Va ganando" (compacta) ---
   const top = ranking[0];
   if (top && top.r.puntos > 0) {
     const empatadas = ranking.filter((f) => f.r.puntos === top.r.puntos);
+    const vetos = empatadas.filter((f) => f.r.veto.length).map((f) => f.r.veto.join(", "));
     $("fechas-ganando").innerHTML = `
       <div class="tarjeta ganando">
-        <h2>🏆 Va ganando</h2>
-        <div class="grande">${empatadas.map((f) => esc(f.etiqueta)).join(" / ")}</div>
-        <p class="suave">${top.r.puntos} puntos · ${top.r.si.length} sí · ${top.r.quizas.length} si hace falta
-        ${empatadas.length > 1 ? " · ¡empate!" : ""}</p>
-        ${empatadas.some((f) => f.r.veto.length)
-          ? `<p class="veto-texto"><b>⛔ Vetos:</b> ${empatadas.filter((f) => f.r.veto.length).map((f) => esc(f.r.veto.join(", "))).join(" / ")}</p>` : ""}
+        <span class="copa" aria-hidden="true">🏆</span>
+        <div>
+          <div class="rotulo">Va ganando${empatadas.length > 1 ? " (empate)" : ""}</div>
+          <div class="grande">${empatadas.map((f) => esc(f.etiqueta)).join(" / ")}</div>
+          <div class="suave">${top.r.puntos} pts · ${top.r.si.length} sí · ${top.r.quizas.length} si hace falta</div>
+          ${vetos.length ? `<div class="suave veto-texto">⛔ Vetan: ${esc(vetos.join(" / "))}</div>` : ""}
+        </div>
       </div>`;
   } else {
-    $("fechas-ganando").innerHTML = fechas.length
-      ? `<div class="tarjeta"><p class="suave">Aún no hay votos. ¡Vota abajo!</p></div>` : "";
+    $("fechas-ganando").innerHTML = "";
   }
 
   // --- Lista de fechas (en orden de ranking) ---
   if (!fechas.length) {
-    $("fechas-lista").innerHTML = `<div class="tarjeta"><p>Todavía no hay fechas. Añade la primera arriba 👆</p></div>`;
+    $("fechas-lista").innerHTML = `<div class="tarjeta"><p>Todavía no hay fechas. Toca un día del calendario para proponer la primera 👆</p></div>`;
   } else {
     const oficial = datos.evento.fechaOficial;
-    $("fechas-lista").innerHTML = `<h2>Ranking</h2>` + ranking.map((f, i) => {
+    $("fechas-lista").innerHTML = `<h2>Ranking</h2><p class="suave" style="margin:-4px 0 8px">Toca tu voto otra vez para quitarlo.</p>` + ranking.map((f, i) => {
       const mio = (datos.votos[f.id] || {})[yo];
-      const botonVoto = (resp) =>
-        `<button class="voto ${resp}" data-votar="${esc(f.id)}" data-resp="${resp}" aria-pressed="${mio === resp}">${TEXTO_VOTO[resp]}</button>`;
-      const lista = (arr) => arr.length ? arr.map(esc).join(", ") : "—";
+      const botonVoto = (resp, icono) =>
+        `<button class="voto ${resp}" data-votar="${esc(f.id)}" data-resp="${resp}" aria-pressed="${mio === resp}">${icono}<br>${TEXTO_VOTO[resp]}</button>`;
       const esOficial = oficial === f.id;
       let botonOficial = "";
       if (soyOrganizador()) {
         botonOficial = esOficial
-          ? `<button class="btn btn-borde ancho" data-oficial="">Quitar como fecha oficial</button>`
-          : `<button class="btn btn-verde ancho" data-oficial="${esc(f.id)}">⭐ Marcar como fecha oficial</button>`;
+          ? `<button class="btn btn-borde btn-peque" data-oficial="">Quitar como oficial</button>`
+          : `<button class="btn btn-verde btn-peque" data-oficial="${esc(f.id)}">⭐ Hacer oficial</button>`;
       }
       return `
         <div class="tarjeta ${esOficial ? "oficial" : ""}" data-tarjeta-fecha="${esc(f.id)}">
-          ${esOficial ? `<span class="etiqueta-oficial">🎉 Fecha oficial</span>` : ""}
           <div class="fecha-cab">
-            <h3>${i + 1}. ${esc(f.etiqueta)}</h3>
+            <h3>${i + 1}. ${esc(f.etiqueta)} ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>
             <span class="puntos">${f.r.puntos} pts</span>
           </div>
           <div class="votos" role="group" aria-label="Tu voto para ${esc(f.etiqueta)}">
-            ${botonVoto("si")}${botonVoto("quizas")}${botonVoto("no")}${botonVoto("veto")}
+            ${botonVoto("si", "✅")}${botonVoto("quizas", "🤷")}${botonVoto("no", "❌")}${botonVoto("veto", "⛔")}
           </div>
-          <p class="resumen-votos"><b>Sí:</b> ${lista(f.r.si)}</p>
-          <p class="resumen-votos"><b>Si hace falta:</b> ${lista(f.r.quizas)}</p>
-          <p class="resumen-votos"><b>No:</b> ${lista(f.r.no)}</p>
-          ${f.r.veto.length ? `<p class="resumen-votos veto-texto"><b>⛔ Veto:</b> ${lista(f.r.veto)}</p>` : ""}
           <div class="puntos-fila">${puntosHtml(f.r, ini)}</div>
-          ${botonOficial ? `<div style="margin-top:12px">${botonOficial}</div>` : ""}
+          ${f.r.veto.length ? `<p class="resumen-votos veto-texto"><b>⛔ Vetan:</b> ${f.r.veto.map(esc).join(", ")}</p>` : ""}
+          ${f.r.no.length ? `<p class="resumen-votos suave"><b>No:</b> ${f.r.no.map(esc).join(", ")}</p>` : ""}
+          ${botonOficial ? `<div class="acciones">${botonOficial}</div>` : ""}
         </div>`;
     }).join("");
   }
@@ -915,9 +1042,42 @@ function pintarFechas() {
     <div class="tarjeta">
       <h3>⏳ Faltan por votar</h3>
       ${faltan.length
-        ? `<p>${faltan.map((x) => esc(x.p) + (x.n < fechas.length ? ` <span class="suave">(${x.n} ${x.n === 1 ? "fecha" : "fechas"})</span>` : "")).join(", ")}</p>`
-        : `<p>¡Ya ha votado todo el mundo! 🎉</p>`}
+        ? `<p style="margin:0">${faltan.map((x) => esc(x.p) + (x.n < fechas.length ? ` <span class="suave">(${x.n})</span>` : "")).join(", ")}</p>`
+        : `<p style="margin:0">¡Ya ha votado todo el mundo! 🎉</p>`}
     </div>`;
+}
+
+// Gráfica de barras: una barra por fecha, en orden de calendario
+function pintarGrafica(fechas) {
+  if (!fechas.length) { $("fechas-grafica").innerHTML = ""; return; }
+  const total = Math.max(datos.participantes.length, ...fechas.map((f) => f.r.si.length + f.r.quizas.length + f.r.no.length + f.r.veto.length), 1);
+  const anima = !graficaAnimada ? "anima" : "";
+  const filas = fechas.map((f, i) => {
+    const tramo = (tipo) => {
+      const n = f.r[tipo].length;
+      return n ? `<span class="graf-tramo ${tipo}" style="width:${(n / total) * 100}%" title="${TEXTO_VOTO[tipo]}: ${n}">${n}</span>` : "";
+    };
+    const [, , d] = f.id.split("-");
+    return `
+      <div class="graf-fila">
+        <span class="graf-et">${esc(f.etiqueta.split(" ")[0])} ${Number(d)}</span>
+        <div class="graf-barra ${anima}" style="animation-delay:${i * 80}ms">${tramo("si")}${tramo("quizas")}${tramo("no")}${tramo("veto")}</div>
+        <span class="graf-pts">${f.r.puntos}</span>
+      </div>`;
+  }).join("");
+  $("fechas-grafica").innerHTML = `
+    <div class="tarjeta">
+      <h3>📊 Así van los votos</h3>
+      ${filas}
+      <div class="leyenda">
+        <span><i style="background:var(--verde)"></i>Sí</span>
+        <span><i style="background:var(--dorado-texto)"></i>Si hace falta</span>
+        <span><i style="background:#8A7A6E"></i>No</span>
+        <span><i style="background:var(--rojo)"></i>Veto</span>
+        <span class="suave">· número = puntos</span>
+      </div>
+    </div>`;
+  graficaAnimada = true;
 }
 
 /* =====================================================================
@@ -1003,24 +1163,24 @@ function pintarComida() {
   const sel = $("com-cat");
   if (!sel.options.length) sel.innerHTML = CATEGORIAS.map((c) => `<option value="${c.id}">${c.emoji} ${c.texto}</option>`).join("");
 
-  $("comida-lista").innerHTML = CATEGORIAS.map((cat) => {
+  const bloques = CATEGORIAS.map((cat) => {
     const platos = datos.comida.filter((c) => c.categoria === cat.id);
     const items = platos.map((c) => `
       <div class="item">
-        <div class="item-titulo">${esc(c.plato)}</div>
-        <div class="suave">Lo trae ${esc(c.nombre)}</div>
-        ${c.notas ? `<span class="etiqueta">⚠️ ${esc(c.notas)}</span>` : ""}
-        ${c.nombre === yo ? `<div class="acciones">
-          <button class="btn btn-borde btn-peque" data-com-editar="${esc(c.id)}">✏️ Editar</button>
-          <button class="btn btn-borde btn-peque" data-com-borrar="${esc(c.id)}">🗑️ Borrar</button>
+        <div class="item-texto">
+          <span class="item-titulo">${esc(c.plato)}</span> <span class="suave">· ${esc(c.nombre)}</span>
+          ${c.notas ? `<br><span class="etiqueta">⚠️ ${esc(c.notas)}</span>` : ""}
+        </div>
+        ${c.nombre === yo ? `<div class="item-botones">
+          <button class="icono" data-com-editar="${esc(c.id)}" aria-label="Editar ${esc(c.plato)}">✏️</button>
+          <button class="icono" data-com-borrar="${esc(c.id)}" aria-label="Borrar ${esc(c.plato)}">🗑️</button>
         </div>` : ""}
       </div>`).join("");
     return `
-      <div class="tarjeta">
-        <h3>${cat.emoji} ${cat.texto}</h3>
-        ${items || `<p class="aviso-vacio">⚠️ Nadie trae ${cat.id === "otros" ? "otras cosas" : cat.texto.toLowerCase()} todavía</p>`}
-      </div>`;
+      <div class="cat-titulo">${cat.emoji} ${cat.texto} ${platos.length ? `<span class="suave">(${platos.length})</span>` : ""}</div>
+      ${items || `<p class="aviso-vacio suave">⚠️ Nadie trae ${cat.id === "otros" ? "otras cosas" : cat.texto.toLowerCase()} todavía</p>`}`;
   }).join("");
+  $("comida-lista").innerHTML = `<div class="tarjeta"><h3>🍽️ El menú</h3>${bloques}</div>`;
 }
 
 function limpiarFormComida() {
@@ -1029,7 +1189,8 @@ function limpiarFormComida() {
   $("com-notas").value = "";
   $("com-cat").value = "entrante";
   $("com-error").textContent = "";
-  $("com-form-titulo").textContent = "¿Qué traes?";
+  $("com-form-titulo").textContent = "🥘 ¿Qué traes?";
+  $("com-form").open = false;
   $("com-guardar").textContent = "Apuntar";
   $("com-cancelar").hidden = true;
 }
@@ -1078,20 +1239,22 @@ function pintarCharlas() {
     const url = enlaceSeguro(c.enlace);
     return `
       <div class="item">
-        <div class="item-titulo">${esc(c.tema)}</div>
-        <div class="suave">Presenta ${esc(c.nombre)}</div>
-        ${c.remoto ? `<span class="etiqueta verde">💻 Por videollamada</span>` : ""}
-        ${url ? `<div style="margin-top:4px"><a href="${esc(url)}" target="_blank" rel="noopener">🔗 Ver presentación</a></div>` : ""}
-        ${c.nombre === yo ? `<div class="acciones">
-          <button class="btn btn-borde btn-peque" data-cha-editar>✏️ Editar</button>
-          <button class="btn btn-borde btn-peque" data-cha-borrar>🗑️ Borrar</button>
+        <div class="item-texto">
+          <div class="item-titulo">${esc(c.tema)}</div>
+          <div class="suave">Presenta ${esc(c.nombre)}</div>
+          ${c.remoto ? `<span class="etiqueta verde">💻 Por videollamada</span>` : ""}
+          ${url ? ` <a href="${esc(url)}" target="_blank" rel="noopener">🔗 Ver presentación</a>` : ""}
+        </div>
+        ${c.nombre === yo ? `<div class="item-botones">
+          <button class="icono" data-cha-editar aria-label="Editar mi charla">✏️</button>
+          <button class="icono" data-cha-borrar aria-label="Borrar mi charla">🗑️</button>
         </div>` : ""}
       </div>`;
   }).join("");
   $("charlas-lista").innerHTML = `
     <div class="tarjeta">
-      <h3>Apuntadas (${datos.charlas.length})</h3>
-      ${lista || `<p class="suave">Todavía no hay charlas. ¡Anímate a ser la primera persona!</p>`}
+      <h3>🎤 Apuntadas (${datos.charlas.length})</h3>
+      ${lista || `<p class="suave" style="margin:0">Todavía no hay charlas. ¡Anímate a ser la primera persona!</p>`}
     </div>`;
 }
 
@@ -1101,7 +1264,8 @@ function abrirEdicionCharla() {
   $("cha-tema").value = mia ? mia.tema : "";
   $("cha-enlace").value = mia ? mia.enlace : "";
   $("cha-remoto").checked = mia ? !!mia.remoto : false;
-  $("cha-form-titulo").textContent = "Cambia tu charla";
+  $("cha-form-titulo").textContent = "✏️ Cambia tu charla";
+  $("cha-form").open = true;
   $("cha-guardar").textContent = "Guardar cambios";
   $("cha-cancelar").hidden = false;
   pintarCharlas();
@@ -1114,7 +1278,8 @@ function limpiarFormCharla() {
   $("cha-enlace").value = "";
   $("cha-remoto").checked = false;
   $("cha-error").textContent = "";
-  $("cha-form-titulo").textContent = "Apúntate";
+  $("cha-form-titulo").textContent = "🎤 Apúntate a dar una charla";
+  $("cha-form").open = false;
   $("cha-guardar").textContent = "Apuntarme";
   $("cha-cancelar").hidden = true;
 }
@@ -1177,22 +1342,24 @@ function pintarJuegos() {
     const voto = j.votos.includes(yo);
     return `
       <div class="item">
-        <div class="item-titulo">${esc(j.juego)}</div>
-        <div class="suave">${j.jugadores ? `👥 ${esc(j.jugadores)} jugadores · ` : ""}Lo trae ${esc(j.nombre)}</div>
-        <div class="suave">${j.votos.length ? `Quieren jugar: ${j.votos.map(esc).join(", ")}` : "Sin votos todavía"}</div>
-        <div class="acciones">
-          <button class="btn btn-borde btn-peque voto-juego" data-jue-votar="${esc(j.id)}" aria-pressed="${voto}">
-            ${voto ? "✅ Quiero jugar" : "👍 Quiero jugar"} (${j.votos.length})</button>
+        <div class="item-texto">
+          <div class="item-titulo">${esc(j.juego)}</div>
+          <div class="suave">${j.jugadores ? `👥 ${esc(j.jugadores)} · ` : ""}Lo trae ${esc(j.nombre)}</div>
+          ${j.votos.length ? `<div class="suave">Quieren jugar: ${j.votos.map(esc).join(", ")}</div>` : ""}
+        </div>
+        <div class="item-botones">
+          <button class="icono voto-juego" data-jue-votar="${esc(j.id)}" aria-pressed="${voto}"
+            aria-label="${voto ? "Quitar mi voto" : "Quiero jugar"}">👍 ${j.votos.length}</button>
           ${j.nombre === yo ? `
-            <button class="btn btn-borde btn-peque" data-jue-editar="${esc(j.id)}">✏️ Editar</button>
-            <button class="btn btn-borde btn-peque" data-jue-borrar="${esc(j.id)}">🗑️ Borrar</button>` : ""}
+            <button class="icono" data-jue-editar="${esc(j.id)}" aria-label="Editar ${esc(j.juego)}">✏️</button>
+            <button class="icono" data-jue-borrar="${esc(j.id)}" aria-label="Borrar ${esc(j.juego)}">🗑️</button>` : ""}
         </div>
       </div>`;
   }).join("");
   $("juegos-lista").innerHTML = `
     <div class="tarjeta">
       <h3>🎲 Juegos (${juegos.length})</h3>
-      ${lista || `<p class="suave">Todavía no hay juegos. ¿Traes uno?</p>`}
+      ${lista || `<p class="suave" style="margin:0">Todavía no hay juegos. ¿Traes uno?</p>`}
     </div>`;
 }
 
@@ -1201,7 +1368,8 @@ function limpiarFormJuego() {
   $("jue-juego").value = "";
   $("jue-jugadores").value = "";
   $("jue-error").textContent = "";
-  $("jue-form-titulo").textContent = "¿Traes un juego?";
+  $("jue-form-titulo").textContent = "🎲 ¿Traes un juego?";
+  $("jue-form").open = false;
   $("jue-guardar").textContent = "Apuntar juego";
   $("jue-cancelar").hidden = true;
 }
@@ -1218,6 +1386,44 @@ function pulsarGuardarJuego() {
     guardar(`${yo} trae ${juego}`, (d) => anadirJuego(d, nuevo));
   }
   limpiarFormJuego();
+}
+
+/* =====================================================================
+   SUGERENCIAS (muro que ve todo el grupo)
+   ===================================================================== */
+function anadirSugerencia(d, sug) { d.sugerencias.push(sug); }
+function borrarSugerencia(d, id, nombre) {
+  const antes = d.sugerencias.length;
+  d.sugerencias = d.sugerencias.filter((x) => !(x.id === id && x.nombre === nombre));
+  if (d.sugerencias.length === antes) return false;
+}
+
+function pintarSugerencias() {
+  $("btn-sugerencias").hidden = $("p-app").hidden;
+  const n = datos.sugerencias.length;
+  $("btn-sugerencias").setAttribute("aria-label", `Sugerencias (${n})`);
+  const lista = [...datos.sugerencias].reverse().map((x) => {
+    const f = x.fecha ? new Date(x.fecha) : null;
+    const cuando = f && !isNaN(f) ? ` · ${f.getDate()} ${MESES[f.getMonth()]}` : "";
+    return `
+      <div class="sug">
+        <div style="flex:1;min-width:0">
+          <p>${esc(x.texto)}</p>
+          <div class="suave">— ${esc(x.nombre)}${cuando}</div>
+        </div>
+        ${x.nombre === yo ? `<button class="icono" data-sug-borrar="${esc(x.id)}" aria-label="Borrar sugerencia">🗑️</button>` : ""}
+      </div>`;
+  }).join("");
+  $("sug-lista").innerHTML = lista || `<p class="suave">Aún no hay sugerencias. ¡Sé la primera persona!</p>`;
+}
+
+function pulsarEnviarSugerencia() {
+  const texto = $("sug-texto").value.trim();
+  if (!texto) { $("sug-error").textContent = "Escribe tu sugerencia."; return; }
+  $("sug-error").textContent = "";
+  $("sug-texto").value = "";
+  const sug = { id: nuevoId(), nombre: yo, texto, fecha: new Date().toISOString() };
+  guardar(`${yo} deja una sugerencia`, (d) => anadirSugerencia(d, sug));
 }
 
 /* =====================================================================
@@ -1253,17 +1459,6 @@ document.querySelector("nav").addEventListener("click", (e) => {
   if (b) irA(b.dataset.ir);
 });
 
-// Añadir fecha candidata
-$("btn-anadir-fecha").addEventListener("click", () => {
-  const id = $("inp-fecha").value; // "AAAA-MM-DD"
-  const err = $("fecha-error");
-  err.textContent = "";
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(id)) { err.textContent = "Elige una fecha."; return; }
-  if (datos.fechas.some((f) => f.id === id)) { err.textContent = "Esa fecha ya está en la lista."; return; }
-  $("inp-fecha").value = "";
-  guardar(`${yo} añade la fecha ${id}`, (d) => anadirFecha(d, id));
-});
-
 // Calendario: flechas y tocar un día
 $("cal-antes").addEventListener("click", () => moverMes(-1));
 $("cal-despues").addEventListener("click", () => moverMes(1));
@@ -1289,8 +1484,12 @@ $("cal-rejilla").addEventListener("click", (e) => {
 $("fechas-lista").addEventListener("click", (e) => {
   const v = e.target.closest("[data-votar]");
   if (v) {
-    const fechaId = v.dataset.votar, resp = v.dataset.resp;
-    guardar(`${yo} vota "${TEXTO_VOTO[resp]}" para ${fechaId}`, (d) => votar(d, fechaId, yo, resp));
+    const fechaId = v.dataset.votar;
+    // Si tocas el voto que ya tenías, se quita
+    const mio = (datos.votos[fechaId] || {})[yo];
+    const resp = mio === v.dataset.resp ? null : v.dataset.resp;
+    guardar(resp ? `${yo} vota "${TEXTO_VOTO[resp]}" para ${fechaId}` : `${yo} quita su voto de ${fechaId}`,
+      (d) => votar(d, fechaId, yo, resp));
     return;
   }
   const o = e.target.closest("[data-oficial]");
@@ -1308,6 +1507,18 @@ setInterval(() => { if (!document.hidden) refrescar(); }, RELEER_CADA_MS);
 // Botón del logo (arriba a la izquierda): volver a Fechas, arriba del todo
 $("btn-inicio").addEventListener("click", () => irA("fechas"));
 
+// --- Sugerencias ---
+$("btn-sugerencias").addEventListener("click", () => { $("modal-sug").hidden = false; });
+$("sug-cerrar").addEventListener("click", () => { $("modal-sug").hidden = true; });
+$("modal-sug").addEventListener("click", (e) => { if (e.target.id === "modal-sug") $("modal-sug").hidden = true; });
+$("sug-enviar").addEventListener("click", pulsarEnviarSugerencia);
+$("sug-lista").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-sug-borrar]");
+  if (!b || !confirm("¿Borrar tu sugerencia?")) return;
+  const id = b.dataset.sugBorrar;
+  guardar(`${yo} borra una sugerencia`, (d) => borrarSugerencia(d, id, yo));
+});
+
 // --- Comida ---
 $("com-guardar").addEventListener("click", pulsarGuardarComida);
 $("com-cancelar").addEventListener("click", limpiarFormComida);
@@ -1320,7 +1531,8 @@ $("comida-lista").addEventListener("click", (e) => {
     $("com-plato").value = c.plato;
     $("com-cat").value = c.categoria;
     $("com-notas").value = c.notas;
-    $("com-form-titulo").textContent = "Cambia tu plato";
+    $("com-form-titulo").textContent = "✏️ Cambia tu plato";
+    $("com-form").open = true;
     $("com-guardar").textContent = "Guardar cambios";
     $("com-cancelar").hidden = false;
     $("com-form").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1371,7 +1583,8 @@ $("juegos-lista").addEventListener("click", (e) => {
     editandoJuego = j.id;
     $("jue-juego").value = j.juego;
     $("jue-jugadores").value = j.jugadores;
-    $("jue-form-titulo").textContent = "Cambia tu juego";
+    $("jue-form-titulo").textContent = "✏️ Cambia tu juego";
+    $("jue-form").open = true;
     $("jue-guardar").textContent = "Guardar cambios";
     $("jue-cancelar").hidden = false;
     $("jue-form").scrollIntoView({ behavior: "smooth", block: "start" });

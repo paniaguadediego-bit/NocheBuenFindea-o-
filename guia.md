@@ -1,4 +1,4 @@
-# Cómo preparar tu charla en 10 minutos
+# Cómo preparar tu charla en menos de 5 minutos
 
 Piensa en la IA como un camarero: tú eliges el plato y él lo prepara.
 
