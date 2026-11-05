@@ -353,6 +353,60 @@
   .confeti { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 2px; animation: caer linear forwards; pointer-events: none; }
   @keyframes caer { to { transform: translateY(110vh) rotate(720deg); } }
 
+  /* ===== Juegos en vivo ===== */
+  .segmentos { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #EFE4CC; padding: 4px; border-radius: 12px; margin-bottom: 8px; }
+  .segmentos button, .vistas button {
+    min-height: 36px; border: 0; border-radius: 9px; background: transparent; font-weight: 700; font-size: 14px; color: var(--verde);
+  }
+  .segmentos button[aria-pressed="true"], .vistas button[aria-pressed="true"] { background: var(--verde); color: var(--dorado-texto); }
+  .vistas { display: flex; gap: 4px; overflow-x: auto; background: #EFE4CC; padding: 4px; border-radius: 12px; margin-top: 8px; }
+  .vistas button { flex: none; padding: 0 10px; font-size: 13px; }
+  .caja-ronda { background: #FFF6D9; border: 2px solid var(--dorado); border-radius: 12px; padding: 8px 10px; margin: 6px 0; }
+  .caja-ronda .pregunta { font-weight: 700; color: var(--verde); }
+  .caja-ronda .cita { font-family: var(--titulos); font-size: 20px; color: var(--rojo); margin: 4px 0; overflow-wrap: anywhere; }
+  .rejilla-nombres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 6px; }
+  .rejilla-nombres button, .opcion {
+    min-height: 38px; border-radius: 10px; border: 2px solid var(--borde); background: #fff; font-weight: 600; font-size: 14px; color: var(--texto); padding: 2px 4px;
+  }
+  .rejilla-nombres button[aria-pressed="true"], .opcion[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+  .opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 6px; }
+  .opcion { text-align: left; padding: 6px 8px; }
+  .opcion .letra { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--dorado-texto); color: var(--texto); text-align: center; line-height: 22px; font-weight: 700; margin-right: 4px; font-size: 12px; }
+  .opcion.correcta { background: #DDEBE3; border-color: var(--verde); }
+  .opcion.fallo { background: #FBE3DF; border-color: var(--rojo); }
+  .resp-fila { display: flex; gap: 4px; margin-top: 4px; }
+  .resp-fila .campo { flex: 1; min-width: 0; }
+  .marcador { margin: 4px 0 0; padding-left: 22px; }
+  .marcador li { padding: 1px 0; }
+  .cuenta { font-family: var(--titulos); font-size: 28px; color: var(--rojo); text-align: center; }
+  .ganador { font-family: var(--titulos); font-size: 22px; color: var(--verde); animation: aparecer .6s ease-out; }
+  .redoble { animation: latido .4s ease-in-out infinite; display: inline-block; }
+
+  /* Juegos en la tele */
+  body.modo-tele #fie-juego .caja-ronda .cita { font-size: clamp(28px, 5vw, 64px); }
+  body.modo-tele #fie-juego .caja-ronda .pregunta { font-size: clamp(18px, 2.6vw, 32px); }
+  body.modo-tele #fie-juego .opcion { font-size: clamp(16px, 2.4vw, 30px); min-height: 70px; }
+  body.modo-tele #fie-juego .cuenta { font-size: clamp(40px, 8vw, 110px); }
+  body.modo-tele #fie-juego .ganador { font-size: clamp(30px, 5vw, 70px); }
+  body.modo-tele #fie-juego, body.modo-tele #fie-juego .marcador { font-size: clamp(15px, 1.8vw, 24px); }
+  body.modo-tele #t-fiesta.vista-juego { grid-template-columns: 1fr; }
+  #t-fiesta.vista-juego #fie-presenta, #t-fiesta.vista-juego #fie-orden-tarjeta { display: none; }
+  #t-fiesta:not(.vista-juego) #fie-juego { display: none; }
+
+  /* La tele no vota */
+  body.es-tele .votos, body.es-tele .solo-jugador { display: none !important; }
+
+  /* Visor de presentaciones */
+  .visor { position: fixed; inset: 0; z-index: 60; background: #000; }
+  .visor iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+  .visor-cerrar {
+    position: absolute; top: calc(8px + env(safe-area-inset-top)); right: calc(8px + env(safe-area-inset-right)); z-index: 2;
+    width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(0,0,0,.45); color: #fff; font-size: 18px; opacity: .5;
+  }
+  .visor-cerrar:hover, .visor-cerrar:focus { opacity: 1; }
+
+  body.modo-tele #fie-juego { grid-column: 1 / -1; }
+
   /* ===== Pestañas inferiores verdes, activa en dorado ===== */
   nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
@@ -509,11 +563,30 @@
           <button id="cha-cancelar" class="btn btn-borde" hidden>Cancelar</button>
         </div>
       </details>
+      <details class="tarjeta plegable" id="cha-pres" hidden>
+        <summary>📎 Mi presentación</summary>
+        <div id="cha-pres-estado" class="suave"></div>
+        <label for="cha-pres-archivo">Elige el archivo presentacion.html</label>
+        <input id="cha-pres-archivo" class="campo" type="file" accept=".html,.htm,text/html">
+        <label for="cha-pres-codigo">…o pega aquí el código que te dio la IA</label>
+        <textarea id="cha-pres-codigo" class="campo campo-texto" placeholder="<!DOCTYPE html>…"></textarea>
+        <div id="cha-pres-error" class="error-texto"></div>
+        <div class="acciones">
+          <button id="cha-pres-subir" class="btn btn-rojo">⬆️ Subir</button>
+          <button id="cha-pres-ver" class="btn btn-borde" hidden>👀 Ver</button>
+          <button id="cha-pres-quitar" class="btn btn-borde" hidden>🗑️ Quitar</button>
+        </div>
+      </details>
       <div id="charlas-lista"></div>
     </section>
 
     <!-- Pestaña JUEGOS -->
     <section id="t-juegos" data-tab hidden>
+      <div class="segmentos" role="group" aria-label="Tipo de juego">
+        <button data-seg="mesa" aria-pressed="true">🎲 De mesa</button>
+        <button data-seg="vivo" aria-pressed="false">🎉 En vivo</button>
+      </div>
+      <div id="jue-mesa">
       <details class="tarjeta plegable" id="jue-form">
         <summary id="jue-form-titulo">🎲 ¿Traes un juego?</summary>
         <label for="jue-juego">Juego</label>
@@ -527,6 +600,70 @@
         </div>
       </details>
       <div id="juegos-lista"></div>
+      </div>
+
+      <!-- Juegos en vivo: cada uno participa desde su móvil -->
+      <div id="jue-vivo" hidden>
+        <p class="suave solo-tele-aviso" id="vivo-tele-aviso" hidden>📺 Este es el PC de la tele: los juegos se enseñan y se controlan desde la pestaña 🥂 Fiesta.</p>
+
+        <div class="tarjeta">
+          <h3>🗣️ ¿Quién lo dijo?</h3>
+          <p class="suave" style="margin:0">Contesta las preguntas. En la fiesta saldrán tus respuestas en la tele y el resto tendrá que adivinar de quién son.</p>
+          <div id="quien-ronda"></div>
+          <div id="quien-preguntas"></div>
+          <details class="plegable solo-jugador" id="quien-form">
+            <summary>➕ Proponer pregunta</summary>
+            <div class="resp-fila">
+              <input id="quien-nueva" class="campo" maxlength="120" placeholder="Ej.: ¿Cuál fue tu peor regalo?">
+              <button id="quien-anadir" class="btn btn-rojo">Añadir</button>
+            </div>
+          </details>
+        </div>
+
+        <div class="tarjeta">
+          <h3>🧠 Quiz familiar</h3>
+          <p class="suave" style="margin:0">Propón preguntas con 4 respuestas. En la fiesta, la tele las lanza y tenéis <span id="quiz-segundos">20</span> segundos para contestar.</p>
+          <div id="quiz-ronda"></div>
+          <div id="quiz-mias"></div>
+          <details class="plegable solo-jugador" id="quiz-form">
+            <summary>➕ Proponer pregunta de quiz</summary>
+            <input id="quiz-texto" class="campo" maxlength="140" placeholder="Pregunta (ej.: ¿En qué año se casaron los abuelos?)">
+            <div class="opciones">
+              <input id="quiz-op0" class="campo" maxlength="50" placeholder="A">
+              <input id="quiz-op1" class="campo" maxlength="50" placeholder="B">
+              <input id="quiz-op2" class="campo" maxlength="50" placeholder="C">
+              <input id="quiz-op3" class="campo" maxlength="50" placeholder="D">
+            </div>
+            <label for="quiz-correcta">¿Cuál es la buena?</label>
+            <select id="quiz-correcta" class="campo"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+            <div id="quiz-error" class="error-texto"></div>
+            <button id="quiz-anadir" class="btn btn-rojo ancho">Añadir pregunta</button>
+          </details>
+        </div>
+
+        <div class="tarjeta">
+          <h3>🏆 Premios Adoce</h3>
+          <p class="suave" style="margin:0">Vota a quién se lleva cada premio. Los ganadores se revelan en la tele.</p>
+          <div id="premios-lista"></div>
+          <details class="plegable solo-jugador" id="premios-form">
+            <summary>➕ Proponer categoría</summary>
+            <div class="resp-fila">
+              <input id="premio-nuevo" class="campo" maxlength="60" placeholder="Ej.: El más tardón">
+              <button id="premio-anadir" class="btn btn-rojo">Añadir</button>
+            </div>
+          </details>
+        </div>
+
+        <div class="tarjeta">
+          <h3>🔮 Predicciones 2027</h3>
+          <p class="suave" style="margin:0">Escribe lo que crees que pasará este año. Quedan guardadas en secreto hasta la próxima NocheBuenFindeaño.</p>
+          <div id="predic-lista"></div>
+          <div class="solo-jugador">
+            <textarea id="predic-texto" class="campo campo-texto" maxlength="200" placeholder="Ej.: Ammar llegará puntual a algo"></textarea>
+            <button id="predic-anadir" class="btn btn-rojo ancho" style="margin-top:4px">Guardar predicción</button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Pestaña FIESTA (para la tele) -->
@@ -535,6 +672,13 @@
         <div class="acciones" style="margin-top:0">
           <button id="fie-tele" class="btn btn-verde">📺 Modo tele</button>
           <button id="fie-campanadas" class="btn btn-rojo">🔔 Empezar las campanadas</button>
+        </div>
+        <div class="vistas" role="group" aria-label="Qué enseñar en la tele">
+          <button data-vista="charlas" aria-pressed="true">📺 Charlas</button>
+          <button data-vista="quien" aria-pressed="false">🗣️ ¿Quién lo dijo?</button>
+          <button data-vista="quiz" aria-pressed="false">🧠 Quiz</button>
+          <button data-vista="premios" aria-pressed="false">🏆 Premios</button>
+          <button data-vista="predic" aria-pressed="false">🔮 Predicciones</button>
         </div>
       </div>
 
@@ -549,13 +693,16 @@
         </div>
       </div>
 
-      <div class="tarjeta">
+      <div class="tarjeta" id="fie-orden-tarjeta">
         <h3>🎲 Orden de las charlas</h3>
         <div id="fie-orden"></div>
         <div class="acciones solo-movil">
           <button id="fie-sortear" class="btn btn-borde btn-peque" hidden>🎲 Sortear orden</button>
         </div>
       </div>
+
+      <!-- Juego que se enseña en la tele -->
+      <div class="tarjeta" id="fie-juego"></div>
     </section>
     <img src="logo.jpg" alt="" class="banner" loading="lazy">
   </main>
@@ -571,6 +718,12 @@
 </div>
 
 <div id="aviso" role="status" hidden></div>
+
+<!-- Visor de presentaciones (pantalla entera). sandbox sin allow-same-origin: la presentación no puede leer la clave -->
+<div id="visor" class="visor" hidden>
+  <button id="visor-cerrar" class="visor-cerrar" aria-label="Cerrar presentación">✕</button>
+  <iframe id="visor-marco" title="Presentación" sandbox="allow-scripts"></iframe>
+</div>
 
 <!-- Campanadas (pantalla entera) -->
 <div id="campanadas" class="campanadas" hidden>
@@ -617,9 +770,9 @@
     <ol>
       <li><b>Copia</b> el prompt con el botón "Copiar prompt" y pégalo en tu IA (ChatGPT, Claude, Gemini…).</li>
       <li><b>Contesta</b> a sus 4 preguntas: tema, por qué te gusta, una anécdota y nivel de humor. Con 2-3 frases basta.</li>
-      <li><b>Guarda</b> el código que te dé como <code>presentacion.html</code> y ábrelo con el navegador. Pulsa <b>F</b> para pantalla completa.</li>
+      <li><b>Copia</b> el código que te dé y pégalo en la pestaña Charlas → <b>📎 Mi presentación</b> (o guárdalo como <code>presentacion.html</code> y súbelo). Con <b>👀 Ver</b> la pruebas.</li>
       <li><b>Revisa</b> los datos. Si algo suena raro, pide a la IA que lo corrija. Si prefieres PowerPoint o Google Slides, pídeselo al final.</li>
-      <li><b>Apúntate</b> en la pestaña Charlas con tu tema.</li>
+      <li><b>Apúntate</b> en la pestaña Charlas con tu tema (antes de subir la presentación).</li>
     </ol>
     <p>Cada charla dura 3 minutos. Vale todo: videojuegos, cocina, plantas, motor, fotografía, juegos de mesa, café… 🥂</p>
     <button id="guia-cerrar" class="btn btn-rojo ancho">Cerrar</button>
@@ -677,6 +830,7 @@ const INICIALES_FIJAS = { pablo: "PP", patri: "PF" };
 
 // Cada cuánto se releen los datos mientras la app está visible
 const RELEER_CADA_MS = 30000;
+const RELEER_JUEGO_MS = 10000;
 
 // Puntos del ranking de fechas
 // El veto solo informa: no resta puntos, pero se ve quién veta
@@ -800,6 +954,8 @@ function mostrar(id) {
 /* =====================================================================
    DATOS: rellenar campos que falten (archivo antiguo o editado a mano)
    ===================================================================== */
+function esObjeto(x) { return !!x && typeof x === "object" && !Array.isArray(x); }
+
 function completar(d) {
   if (!d || typeof d !== "object" || Array.isArray(d)) d = {};
   if (typeof d.version !== "number") d.version = 1;
@@ -826,7 +982,7 @@ function completar(d) {
     texto(c, "plato"); texto(c, "notas");
     if (!["entrante", "principal", "postre", "bebida", "otros"].includes(c.categoria)) c.categoria = "otros";
   }
-  for (const c of d.charlas) { texto(c, "tema"); texto(c, "enlace"); c.remoto = !!c.remoto; }
+  for (const c of d.charlas) { texto(c, "tema"); texto(c, "enlace"); texto(c, "presentacion"); texto(c, "presentacionFecha"); c.remoto = !!c.remoto; }
   for (const j of d.juegos) {
     texto(j, "juego"); texto(j, "jugadores");
     if (!Array.isArray(j.votos)) j.votos = [];
@@ -843,6 +999,26 @@ function completar(d) {
   if (!Array.isArray(d.fiesta.orden)) d.fiesta.orden = [];
   d.fiesta.orden = d.fiesta.orden.filter((id) => typeof id === "string");
   if (typeof d.fiesta.actual !== "number" || !(d.fiesta.actual >= 0)) d.fiesta.actual = 0;
+  // Juegos en vivo
+  const lista = (x, campos) => (Array.isArray(x) ? x : []).filter((o) => esObjeto(o) && campos.every((c) => typeof o[c] === "string"));
+  const ronda = (x) => (esObjeto(x) && typeof x.pid === "string" ? { ...x, votos: esObjeto(x.votos) ? x.votos : {}, revelada: !!x.revelada } : null);
+  if (!esObjeto(d.quienlo)) d.quienlo = {};
+  d.quienlo.preguntas = lista(d.quienlo.preguntas, ["id", "texto"]);
+  if (!esObjeto(d.quienlo.respuestas)) d.quienlo.respuestas = {};
+  d.quienlo.ronda = ronda(d.quienlo.ronda);
+  d.quienlo.hechas = (Array.isArray(d.quienlo.hechas) ? d.quienlo.hechas : []).map(ronda).filter(Boolean);
+  if (!esObjeto(d.quiz)) d.quiz = {};
+  d.quiz.preguntas = lista(d.quiz.preguntas, ["id", "texto"]).filter((p) => Array.isArray(p.opciones) && p.opciones.length === 4);
+  for (const p of d.quiz.preguntas) if (![0, 1, 2, 3].includes(p.correcta)) p.correcta = 0;
+  d.quiz.ronda = ronda(d.quiz.ronda);
+  d.quiz.hechas = (Array.isArray(d.quiz.hechas) ? d.quiz.hechas : []).map(ronda).filter(Boolean);
+  if (!esObjeto(d.premios)) d.premios = {};
+  d.premios.categorias = lista(d.premios.categorias, ["id", "texto"]);
+  if (!esObjeto(d.premios.votos)) d.premios.votos = {};
+  if (!Array.isArray(d.premios.reveladas)) d.premios.reveladas = [];
+  if (!esObjeto(d.predicciones)) d.predicciones = {};
+  d.predicciones.lista = lista(d.predicciones.lista, ["id", "texto"]);
+  d.predicciones.reveladas = !!d.predicciones.reveladas;
   if (!d.ajustes || typeof d.ajustes !== "object") d.ajustes = {};
   if (typeof d.ajustes.minutosCharla !== "number" || !(d.ajustes.minutosCharla > 0)) d.ajustes.minutosCharla = 3;
   return d;
@@ -997,7 +1173,8 @@ function pintarSelectorNombre() {
   sel.innerHTML =
     `<option value="">Elige tu nombre…</option>` +
     datos.participantes.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join("") +
-    `<option value="__nuevo__">➕ Añadirme</option>`;
+    `<option value="__nuevo__">➕ Añadirme</option>` +
+    `<option value="__tele__">📺 Tele (el PC de la fiesta)</option>`;
   // conservar lo que estaba elegido si sigue existiendo
   if ([...sel.options].some((o) => o.value === elegido)) sel.value = elegido;
   actualizarBloqueNuevo();
@@ -1013,6 +1190,7 @@ function actualizarBloqueNuevo() {
 function entrarComo(nombre) {
   yo = nombre;
   guardarLocal("nb_nombre", nombre);
+  document.body.classList.toggle("es-tele", esTele());
   mostrar("p-app");
   pintar();
 }
@@ -1021,6 +1199,7 @@ async function pulsarEntrar() {
   const valor = $("sel-nombre").value;
   const error = $("nombre-error");
   if (!valor) { error.textContent = "Elige tu nombre en la lista."; return; }
+  if (valor === "__tele__") { entrarComo(TELE); irA("fiesta"); return; }
   if (valor !== "__nuevo__") { entrarComo(valor); return; }
 
   // Añadirme
@@ -1056,6 +1235,8 @@ function pintar() {
   pintarJuegos();
   pintarSugerencias();
   pintarFiesta();
+  pintarVivo();
+  pintarPresentacionMia();
 }
 
 function pintarCabecera() {
@@ -1359,6 +1540,7 @@ function pintarCharlas() {
           <div class="item-titulo">${esc(c.tema)}</div>
           <div class="suave">Presenta ${esc(c.nombre)}</div>
           ${c.remoto ? `<span class="etiqueta verde">💻 Por videollamada</span>` : ""}
+          ${c.presentacion ? `<span class="etiqueta verde">📎 Presentación lista</span>` : ""}
           ${url ? ` <a href="${esc(url)}" target="_blank" rel="noopener">🔗 Ver presentación</a>` : ""}
         </div>
         ${c.nombre === yo ? `<div class="item-botones">
@@ -1594,7 +1776,8 @@ function pintarFiesta() {
     <div class="turno">Charla ${i + 1} de ${orden.length}</div>
     <div class="quien">${esc(actual.nombre)}</div>
     <div class="tema">${esc(actual.tema)}</div>
-    ${actual.remoto ? `<span class="etiqueta verde">💻 Por videollamada</span>` : ""}` :
+    ${actual.remoto ? `<span class="etiqueta verde">💻 Por videollamada</span>` : ""}
+    ${actual.presentacion ? `<div class="acciones" style="justify-content:center"><button class="btn btn-rojo" data-lanzar="${esc(actual.presentacion)}">▶ Lanzar presentación</button></div>` : ""}` :
     `<p>Todavía no hay charlas apuntadas. Se apuntan en la pestaña 📺 Charlas.</p>`;
   for (const id of ["fie-anterior", "fie-play", "fie-reiniciar", "fie-siguiente"]) $(id).disabled = !actual;
   $("fie-anterior").disabled = !actual || i === 0;
@@ -1612,8 +1795,11 @@ function pintarFiesta() {
     `<p class="suave" style="margin:0">Sin charlas todavía.</p>`;
 
   // Solo Pablo sortea
-  $("fie-sortear").hidden = !soyOrganizador() || orden.length < 2;
+  $("fie-sortear").hidden = !puedeDirigir() || orden.length < 2;
   $("fie-sortear").textContent = sorteado ? "🎲 Volver a sortear" : "🎲 Sortear orden";
+
+  // Juego que se enseña en la tele
+  pintarJuegoTele();
 }
 
 function pulsarSortear() {
@@ -1789,6 +1975,600 @@ async function alternarModoTele() {
 }
 
 /* =====================================================================
+   USUARIO TELE (el PC de la fiesta)
+   ===================================================================== */
+const TELE = "📺 Tele";
+function esTele() { return yo === TELE; }
+// Pablo o la tele dirigen los juegos y el sorteo
+function puedeDirigir() { return soyOrganizador() || esTele(); }
+
+// Pone HTML en un hueco sin pisar lo que alguien está escribiendo
+function ponerHtml(el, html) {
+  if (el._html === html) return;
+  const activo = document.activeElement;
+  if (activo && el.contains(activo) && /INPUT|TEXTAREA|SELECT/.test(activo.tagName)) return; // ya se pintará luego
+  el._html = html;
+  el.innerHTML = html;
+}
+
+// Nombres que juegan (los participantes)
+function jugadores() { return datos.participantes; }
+
+// Elegir uno al azar de una lista
+function alAzar(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+
+/* =====================================================================
+   JUEGO: ¿QUIÉN LO DIJO?
+   ===================================================================== */
+function anadirPreguntaQuien(d, p) { d.quienlo.preguntas.push(p); }
+function borrarPreguntaQuien(d, id, nombre) {
+  const antes = d.quienlo.preguntas.length;
+  d.quienlo.preguntas = d.quienlo.preguntas.filter((p) => !(p.id === id && p.autor === nombre));
+  if (d.quienlo.preguntas.length === antes) return false;
+  delete d.quienlo.respuestas[id];
+}
+function responderQuien(d, pid, nombre, texto) {
+  if (!d.quienlo.preguntas.some((p) => p.id === pid)) return false;
+  if (!esObjeto(d.quienlo.respuestas[pid])) d.quienlo.respuestas[pid] = {};
+  if ((d.quienlo.respuestas[pid][nombre] || "") === texto) return false;
+  if (texto) d.quienlo.respuestas[pid][nombre] = texto;
+  else delete d.quienlo.respuestas[pid][nombre];
+}
+function siguienteQuien(d, eleccion) {
+  const q = d.quienlo;
+  if (q.ronda && q.ronda.revelada) q.hechas.push(q.ronda);
+  q.ronda = { pid: eleccion.pid, de: eleccion.de, votos: {}, revelada: false };
+}
+function votarQuien(d, nombre, candidato) {
+  const r = d.quienlo.ronda;
+  if (!r || r.revelada || nombre === r.de || r.votos[nombre] === candidato) return false;
+  r.votos[nombre] = candidato;
+}
+function revelarQuien(d) {
+  if (!d.quienlo.ronda || d.quienlo.ronda.revelada) return false;
+  d.quienlo.ronda.revelada = true;
+}
+function reiniciarQuien(d) { d.quienlo.ronda = null; d.quienlo.hechas = []; }
+
+// Respuestas que aún no han salido en la tele
+function pendientesQuien() {
+  const q = datos.quienlo;
+  const salidas = new Set([...q.hechas, ...(q.ronda ? [q.ronda] : [])].map((r) => r.pid + "|" + r.de));
+  const lista = [];
+  for (const p of q.preguntas) {
+    for (const [nombre, texto] of Object.entries(q.respuestas[p.id] || {})) {
+      if (texto && !salidas.has(p.id + "|" + nombre)) lista.push({ pid: p.id, de: nombre });
+    }
+  }
+  return lista;
+}
+
+// Un punto por cada acierto
+function puntosQuien() {
+  const q = datos.quienlo;
+  const puntos = {};
+  for (const r of [...q.hechas, ...(q.ronda && q.ronda.revelada ? [q.ronda] : [])]) {
+    for (const [n, c] of Object.entries(r.votos)) if (c === r.de) puntos[n] = (puntos[n] || 0) + 1;
+  }
+  return puntos;
+}
+
+function marcadorHtml(puntos) {
+  const lista = Object.entries(puntos).sort((a, b) => b[1] - a[1]);
+  if (!lista.length) return "";
+  return `<ol class="marcador">${lista.map(([n, p]) => `<li><b>${esc(n)}</b> · ${p} ${p === 1 ? "punto" : "puntos"}</li>`).join("")}</ol>`;
+}
+
+function textoPreguntaQuien(pid) {
+  const p = datos.quienlo.preguntas.find((x) => x.id === pid);
+  return p ? p.texto : "";
+}
+
+// Móvil: la ronda actual y las preguntas para contestar
+function pintarQuienMovil() {
+  const q = datos.quienlo;
+  const r = q.ronda;
+  let html = "";
+  if (r) {
+    const cita = (q.respuestas[r.pid] || {})[r.de] || "";
+    html = `<div class="caja-ronda">
+      <div class="pregunta">${esc(textoPreguntaQuien(r.pid))}</div>
+      <div class="cita">«${esc(cita)}»</div>`;
+    if (r.revelada) {
+      const mio = r.votos[yo];
+      html += `<div><b>Era de ${esc(r.de)}</b>${r.de === yo ? " (¡tuya!)" : mio ? (mio === r.de ? " · ✅ ¡Acertaste!" : ` · ❌ Dijiste ${esc(mio)}`) : ""}</div>`;
+    } else if (esTele()) {
+      html += `<div class="suave">Votos: ${Object.keys(r.votos).length}</div>`;
+    } else if (r.de === yo) {
+      html += `<div>🤫 ¡Es tuya! Pon cara de póker.</div>`;
+    } else {
+      html += `<div class="suave">¿Quién lo dijo?</div>
+        <div class="rejilla-nombres">${jugadores().filter((n) => n !== yo).map((n) =>
+          `<button data-quien-voto="${esc(n)}" aria-pressed="${r.votos[yo] === n}">${esc(n)}</button>`).join("")}</div>`;
+    }
+    html += `</div>`;
+  }
+  ponerHtml($("quien-ronda"), html);
+
+  // Preguntas para contestar
+  const contestadas = q.preguntas.filter((p) => (q.respuestas[p.id] || {})[yo]).length;
+  const filas = q.preguntas.map((p) => {
+    const mia = (q.respuestas[p.id] || {})[yo] || "";
+    const n = Object.keys(q.respuestas[p.id] || {}).length;
+    return `<div class="item" style="display:block">
+      <div><b>${esc(p.texto)}</b> <span class="suave">· ${n} ${n === 1 ? "respuesta" : "respuestas"}</span></div>
+      <div class="resp-fila solo-jugador">
+        <input class="campo" maxlength="140" data-quien-resp="${esc(p.id)}" value="${esc(mia)}" placeholder="Tu respuesta (secreta)">
+        <button class="icono" data-quien-guardar="${esc(p.id)}" aria-label="Guardar respuesta">💾</button>
+        ${p.autor === yo ? `<button class="icono" data-quien-borrar="${esc(p.id)}" aria-label="Borrar pregunta">🗑️</button>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+  ponerHtml($("quien-preguntas"), q.preguntas.length
+    ? `<p class="suave solo-jugador" style="margin:6px 0 0">Has contestado ${contestadas} de ${q.preguntas.length}.</p>${filas}`
+    : `<p class="suave" style="margin:6px 0 0">Aún no hay preguntas. ¡Propón la primera!</p>`);
+}
+
+// Tele: la ronda en grande y los controles
+function pintarQuienTele() {
+  const q = datos.quienlo;
+  const r = q.ronda;
+  const pend = pendientesQuien().length;
+  let html = `<h2>🗣️ ¿Quién lo dijo?</h2>`;
+  if (r) {
+    const cita = (q.respuestas[r.pid] || {})[r.de] || "";
+    const votos = Object.keys(r.votos).length;
+    html += `<div class="caja-ronda">
+      <div class="pregunta">${esc(textoPreguntaQuien(r.pid))}</div>
+      <div class="cita">«${esc(cita)}»</div>
+      ${r.revelada
+        ? `<div class="ganador">¡Era de ${esc(r.de)}!</div>
+           <div class="suave">Acertaron: ${esc(Object.entries(r.votos).filter(([, c]) => c === r.de).map(([n]) => n).join(", ") || "nadie 😅")}</div>`
+        : `<div class="suave">🗳️ ${votos} de ${Math.max(jugadores().length - 1, 0)} han votado</div>`}
+    </div>`;
+  } else {
+    html += `<p>${pend ? `Hay ${pend} respuestas listas. ¡Pulsa "Siguiente" para empezar!` : "Todavía no hay respuestas. Se contestan en el móvil: Juegos → 🎉 En vivo."}</p>`;
+  }
+  if (puedeDirigir()) {
+    html += `<div class="acciones">
+      ${r && !r.revelada ? `<button class="btn btn-verde" data-quien-accion="revelar">👀 Revelar</button>` : ""}
+      ${pend ? `<button class="btn btn-rojo" data-quien-accion="siguiente">Siguiente ⏭ <span class="suave" style="color:inherit">(${pend})</span></button>` : ""}
+      ${q.hechas.length || r ? `<button class="btn btn-borde btn-peque" data-quien-accion="reiniciar">↺ Reiniciar</button>` : ""}
+    </div>`;
+  }
+  const marcador = marcadorHtml(puntosQuien());
+  if (marcador) html += `<h3 style="margin-top:10px">🏅 Marcador</h3>${marcador}`;
+  return html;
+}
+
+/* =====================================================================
+   JUEGO: QUIZ FAMILIAR
+   ===================================================================== */
+const QUIZ_SEGUNDOS = 20;
+
+function anadirPreguntaQuiz(d, p) { d.quiz.preguntas.push(p); }
+function borrarPreguntaQuiz(d, id, nombre) {
+  const antes = d.quiz.preguntas.length;
+  d.quiz.preguntas = d.quiz.preguntas.filter((p) => !(p.id === id && p.autor === nombre));
+  if (d.quiz.preguntas.length === antes) return false;
+}
+function lanzarQuiz(d, pid, inicio) {
+  const z = d.quiz;
+  if (z.ronda && z.ronda.revelada) z.hechas.push(z.ronda);
+  z.ronda = { pid, inicio, votos: {}, revelada: false };
+}
+function responderQuiz(d, nombre, opcion) {
+  const r = d.quiz.ronda;
+  if (!r || r.revelada || r.votos[nombre] === opcion) return false;
+  r.votos[nombre] = opcion;
+}
+function revelarQuiz(d) {
+  if (!d.quiz.ronda || d.quiz.ronda.revelada) return false;
+  d.quiz.ronda.revelada = true;
+}
+function reiniciarQuiz(d) { d.quiz.ronda = null; d.quiz.hechas = []; }
+
+function preguntaQuiz(pid) { return datos.quiz.preguntas.find((p) => p.id === pid); }
+function pendientesQuiz() {
+  const z = datos.quiz;
+  const salidas = new Set([...z.hechas, ...(z.ronda ? [z.ronda] : [])].map((r) => r.pid));
+  return z.preguntas.filter((p) => !salidas.has(p.id));
+}
+function segundosQuiz(r) {
+  const pasados = (Date.now() - new Date(r.inicio).getTime()) / 1000;
+  return Math.max(0, Math.ceil(QUIZ_SEGUNDOS - (isNaN(pasados) ? QUIZ_SEGUNDOS : pasados)));
+}
+function puntosQuiz() {
+  const z = datos.quiz;
+  const puntos = {};
+  for (const r of [...z.hechas, ...(z.ronda && z.ronda.revelada ? [z.ronda] : [])]) {
+    const p = preguntaQuiz(r.pid);
+    if (!p) continue;
+    for (const [n, o] of Object.entries(r.votos)) if (o === p.correcta) puntos[n] = (puntos[n] || 0) + 1;
+  }
+  return puntos;
+}
+const LETRAS = ["A", "B", "C", "D"];
+
+function opcionesQuizHtml(p, r, conVoto) {
+  return `<div class="opciones">${p.opciones.map((o, i) => {
+    let clase = "opcion";
+    if (r.revelada && i === p.correcta) clase += " correcta";
+    else if (r.revelada && conVoto && r.votos[yo] === i) clase += " fallo";
+    const n = Object.values(r.votos).filter((v) => v === i).length;
+    return `<button class="${clase}" ${conVoto ? `data-quiz-voto="${i}"` : ""} aria-pressed="${conVoto && r.votos[yo] === i}">
+      <span class="letra">${LETRAS[i]}</span>${esc(o)}${r.revelada ? ` <span class="suave">(${n})</span>` : ""}</button>`;
+  }).join("")}</div>`;
+}
+
+function pintarQuizMovil() {
+  $("quiz-segundos").textContent = QUIZ_SEGUNDOS;
+  const z = datos.quiz;
+  const r = z.ronda;
+  let html = "";
+  const p = r && preguntaQuiz(r.pid);
+  if (p) {
+    const quedan = segundosQuiz(r);
+    html = `<div class="caja-ronda"><div class="pregunta">${esc(p.texto)}</div>`;
+    if (p.autor === yo && !r.revelada) html += `<div>🤐 Es tu pregunta: esta no la contestas.</div>`;
+    else if (esTele()) html += opcionesQuizHtml(p, r, false);
+    else {
+      html += opcionesQuizHtml(p, r, !r.revelada && quedan > 0 && p.autor !== yo);
+      if (!r.revelada) html += `<div class="suave" data-quiz-quedan>${quedan > 0 ? `⏱️ ${quedan} s` : "⏱️ ¡Tiempo!"}</div>`;
+      else if (p.autor !== yo) html += `<div>${r.votos[yo] === p.correcta ? "✅ ¡Acertaste!" : r.votos[yo] === undefined ? "No contestaste" : "❌ Fallaste"}</div>`;
+    }
+    html += `</div>`;
+  }
+  ponerHtml($("quiz-ronda"), html);
+
+  const mias = z.preguntas.filter((x) => x.autor === yo);
+  ponerHtml($("quiz-mias"), `<p class="suave" style="margin:6px 0 0">Hay ${z.preguntas.length} ${z.preguntas.length === 1 ? "pregunta" : "preguntas"} (no se enseñan para no hacer trampa).</p>` +
+    mias.map((x) => `<div class="item"><div class="item-texto">${esc(x.texto)} <span class="suave">· buena: ${LETRAS[x.correcta]}</span></div>
+      <button class="icono" data-quiz-borrar="${esc(x.id)}" aria-label="Borrar pregunta">🗑️</button></div>`).join(""));
+}
+
+function pintarQuizTele() {
+  const z = datos.quiz;
+  const r = z.ronda;
+  const pend = pendientesQuiz().length;
+  let html = `<h2>🧠 Quiz familiar</h2>`;
+  const p = r && preguntaQuiz(r.pid);
+  if (p) {
+    const quedan = segundosQuiz(r);
+    html += `<div class="caja-ronda">
+      <div class="pregunta">${esc(p.texto)}</div>
+      ${opcionesQuizHtml(p, r, false)}
+      ${r.revelada ? `<div class="ganador">✅ ${LETRAS[p.correcta]}: ${esc(p.opciones[p.correcta])}</div>`
+        : `<div class="cuenta" data-quiz-quedan>${quedan > 0 ? quedan : "¡Tiempo!"}</div><div class="suave">🗳️ ${Object.keys(r.votos).length} han contestado</div>`}
+      <div class="suave">Pregunta de ${esc(p.autor)}</div>
+    </div>`;
+  } else {
+    html += `<p>${pend ? `Hay ${pend} preguntas listas. ¡Pulsa "Lanzar pregunta"!` : "Todavía no hay preguntas. Se proponen en el móvil: Juegos → 🎉 En vivo."}</p>`;
+  }
+  if (puedeDirigir()) {
+    html += `<div class="acciones">
+      ${r && !r.revelada ? `<button class="btn btn-verde" data-quiz-accion="revelar">👀 Revelar</button>` : ""}
+      ${pend ? `<button class="btn btn-rojo" data-quiz-accion="lanzar">🚀 Lanzar pregunta <span style="opacity:.8">(${pend})</span></button>` : ""}
+      ${z.hechas.length || r ? `<button class="btn btn-borde btn-peque" data-quiz-accion="reiniciar">↺ Reiniciar</button>` : ""}
+    </div>`;
+  }
+  const marcador = marcadorHtml(puntosQuiz());
+  if (marcador) html += `<h3 style="margin-top:10px">🏅 Marcador</h3>${marcador}`;
+  return html;
+}
+
+// Cuenta atrás del quiz (se actualiza cada segundo sin releer nada)
+setInterval(() => {
+  if (!datos || !datos.quiz.ronda || datos.quiz.ronda.revelada) return;
+  const quedan = segundosQuiz(datos.quiz.ronda);
+  document.querySelectorAll("[data-quiz-quedan]").forEach((el) => {
+    el.textContent = el.classList.contains("cuenta") ? (quedan > 0 ? quedan : "¡Tiempo!") : (quedan > 0 ? `⏱️ ${quedan} s` : "⏱️ ¡Tiempo!");
+  });
+  if (quedan === 0) document.querySelectorAll("[data-quiz-voto]").forEach((b) => { b.disabled = true; });
+}, 1000);
+
+/* =====================================================================
+   JUEGO: PREMIOS ADOCE
+   ===================================================================== */
+function anadirCategoria(d, c) { d.premios.categorias.push(c); }
+function borrarCategoria(d, id, nombre) {
+  const antes = d.premios.categorias.length;
+  d.premios.categorias = d.premios.categorias.filter((c) => !(c.id === id && c.autor === nombre));
+  if (d.premios.categorias.length === antes) return false;
+  delete d.premios.votos[id];
+}
+function votarPremio(d, cid, nombre, candidato) {
+  if (!esObjeto(d.premios.votos[cid])) d.premios.votos[cid] = {};
+  if ((d.premios.votos[cid][nombre] || "") === candidato) return false;
+  if (candidato) d.premios.votos[cid][nombre] = candidato;
+  else delete d.premios.votos[cid][nombre];
+}
+function revelarPremio(d, cid) {
+  if (d.premios.reveladas.includes(cid)) return false;
+  d.premios.reveladas.push(cid);
+}
+function ocultarPremios(d) { if (!d.premios.reveladas.length) return false; d.premios.reveladas = []; }
+
+function ganadoresPremio(cid) {
+  const cuenta = {};
+  for (const c of Object.values(datos.premios.votos[cid] || {})) cuenta[c] = (cuenta[c] || 0) + 1;
+  const max = Math.max(0, ...Object.values(cuenta));
+  return { nombres: Object.keys(cuenta).filter((n) => cuenta[n] === max && max > 0), votos: max };
+}
+
+function pintarPremiosMovil() {
+  const pr = datos.premios;
+  const html = pr.categorias.map((c) => {
+    const revelado = pr.reveladas.includes(c.id);
+    const mio = (pr.votos[c.id] || {})[yo] || "";
+    const g = ganadoresPremio(c.id);
+    return `<div class="item" style="display:block">
+      <div><b>🏆 ${esc(c.texto)}</b> <span class="suave">· ${Object.keys(pr.votos[c.id] || {}).length} votos</span>
+        ${c.autor === yo ? `<button class="icono" style="float:right" data-premio-borrar="${esc(c.id)}" aria-label="Borrar categoría">🗑️</button>` : ""}</div>
+      ${revelado ? `<div class="ganador" style="font-size:18px">🥇 ${g.nombres.length ? esc(g.nombres.join(" y ")) : "Desierto"}</div>` :
+        `<select class="campo solo-jugador" data-premio-voto="${esc(c.id)}" aria-label="Tu voto para ${esc(c.texto)}" style="margin-top:4px">
+          <option value="">— Tu voto —</option>
+          ${jugadores().map((n) => `<option value="${esc(n)}" ${mio === n ? "selected" : ""}>${esc(n)}</option>`).join("")}
+        </select>`}
+    </div>`;
+  }).join("");
+  ponerHtml($("premios-lista"), html || `<p class="suave" style="margin:6px 0 0">Aún no hay categorías. ¡Propón la primera!</p>`);
+}
+
+let premioRedoble = null; // categoría que está "redoblando" en la tele
+
+function pintarPremiosTele() {
+  const pr = datos.premios;
+  let html = `<h2>🏆 Premios Adoce</h2>`;
+  if (!pr.categorias.length) return html + `<p>Aún no hay categorías. Se proponen en el móvil: Juegos → 🎉 En vivo.</p>`;
+  html += pr.categorias.map((c) => {
+    const revelado = pr.reveladas.includes(c.id);
+    const g = ganadoresPremio(c.id);
+    const nVotos = Object.keys(pr.votos[c.id] || {}).length;
+    let cuerpo;
+    if (premioRedoble === c.id) cuerpo = `<div class="cuenta"><span class="redoble">🥁</span></div>`;
+    else if (revelado) cuerpo = `<div class="ganador">🥇 ${g.nombres.length ? esc(g.nombres.join(" y ")) : "Desierto"}</div>
+      ${g.votos ? `<div class="suave">${g.votos} ${g.votos === 1 ? "voto" : "votos"}</div>` : ""}`;
+    else cuerpo = `<div class="suave">🗳️ ${nVotos} votos</div>
+      ${puedeDirigir() ? `<button class="btn btn-rojo btn-peque" data-premio-revelar="${esc(c.id)}">🥁 Revelar</button>` : ""}`;
+    return `<div class="caja-ronda"><div class="pregunta">🏆 ${esc(c.texto)}</div>${cuerpo}</div>`;
+  }).join("");
+  if (puedeDirigir() && pr.reveladas.length) html += `<div class="acciones"><button class="btn btn-borde btn-peque" data-premio-ocultar>↺ Ocultar ganadores</button></div>`;
+  return html;
+}
+
+function revelarPremioConRedoble(cid) {
+  premioRedoble = cid;
+  pintarFiesta();
+  sonarRedoble();
+  setTimeout(() => {
+    premioRedoble = null;
+    guardar(`Se revela un premio`, (d) => revelarPremio(d, cid));
+    sonarCampana();
+  }, 2500);
+}
+
+// Redoble de tambor con ruido corto repetido
+function sonarRedoble() {
+  prepararAudio();
+  if (!audio) return;
+  for (let k = 0; k < 24; k++) {
+    const t = audio.currentTime + k * 0.1;
+    const osc = audio.createOscillator();
+    const g = audio.createGain();
+    osc.type = "triangle";
+    osc.frequency.value = 90 + Math.random() * 30;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.25 + k / 60, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+    osc.connect(g).connect(audio.destination);
+    osc.start(t); osc.stop(t + 0.1);
+  }
+}
+
+/* =====================================================================
+   JUEGO: PREDICCIONES 2027
+   ===================================================================== */
+function anadirPrediccion(d, p) { d.predicciones.lista.push(p); }
+function borrarPrediccion(d, id, nombre) {
+  const antes = d.predicciones.lista.length;
+  d.predicciones.lista = d.predicciones.lista.filter((p) => !(p.id === id && p.nombre === nombre));
+  if (d.predicciones.lista.length === antes) return false;
+}
+function revelarPredicciones(d, si) {
+  if (d.predicciones.reveladas === si) return false;
+  d.predicciones.reveladas = si;
+}
+
+function listaPrediccionesHtml(lista, conBorrar) {
+  return lista.map((p) => `<div class="sug"><div style="flex:1;min-width:0"><p>🔮 ${esc(p.texto)}</p><div class="suave">— ${esc(p.nombre)}</div></div>
+    ${conBorrar && p.nombre === yo ? `<button class="icono" data-predic-borrar="${esc(p.id)}" aria-label="Borrar predicción">🗑️</button>` : ""}</div>`).join("");
+}
+
+function pintarPrediccionesMovil() {
+  const pd = datos.predicciones;
+  const mias = pd.lista.filter((p) => p.nombre === yo);
+  let html = `<p class="suave" style="margin:6px 0">🔒 ${pd.lista.length} ${pd.lista.length === 1 ? "predicción guardada" : "predicciones guardadas"}.</p>`;
+  html += pd.reveladas ? listaPrediccionesHtml(pd.lista, true) : listaPrediccionesHtml(mias, true);
+  ponerHtml($("predic-lista"), html);
+}
+
+function pintarPrediccionesTele() {
+  const pd = datos.predicciones;
+  let html = `<h2>🔮 Predicciones 2027</h2>`;
+  if (pd.reveladas) html += listaPrediccionesHtml(pd.lista, false) || `<p>No hay predicciones.</p>`;
+  else html += `<div class="caja-ronda"><div class="cuenta">🔒 ${pd.lista.length}</div><div class="suave" style="text-align:center">predicciones guardadas en secreto hasta la próxima fiesta</div></div>`;
+  if (puedeDirigir()) {
+    html += `<div class="acciones">${pd.reveladas
+      ? `<button class="btn btn-borde btn-peque" data-predic-accion="ocultar">🔒 Volver a esconder</button>`
+      : `<button class="btn btn-rojo" data-predic-accion="revelar">🔓 Revelar predicciones</button>`}</div>`;
+  }
+  return html;
+}
+
+/* =====================================================================
+   JUEGOS EN VIVO: pintar y vistas
+   ===================================================================== */
+let vistaFiesta = leerLocal("nb_vista") || "charlas";
+let segmentoJuegos = leerLocal("nb_seg") || "mesa";
+
+function pintarVivo() {
+  $("vivo-tele-aviso").hidden = !esTele();
+  pintarQuienMovil();
+  pintarQuizMovil();
+  pintarPremiosMovil();
+  pintarPrediccionesMovil();
+}
+
+function ponerSegmento(seg) {
+  segmentoJuegos = seg;
+  guardarLocal("nb_seg", seg);
+  $("jue-mesa").hidden = seg !== "mesa";
+  $("jue-vivo").hidden = seg !== "vivo";
+  document.querySelectorAll("[data-seg]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.seg === seg));
+}
+
+function ponerVista(v) {
+  vistaFiesta = v;
+  guardarLocal("nb_vista", v);
+  document.querySelectorAll("[data-vista]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.vista === v));
+  $("t-fiesta").classList.toggle("vista-juego", v !== "charlas");
+  if (datos) pintarFiesta();
+}
+
+function pintarJuegoTele() {
+  const html = { quien: pintarQuienTele, quiz: pintarQuizTele, premios: pintarPremiosTele, predic: pintarPrediccionesTele }[vistaFiesta];
+  if (html) ponerHtml($("fie-juego"), html());
+}
+
+// ¿Hay una ronda en marcha? Entonces se relee más a menudo
+function hayJuegoEnVivo() {
+  if (!datos) return false;
+  const q = datos.quienlo.ronda, z = datos.quiz.ronda;
+  return !!((q && !q.revelada) || (z && !z.revelada));
+}
+
+/* =====================================================================
+   PRESENTACIONES (archivos .html en nochebuen-datos/presentaciones/)
+   ===================================================================== */
+const URL_REPO_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/`;
+const MAX_PRESENTACION = 900 * 1024; // GitHub no deja leer archivos de más de 1 MB por esta vía
+
+// Lee un archivo del repo de datos → { texto, sha } o null si no existe
+async function leerArchivo(ruta) {
+  const r = await fetch(URL_REPO_DATOS + ruta, { headers: cabeceras(), cache: "no-store" });
+  if (r.status === 404) return null;
+  if (r.status === 401 || r.status === 403) throw new ErrorClave();
+  if (!r.ok) throw new Error(`Error ${r.status}`);
+  const j = await r.json();
+  return { texto: deBase64(j.content), sha: j.sha };
+}
+
+async function escribirArchivo(ruta, texto, mensaje) {
+  const previo = await leerArchivo(ruta);
+  const r = await fetch(URL_REPO_DATOS + ruta, {
+    method: "PUT", headers: { ...cabeceras(), "Content-Type": "application/json" }, cache: "no-store",
+    body: JSON.stringify({ message: mensaje, content: aBase64(texto), ...(previo ? { sha: previo.sha } : {}) })
+  });
+  if (r.status === 401 || r.status === 403) throw new ErrorClave();
+  if (!r.ok) throw new Error(`Error ${r.status}`);
+}
+
+async function borrarArchivo(ruta, mensaje) {
+  const previo = await leerArchivo(ruta);
+  if (!previo) return;
+  await fetch(URL_REPO_DATOS + ruta, {
+    method: "DELETE", headers: { ...cabeceras(), "Content-Type": "application/json" }, cache: "no-store",
+    body: JSON.stringify({ message: mensaje, sha: previo.sha })
+  });
+}
+
+function ponerPresentacion(d, nombre, ruta) {
+  const c = d.charlas.find((x) => x.nombre === nombre);
+  if (!c) return false;
+  c.presentacion = ruta;
+  c.presentacionFecha = ruta ? new Date().toISOString() : "";
+}
+
+// Quita los ``` que a veces añade la IA al copiar el código
+function limpiarCodigo(t) {
+  return t.trim().replace(/^```[a-z]*\s*/i, "").replace(/```\s*$/, "").trim();
+}
+
+async function pulsarSubirPresentacion() {
+  const err = $("cha-pres-error");
+  err.textContent = "";
+  const mia = datos.charlas.find((c) => c.nombre === yo);
+  if (!mia) return;
+  let texto = limpiarCodigo($("cha-pres-codigo").value);
+  const archivo = $("cha-pres-archivo").files[0];
+  if (archivo) texto = await archivo.text();
+  if (!texto) { err.textContent = "Elige el archivo o pega el código."; return; }
+  if (!/<html|<body|<div|<section/i.test(texto)) { err.textContent = "Eso no parece el código de una presentación (HTML)."; return; }
+  if (new Blob([texto]).size > MAX_PRESENTACION) { err.textContent = "Es demasiado grande (máx. 900 KB). Pide a la IA una versión más ligera."; return; }
+  const ruta = `presentaciones/${mia.id}.html`;
+  $("cha-pres-subir").disabled = true;
+  estado("Subiendo…");
+  try {
+    await escribirArchivo(ruta, texto, `${yo} sube su presentación`);
+    $("cha-pres-codigo").value = "";
+    $("cha-pres-archivo").value = "";
+    await guardar(`${yo} sube su presentación`, (d) => ponerPresentacion(d, yo, ruta));
+    aviso("Presentación subida ✅");
+  } catch (e) {
+    if (e instanceof ErrorClave) claveMala();
+    else { estado(""); err.textContent = "No se pudo subir, inténtalo otra vez."; }
+  }
+  $("cha-pres-subir").disabled = false;
+}
+
+async function pulsarQuitarPresentacion() {
+  const mia = datos.charlas.find((c) => c.nombre === yo);
+  if (!mia || !mia.presentacion || !confirm("¿Quitar tu presentación?")) return;
+  const ruta = mia.presentacion;
+  await guardar(`${yo} quita su presentación`, (d) => ponerPresentacion(d, yo, ""));
+  try { await borrarArchivo(ruta, `${yo} borra su presentación`); } catch (e) {}
+}
+
+function pintarPresentacionMia() {
+  const mia = datos.charlas.find((c) => c.nombre === yo);
+  $("cha-pres").hidden = !mia || esTele();
+  if (!mia) return;
+  const f = mia.presentacionFecha ? new Date(mia.presentacionFecha) : null;
+  $("cha-pres-estado").textContent = mia.presentacion
+    ? `✅ Subida${f && !isNaN(f) ? ` el ${f.getDate()} ${MESES[f.getMonth()]}` : ""}. Si subes otra, se sustituye.`
+    : "Aún no has subido tu presentación. Así la tele la tendrá lista cuando te toque.";
+  $("cha-pres-ver").hidden = !mia.presentacion;
+  $("cha-pres-quitar").hidden = !mia.presentacion;
+}
+
+// Abre una presentación a pantalla completa
+async function lanzarPresentacion(ruta) {
+  estado("Cargando presentación…");
+  try {
+    const a = await leerArchivo(ruta);
+    estado("");
+    if (!a) { aviso("No encuentro la presentación. ¿La han quitado?"); return; }
+    $("visor-marco").srcdoc = a.texto;
+    $("visor").hidden = false;
+    try { if ($("visor").requestFullscreen) await $("visor").requestFullscreen(); } catch (e) {}
+    setTimeout(() => $("visor-marco").focus(), 300);
+  } catch (e) {
+    estado("");
+    if (e instanceof ErrorClave) claveMala(); else aviso("No se pudo cargar la presentación.");
+  }
+}
+
+async function cerrarPresentacion() {
+  $("visor").hidden = true;
+  $("visor-marco").srcdoc = "";
+  try { if (document.fullscreenElement === $("visor")) await document.exitFullscreen(); } catch (e) {}
+  if (document.body.classList.contains("modo-tele") && document.documentElement.requestFullscreen) {
+    try { await document.documentElement.requestFullscreen(); } catch (e) {}
+  }
+}
+
+/* =====================================================================
    SUGERENCIAS (muro que ve todo el grupo)
    ===================================================================== */
 function anadirSugerencia(d, sug) { d.sugerencias.push(sug); }
@@ -1864,6 +2644,7 @@ $("cal-despues").addEventListener("click", () => moverMes(1));
 $("cal-rejilla").addEventListener("click", (e) => {
   const b = e.target.closest("[data-dia]");
   if (!b || b.disabled) return;
+  if (esTele()) { aviso("📺 La tele no vota"); return; }
   abrirDia(b.dataset.dia);
 });
 
@@ -1900,7 +2681,14 @@ $("fechas-lista").addEventListener("click", (e) => {
 
 // Releer al volver a la pestaña y cada 30 s mientras está visible
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refrescar(); });
-setInterval(() => { if (!document.hidden) refrescar(); }, RELEER_CADA_MS);
+// Durante una ronda de juego se relee cada 10 s (GitHub deja ~5.000 lecturas por hora entre todos)
+function programarRelectura() {
+  setTimeout(async () => {
+    if (!document.hidden) await refrescar();
+    programarRelectura();
+  }, hayJuegoEnVivo() ? RELEER_JUEGO_MS : RELEER_CADA_MS);
+}
+programarRelectura();
 
 // Botón del logo (arriba a la izquierda): volver a Fechas, arriba del todo
 $("btn-inicio").addEventListener("click", () => irA("fechas"));
@@ -1918,6 +2706,169 @@ $("fie-reiniciar").addEventListener("click", reiniciarCrono);
 $("fie-siguiente").addEventListener("click", () => moverCharla(1));
 $("fie-anterior").addEventListener("click", () => moverCharla(-1));
 $("fie-sortear").addEventListener("click", pulsarSortear);
+
+// --- Juegos en vivo ---
+document.querySelector(".segmentos").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-seg]");
+  if (b) ponerSegmento(b.dataset.seg);
+});
+document.querySelector(".vistas").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-vista]");
+  if (b) ponerVista(b.dataset.vista);
+});
+
+// ¿Quién lo dijo?
+$("quien-anadir").addEventListener("click", () => {
+  const texto = $("quien-nueva").value.trim();
+  if (!texto) return;
+  $("quien-nueva").value = "";
+  const p = { id: nuevoId(), texto, autor: yo };
+  guardar(`${yo} propone una pregunta`, (d) => anadirPreguntaQuien(d, p));
+});
+$("quien-preguntas").addEventListener("click", (e) => {
+  const g = e.target.closest("[data-quien-guardar]");
+  if (g) {
+    const pid = g.dataset.quienGuardar;
+    const texto = document.querySelector(`[data-quien-resp="${pid}"]`).value.trim();
+    guardar(`${yo} contesta una pregunta`, (d) => responderQuien(d, pid, yo, texto));
+    aviso(texto ? "Respuesta guardada 🤫" : "Respuesta borrada");
+    return;
+  }
+  const b = e.target.closest("[data-quien-borrar]");
+  if (b && confirm("¿Borrar tu pregunta (y sus respuestas)?")) {
+    const pid = b.dataset.quienBorrar;
+    guardar(`${yo} borra una pregunta`, (d) => borrarPreguntaQuien(d, pid, yo));
+  }
+});
+$("quien-preguntas").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.dataset.quienResp) {
+    const pid = e.target.dataset.quienResp, texto = e.target.value.trim();
+    e.target.blur();
+    guardar(`${yo} contesta una pregunta`, (d) => responderQuien(d, pid, yo, texto));
+    aviso("Respuesta guardada 🤫");
+  }
+});
+$("quien-ronda").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-quien-voto]");
+  if (!b) return;
+  const candidato = b.dataset.quienVoto;
+  guardar(`${yo} vota en ¿Quién lo dijo?`, (d) => votarQuien(d, yo, candidato));
+});
+
+// Quiz
+$("quiz-anadir").addEventListener("click", () => {
+  const texto = $("quiz-texto").value.trim();
+  const opciones = [0, 1, 2, 3].map((i) => $("quiz-op" + i).value.trim());
+  const correcta = Number($("quiz-correcta").value);
+  if (!texto || opciones.some((o) => !o)) { $("quiz-error").textContent = "Escribe la pregunta y las 4 respuestas."; return; }
+  $("quiz-error").textContent = "";
+  ["quiz-texto", "quiz-op0", "quiz-op1", "quiz-op2", "quiz-op3"].forEach((id) => { $(id).value = ""; });
+  $("quiz-form").open = false;
+  const p = { id: nuevoId(), texto, opciones, correcta, autor: yo };
+  guardar(`${yo} propone una pregunta de quiz`, (d) => anadirPreguntaQuiz(d, p));
+});
+$("quiz-ronda").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-quiz-voto]");
+  if (!b || b.disabled) return;
+  if (segundosQuiz(datos.quiz.ronda) <= 0) { aviso("⏱️ Se acabó el tiempo"); return; }
+  const op = Number(b.dataset.quizVoto);
+  guardar(`${yo} contesta el quiz`, (d) => responderQuiz(d, yo, op));
+});
+$("quiz-mias").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-quiz-borrar]");
+  if (!b || !confirm("¿Borrar tu pregunta?")) return;
+  const id = b.dataset.quizBorrar;
+  guardar(`${yo} borra una pregunta de quiz`, (d) => borrarPreguntaQuiz(d, id, yo));
+});
+
+// Premios
+$("premio-anadir").addEventListener("click", () => {
+  const texto = $("premio-nuevo").value.trim();
+  if (!texto) return;
+  $("premio-nuevo").value = "";
+  const c = { id: nuevoId(), texto, autor: yo };
+  guardar(`${yo} propone un premio`, (d) => anadirCategoria(d, c));
+});
+$("premios-lista").addEventListener("change", (e) => {
+  const s = e.target.closest("[data-premio-voto]");
+  if (!s) return;
+  const cid = s.dataset.premioVoto, candidato = s.value;
+  s.blur();
+  guardar(`${yo} vota un premio`, (d) => votarPremio(d, cid, yo, candidato));
+});
+$("premios-lista").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-premio-borrar]");
+  if (!b || !confirm("¿Borrar esta categoría y sus votos?")) return;
+  const cid = b.dataset.premioBorrar;
+  guardar(`${yo} borra un premio`, (d) => borrarCategoria(d, cid, yo));
+});
+
+// Predicciones
+$("predic-anadir").addEventListener("click", () => {
+  const texto = $("predic-texto").value.trim();
+  if (!texto) return;
+  $("predic-texto").value = "";
+  const p = { id: nuevoId(), nombre: yo, texto, fecha: new Date().toISOString() };
+  guardar(`${yo} guarda una predicción`, (d) => anadirPrediccion(d, p));
+  aviso("Predicción guardada en secreto 🔮");
+});
+$("predic-lista").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-predic-borrar]");
+  if (!b || !confirm("¿Borrar tu predicción?")) return;
+  const id = b.dataset.predicBorrar;
+  guardar(`${yo} borra una predicción`, (d) => borrarPrediccion(d, id, yo));
+});
+
+// Controles de la tele (todos los juegos)
+$("fie-juego").addEventListener("click", (e) => {
+  if (!puedeDirigir()) return;
+  const q = e.target.closest("[data-quien-accion]");
+  if (q) {
+    const acc = q.dataset.quienAccion;
+    if (acc === "revelar") guardar("Se revela quién lo dijo", revelarQuien);
+    if (acc === "siguiente") {
+      const elegida = alAzar(pendientesQuien());
+      if (elegida) guardar("Siguiente respuesta", (d) => siguienteQuien(d, elegida));
+    }
+    if (acc === "reiniciar" && confirm("¿Reiniciar ¿Quién lo dijo? (se borra el marcador)")) guardar("Se reinicia ¿Quién lo dijo?", reiniciarQuien);
+    return;
+  }
+  const z = e.target.closest("[data-quiz-accion]");
+  if (z) {
+    const acc = z.dataset.quizAccion;
+    if (acc === "revelar") guardar("Se revela la respuesta del quiz", revelarQuiz);
+    if (acc === "lanzar") {
+      const p = alAzar(pendientesQuiz());
+      const inicio = new Date().toISOString();
+      if (p) guardar("Nueva pregunta de quiz", (d) => lanzarQuiz(d, p.id, inicio));
+    }
+    if (acc === "reiniciar" && confirm("¿Reiniciar el quiz (se borra el marcador)?")) guardar("Se reinicia el quiz", reiniciarQuiz);
+    return;
+  }
+  const pr = e.target.closest("[data-premio-revelar]");
+  if (pr) { revelarPremioConRedoble(pr.dataset.premioRevelar); return; }
+  if (e.target.closest("[data-premio-ocultar]") && confirm("¿Ocultar todos los ganadores?")) { guardar("Se ocultan los premios", ocultarPremios); return; }
+  const pd = e.target.closest("[data-predic-accion]");
+  if (pd) {
+    const si = pd.dataset.predicAccion === "revelar";
+    if (si && !confirm("¿Revelar todas las predicciones?")) return;
+    guardar(si ? "Se revelan las predicciones" : "Se esconden las predicciones", (d) => revelarPredicciones(d, si));
+  }
+});
+
+// Presentaciones
+$("cha-pres-subir").addEventListener("click", pulsarSubirPresentacion);
+$("cha-pres-quitar").addEventListener("click", pulsarQuitarPresentacion);
+$("cha-pres-ver").addEventListener("click", () => {
+  const mia = datos.charlas.find((c) => c.nombre === yo);
+  if (mia && mia.presentacion) lanzarPresentacion(mia.presentacion);
+});
+$("fie-presenta-info").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-lanzar]");
+  if (b) lanzarPresentacion(b.dataset.lanzar);
+});
+$("visor-cerrar").addEventListener("click", cerrarPresentacion);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("visor").hidden) cerrarPresentacion(); });
 
 // --- Sugerencias ---
 $("btn-sugerencias").addEventListener("click", () => { $("modal-sug").hidden = false; });
@@ -2046,6 +2997,9 @@ async function arrancar() {
   // 3. ¿Sabemos quién eres?
   irA(leerLocal("nb_tab") || "fechas");
   yo = leerLocal("nb_nombre");
+  document.body.classList.toggle("es-tele", esTele());
+  ponerSegmento(segmentoJuegos);
+  ponerVista(vistaFiesta);
   if (yo) { mostrar("p-app"); pintar(); }
   else { mostrar("p-nombre"); pintarSelectorNombre(); }
 }
