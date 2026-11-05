@@ -2,8 +2,8 @@
 
 ## Sesión 0: preparación (desde Chrome)
 - [x] Repo privado nochebuen-datos con datos.json
-- [ ] CLAUDE.md, prompt.md, guia.md y PLAN.md en el repo de la app
-- [ ] GitHub Pages activado: Settings → Pages → Branch: main → / (root) → Save
+- [x] CLAUDE.md, prompt.md, guia.md y PLAN.md en el repo de la app
+- [x] GitHub Pages activado: Settings → Pages → Branch: main → / (root) → Save
 - [ ] Clave del grupo: token fine-grained, 90 días, solo nochebuen-datos, Contents: Read and write. Guardado en mis notas, nunca en el repo.
 
 ## Sesión 1: base y fechas

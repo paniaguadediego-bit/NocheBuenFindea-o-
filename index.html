@@ -305,6 +305,59 @@
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 
+  /* ===== Pestaña FIESTA (para la tele) ===== */
+  .presenta { text-align: center; }
+  .presenta .turno { font-size: 13px; font-weight: 700; color: var(--rojo); text-transform: uppercase; letter-spacing: .06em; }
+  .presenta .quien { font-family: var(--titulos); font-size: 30px; color: var(--verde); line-height: 1.1; margin: 2px 0; }
+  .presenta .tema { font-size: 17px; font-weight: 600; }
+  .crono {
+    font-family: var(--titulos); font-size: 64px; line-height: 1; color: var(--verde); text-align: center;
+    margin: 8px 0; font-variant-numeric: tabular-nums;
+  }
+  .crono.ultimos { color: var(--rojo); animation: latido 1s ease-in-out infinite; }
+  .crono.fin { color: var(--rojo); }
+  .tiempo-fuera { animation: alarma .5s ease-in-out 6; }
+  .controles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .orden-lista { margin: 0; padding-left: 26px; }
+  .orden-lista li { padding: 3px 0; }
+  .orden-lista li.actual { font-weight: 700; color: var(--rojo); }
+  .orden-lista li.hecha { color: #8A7A6E; text-decoration: line-through; }
+  @keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes alarma { 0%, 100% { background: var(--tarjeta); } 50% { background: #F8C9C4; } }
+
+  /* Modo tele: solo la pestaña Fiesta, a lo grande */
+  body.modo-tele header, body.modo-tele nav, body.modo-tele .fab, body.modo-tele .banner,
+  body.modo-tele .estado-guardado, body.modo-tele .solo-movil { display: none !important; }
+  body.modo-tele main { max-width: 1100px; padding-top: calc(16px + env(safe-area-inset-top)); padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  body.modo-tele #t-fiesta { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: start; }
+  body.modo-tele #t-fiesta > .tarjeta { margin: 0; }
+  body.modo-tele #fie-barra { grid-column: 1 / -1; }
+  body.modo-tele .presenta .quien { font-size: clamp(40px, 7vw, 90px); }
+  body.modo-tele .presenta .tema { font-size: clamp(20px, 3vw, 36px); }
+  body.modo-tele .crono { font-size: clamp(90px, 16vw, 220px); }
+  body.modo-tele .orden-lista { font-size: clamp(16px, 1.8vw, 24px); }
+  @media (max-width: 700px) { body.modo-tele #t-fiesta { grid-template-columns: 1fr; } }
+
+  /* Campanadas: pantalla entera */
+  .campanadas {
+    position: fixed; inset: 0; z-index: 50; background: var(--verde); color: var(--dorado-texto);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow: hidden;
+  }
+  .campanadas .titulo-camp { font-family: var(--titulos); font-size: clamp(22px, 4vw, 44px); color: var(--crema); }
+  .campanadas .numero { font-family: var(--titulos); font-size: clamp(120px, 30vw, 360px); line-height: 1; }
+  .campanadas .uvas { font-size: clamp(28px, 5vw, 56px); letter-spacing: 2px; min-height: 1.2em; }
+  .campanadas .feliz { font-family: var(--titulos); font-size: clamp(48px, 12vw, 160px); color: var(--dorado-texto); animation: aparecer .6s ease-out; }
+  .campanadas .btn { margin-top: 16px; position: relative; z-index: 2; }
+  .destello { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+  .destello.on { animation: destello .7s ease-out; }
+  @keyframes destello { 0% { opacity: .9; } 100% { opacity: 0; } }
+  .numero.golpe { animation: golpe .5s ease-out; }
+  @keyframes golpe { 0% { transform: scale(1.35); } 100% { transform: scale(1); } }
+  .confeti { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 2px; animation: caer linear forwards; pointer-events: none; }
+  @keyframes caer { to { transform: translateY(110vh) rotate(720deg); } }
+
   /* ===== Pestañas inferiores verdes, activa en dorado ===== */
   nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
@@ -481,7 +534,34 @@
       <div id="juegos-lista"></div>
     </section>
 
-    <section id="t-fiesta" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🥂</div><h2>Fiesta</h2><p>Próximamente</p></div></section>
+    <!-- Pestaña FIESTA (para la tele) -->
+    <section id="t-fiesta" data-tab hidden>
+      <div class="tarjeta" id="fie-barra">
+        <div class="acciones" style="margin-top:0">
+          <button id="fie-tele" class="btn btn-verde">📺 Modo tele</button>
+          <button id="fie-campanadas" class="btn btn-rojo">🔔 Empezar las campanadas</button>
+        </div>
+      </div>
+
+      <div class="tarjeta presenta" id="fie-presenta">
+        <div id="fie-presenta-info"></div>
+        <div id="fie-crono" class="crono">3:00</div>
+        <div class="controles">
+          <button id="fie-anterior" class="btn btn-borde" aria-label="Anterior">⏮</button>
+          <button id="fie-play" class="btn btn-verde">▶ Empezar</button>
+          <button id="fie-reiniciar" class="btn btn-borde" aria-label="Reiniciar">↺</button>
+          <button id="fie-siguiente" class="btn btn-rojo">Siguiente ⏭</button>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <h3>🎲 Orden de las charlas</h3>
+        <div id="fie-orden"></div>
+        <div class="acciones solo-movil">
+          <button id="fie-sortear" class="btn btn-borde btn-peque" hidden>🎲 Sortear orden</button>
+        </div>
+      </div>
+    </section>
     <img src="logo.jpg" alt="" class="banner" loading="lazy">
   </main>
 
@@ -495,6 +575,15 @@
 </div>
 
 <div id="aviso" role="status" hidden></div>
+
+<!-- Campanadas (pantalla entera) -->
+<div id="campanadas" class="campanadas" hidden>
+  <div id="camp-destello" class="destello"></div>
+  <div id="camp-titulo" class="titulo-camp">🔔 Preparad las uvas…</div>
+  <div id="camp-numero" class="numero"></div>
+  <div id="camp-uvas" class="uvas"></div>
+  <button id="camp-cerrar" class="btn btn-borde">Cerrar</button>
+</div>
 
 <!-- Ventana para votar un día desde el calendario -->
 <div id="modal-dia" class="modal-fondo" hidden>
@@ -756,8 +845,12 @@ function completar(d) {
     if (typeof x.nombre !== "string") x.nombre = "";
     if (typeof x.fecha !== "string") x.fecha = "";
   }
+  if (!d.fiesta || typeof d.fiesta !== "object" || Array.isArray(d.fiesta)) d.fiesta = {};
+  if (!Array.isArray(d.fiesta.orden)) d.fiesta.orden = [];
+  d.fiesta.orden = d.fiesta.orden.filter((id) => typeof id === "string");
+  if (typeof d.fiesta.actual !== "number" || !(d.fiesta.actual >= 0)) d.fiesta.actual = 0;
   if (!d.ajustes || typeof d.ajustes !== "object") d.ajustes = {};
-  if (typeof d.ajustes.minutosCharla !== "number") d.ajustes.minutosCharla = 3;
+  if (typeof d.ajustes.minutosCharla !== "number" || !(d.ajustes.minutosCharla > 0)) d.ajustes.minutosCharla = 3;
   return d;
 }
 
@@ -958,6 +1051,7 @@ function pintar() {
   pintarCharlas();
   pintarJuegos();
   pintarSugerencias();
+  pintarFiesta();
 }
 
 function pintarCabecera() {
@@ -1458,6 +1552,239 @@ function votarDia(resp) {
 }
 
 /* =====================================================================
+   FIESTA: sorteo, cronómetro y campanadas
+   ===================================================================== */
+const ANO_NUEVO = "2027";
+let audio = null;            // contexto de Web Audio (se crea al primer toque)
+let crono = { restante: 0, corriendo: false, intervalo: null, persona: null };
+let campanadas = { temporizadores: [] };
+let bloqueoPantalla = null;  // para que la tele no se apague
+
+// Cambios de la fiesta
+function sortearCharlas(d, orden) { d.fiesta.orden = orden; d.fiesta.actual = 0; }
+function irACharla(d, indice) {
+  if (d.fiesta.actual === indice) return false;
+  d.fiesta.actual = indice;
+}
+
+// Orden real: el sorteado + las charlas nuevas al final (sin las borradas)
+function ordenCharlas() {
+  const porId = Object.fromEntries(datos.charlas.map((c) => [c.id, c]));
+  const orden = datos.fiesta.orden.filter((id) => porId[id]).map((id) => porId[id]);
+  for (const c of datos.charlas) if (!orden.includes(c)) orden.push(c);
+  return orden;
+}
+
+function indiceActual(orden) {
+  return Math.min(Math.max(datos.fiesta.actual, 0), Math.max(orden.length - 1, 0));
+}
+
+function pintarFiesta() {
+  const orden = ordenCharlas();
+  const i = indiceActual(orden);
+  const actual = orden[i];
+  const sorteado = datos.fiesta.orden.length > 0;
+
+  // Quién presenta
+  $("fie-presenta-info").innerHTML = actual ? `
+    <div class="turno">Charla ${i + 1} de ${orden.length}</div>
+    <div class="quien">${esc(actual.nombre)}</div>
+    <div class="tema">${esc(actual.tema)}</div>
+    ${actual.remoto ? `<span class="etiqueta verde">💻 Por videollamada</span>` : ""}` :
+    `<p>Todavía no hay charlas apuntadas. Se apuntan en la pestaña 📺 Charlas.</p>`;
+  for (const id of ["fie-anterior", "fie-play", "fie-reiniciar", "fie-siguiente"]) $(id).disabled = !actual;
+  $("fie-anterior").disabled = !actual || i === 0;
+  $("fie-siguiente").disabled = !actual || i >= orden.length - 1;
+
+  // Si cambia la persona, el cronómetro vuelve a empezar
+  const clave = actual ? actual.id : null;
+  if (crono.persona !== clave) { crono.persona = clave; reiniciarCrono(); }
+
+  // Lista del orden
+  $("fie-orden").innerHTML = orden.length ? `
+    ${sorteado ? "" : `<p class="suave" style="margin:0 0 4px">Aún sin sortear (orden de inscripción).</p>`}
+    <ol class="orden-lista">${orden.map((c, n) =>
+      `<li class="${n === i ? "actual" : n < i ? "hecha" : ""}">${esc(c.nombre)} <span class="suave">· ${esc(c.tema)}</span>${c.remoto ? " 💻" : ""}</li>`).join("")}</ol>` :
+    `<p class="suave" style="margin:0">Sin charlas todavía.</p>`;
+
+  // Solo Pablo sortea
+  $("fie-sortear").hidden = !soyOrganizador() || orden.length < 2;
+  $("fie-sortear").textContent = sorteado ? "🎲 Volver a sortear" : "🎲 Sortear orden";
+}
+
+function pulsarSortear() {
+  if (datos.fiesta.orden.length && !confirm("¿Volver a sortear? Se pierde el orden actual.")) return;
+  // Baraja de Fisher-Yates
+  const ids = datos.charlas.map((c) => c.id);
+  for (let k = ids.length - 1; k > 0; k--) {
+    const j = Math.floor(Math.random() * (k + 1));
+    [ids[k], ids[j]] = [ids[j], ids[k]];
+  }
+  guardar(`${yo} sortea el orden de las charlas`, (d) => sortearCharlas(d, ids));
+}
+
+function moverCharla(paso) {
+  const orden = ordenCharlas();
+  const nuevo = indiceActual(orden) + paso;
+  if (nuevo < 0 || nuevo >= orden.length) return;
+  guardar(`Charla ${nuevo + 1}: ${orden[nuevo].nombre}`, (d) => irACharla(d, nuevo));
+}
+
+// --- Cronómetro (solo en este aparato) ---
+function textoTiempo(seg) {
+  return `${Math.floor(seg / 60)}:${String(seg % 60).padStart(2, "0")}`;
+}
+
+function pintarCrono() {
+  const el = $("fie-crono");
+  el.textContent = crono.restante > 0 ? textoTiempo(crono.restante) : "¡Tiempo!";
+  el.classList.toggle("ultimos", crono.restante > 0 && crono.restante <= 30 && crono.corriendo);
+  el.classList.toggle("fin", crono.restante === 0);
+  $("fie-play").textContent = crono.corriendo ? "⏸ Pausar" : "▶ Empezar";
+}
+
+function reiniciarCrono() {
+  clearInterval(crono.intervalo);
+  crono.corriendo = false;
+  crono.restante = Math.round((datos.ajustes.minutosCharla || 3) * 60);
+  $("fie-presenta").classList.remove("tiempo-fuera");
+  pintarCrono();
+}
+
+function alternarCrono() {
+  prepararAudio();
+  if (crono.corriendo) {
+    clearInterval(crono.intervalo);
+    crono.corriendo = false;
+  } else {
+    if (crono.restante === 0) reiniciarCrono();
+    crono.corriendo = true;
+    crono.intervalo = setInterval(() => {
+      crono.restante--;
+      if (crono.restante <= 0) {
+        crono.restante = 0;
+        clearInterval(crono.intervalo);
+        crono.corriendo = false;
+        sonarGong();
+        const tarjeta = $("fie-presenta");
+        tarjeta.classList.remove("tiempo-fuera");
+        void tarjeta.offsetWidth; // para que la animación vuelva a empezar
+        tarjeta.classList.add("tiempo-fuera");
+      }
+      pintarCrono();
+    }, 1000);
+  }
+  pintarCrono();
+}
+
+// --- Sonidos con Web Audio (sin archivos) ---
+function prepararAudio() {
+  try {
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === "suspended") audio.resume();
+  } catch (e) { audio = null; }
+}
+
+// Suma de tonos que se apagan poco a poco: suena a campana o a gong
+function tocar(frecuencia, parciales, duracion, volumen) {
+  if (!audio) return;
+  const t = audio.currentTime;
+  const salida = audio.createGain();
+  salida.gain.value = volumen;
+  salida.connect(audio.destination);
+  for (const [ratio, vol] of parciales) {
+    const osc = audio.createOscillator();
+    const g = audio.createGain();
+    osc.type = "sine";
+    osc.frequency.value = frecuencia * ratio;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + duracion * (ratio < 1.5 ? 1 : 0.6));
+    osc.connect(g).connect(salida);
+    osc.start(t);
+    osc.stop(t + duracion);
+  }
+}
+function sonarCampana() { tocar(392, [[0.5, .5], [1, 1], [1.19, .5], [1.56, .4], [2, .35], [2.51, .2], [3, .15]], 2.8, 0.35); }
+function sonarGong() { tocar(110, [[1, 1], [1.48, .6], [2.15, .4], [2.9, .25]], 3.5, 0.5); }
+
+// --- Campanadas: 12 toques, uno cada 3 segundos ---
+function empezarCampanadas() {
+  prepararAudio();
+  pararCampanadas();
+  $("campanadas").hidden = false;
+  $("camp-titulo").textContent = "🔔 Preparad las uvas…";
+  $("camp-numero").textContent = "";
+  $("camp-uvas").textContent = "";
+  $("camp-cerrar").textContent = "Cancelar";
+  document.querySelectorAll(".confeti, .feliz").forEach((x) => x.remove());
+  for (let n = 1; n <= 12; n++) {
+    campanadas.temporizadores.push(setTimeout(() => toque(n), n * 3000));
+  }
+  campanadas.temporizadores.push(setTimeout(felizAno, 13 * 3000));
+}
+
+function toque(n) {
+  sonarCampana();
+  $("camp-titulo").textContent = "🔔 Campanada";
+  const num = $("camp-numero");
+  num.textContent = n;
+  num.classList.remove("golpe"); void num.offsetWidth; num.classList.add("golpe");
+  const fl = $("camp-destello");
+  fl.classList.remove("on"); void fl.offsetWidth; fl.classList.add("on");
+  $("camp-uvas").textContent = "🍇".repeat(n);
+}
+
+function felizAno() {
+  $("camp-titulo").textContent = "";
+  $("camp-numero").textContent = "";
+  $("camp-uvas").textContent = "🥂🍇🥂";
+  $("camp-cerrar").textContent = "Cerrar";
+  const f = document.createElement("div");
+  f.className = "feliz";
+  f.textContent = `¡Feliz ${ANO_NUEVO}!`;
+  $("camp-titulo").after(f);
+  // Confeti con colores de la fiesta
+  const colores = ["#B3261E", "#F2C94C", "#F6EEDC", "#C9A227", "#7BD389", "#FF8A80"];
+  for (let k = 0; k < 120; k++) {
+    const c = document.createElement("div");
+    c.className = "confeti";
+    c.style.left = Math.random() * 100 + "%";
+    c.style.background = colores[k % colores.length];
+    c.style.animationDuration = 2.5 + Math.random() * 3 + "s";
+    c.style.animationDelay = Math.random() * 1.5 + "s";
+    $("campanadas").appendChild(c);
+  }
+  sonarCampana();
+}
+
+function pararCampanadas() {
+  campanadas.temporizadores.forEach(clearTimeout);
+  campanadas.temporizadores = [];
+}
+
+function cerrarCampanadas() {
+  pararCampanadas();
+  $("campanadas").hidden = true;
+  document.querySelectorAll(".confeti, .feliz").forEach((x) => x.remove());
+}
+
+// --- Modo tele (pantalla completa) ---
+async function alternarModoTele() {
+  const activar = !document.body.classList.contains("modo-tele");
+  document.body.classList.toggle("modo-tele", activar);
+  $("fie-tele").textContent = activar ? "↩ Salir del modo tele" : "📺 Modo tele";
+  try {
+    if (activar && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+    if (!activar && document.fullscreenElement) await document.exitFullscreen();
+  } catch (e) {} // algunos móviles no dejan pantalla completa: el modo tele funciona igual
+  try {
+    if (activar && navigator.wakeLock) bloqueoPantalla = await navigator.wakeLock.request("screen");
+    if (!activar && bloqueoPantalla) { await bloqueoPantalla.release(); bloqueoPantalla = null; }
+  } catch (e) {}
+}
+
+/* =====================================================================
    SUGERENCIAS (muro que ve todo el grupo)
    ===================================================================== */
 function anadirSugerencia(d, sug) { d.sugerencias.push(sug); }
@@ -1574,6 +1901,20 @@ setInterval(() => { if (!document.hidden) refrescar(); }, RELEER_CADA_MS);
 
 // Botón del logo (arriba a la izquierda): volver a Fechas, arriba del todo
 $("btn-inicio").addEventListener("click", () => irA("fechas"));
+
+// --- Fiesta ---
+$("fie-tele").addEventListener("click", alternarModoTele);
+// Si se sale de la pantalla completa con Esc, se sale también del modo tele
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement && document.body.classList.contains("modo-tele")) alternarModoTele();
+});
+$("fie-campanadas").addEventListener("click", empezarCampanadas);
+$("camp-cerrar").addEventListener("click", cerrarCampanadas);
+$("fie-play").addEventListener("click", alternarCrono);
+$("fie-reiniciar").addEventListener("click", reiniciarCrono);
+$("fie-siguiente").addEventListener("click", () => moverCharla(1));
+$("fie-anterior").addEventListener("click", () => moverCharla(-1));
+$("fie-sortear").addEventListener("click", pulsarSortear);
 
 // --- Sugerencias ---
 $("btn-sugerencias").addEventListener("click", () => { $("modal-sug").hidden = false; });
