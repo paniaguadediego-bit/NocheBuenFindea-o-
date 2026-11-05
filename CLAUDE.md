@@ -55,14 +55,14 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 }
 ```
 
-- Respuestas de voto: "si", "quizas" (se muestra como "Si hace falta") y "no".
+- Respuestas de voto: "si", "quizas" (se muestra como "Si hace falta"), "no" y "veto". El veto solo informa (0 puntos, no cambia el ranking), pero se muestra quién veta.
 - Categorías de comida: entrante, principal, postre, bebida, otros.
 - Ids nuevos: Date.now().toString(36) más un sufijo aleatorio corto.
 - Si falta algún campo (archivo antiguo o editado a mano), la app lo rellena con un valor vacío en vez de romperse.
 
 ## Módulos (pestañas inferiores)
 
-1. **Fechas** (lo más importante): añadir fecha candidata, votar cada fecha con Sí / Si hace falta / No, ranking (sí = 2 puntos, si hace falta = 1), tarjeta "Va ganando", lista de quién falta por votar y botón para marcar la fecha oficial, que se muestra en la cabecera de todas las pestañas.
+1. **Fechas** (lo más importante): añadir fecha candidata, votar cada fecha con Sí / Si hace falta / No, ranking (sí = 2 puntos, si hace falta = 1), tarjeta "Va ganando", lista de quién falta por votar y botón para marcar la fecha oficial (solo Pablo), que se muestra en la cabecera de todas las pestañas. Calendario mensual: al tocar un día se añade como candidata, y al tocar una candidata se va a votarla. Cada fecha lleva puntos con la inicial de quien vota (o 2+ letras si se repite la inicial): verde = sí, amarillo = si hace falta, rojo = veto. No se pueden borrar fechas.
 2. **Comida**: quién trae qué, agrupado por categoría, con aviso de categorías vacías y etiqueta de alergias/notas. Cada uno puede editar o borrar lo suyo.
 3. **Charlas**: apuntarse con tema, enlace opcional y casilla "por videollamada". Botón "Copiar prompt" con el contenido de prompt.md incrustado en la app y botón "Ver la guía" con el contenido de guia.md.
 4. **Juegos**: quién trae qué juego, número de jugadores y votos (un voto por persona y juego, se puede quitar).

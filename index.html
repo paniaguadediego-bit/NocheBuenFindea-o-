@@ -113,14 +113,48 @@
   .fecha-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .fecha-cab h3 { margin: 0; }
   .puntos { font-weight: 700; color: var(--rojo); white-space: nowrap; }
-  .votos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 12px 0 8px; }
+  .votos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 8px; }
   .voto {
     min-height: 48px; border-radius: 12px; border: 2px solid var(--borde); background: #fff;
     color: var(--texto); font-weight: 600; font-size: 14px; padding: 4px;
   }
   .voto[aria-pressed="true"].si { background: var(--verde); border-color: var(--verde); color: #fff; }
   .voto[aria-pressed="true"].quizas { background: var(--dorado-texto); border-color: var(--dorado); color: var(--texto); }
-  .voto[aria-pressed="true"].no { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+  .voto[aria-pressed="true"].no { background: #6B5A4E; border-color: #6B5A4E; color: #fff; }
+  .voto[aria-pressed="true"].veto { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+  .veto-texto { color: var(--rojo); }
+
+  /* ===== Puntos con iniciales (verde = sí, amarillo = si hace falta, rojo = veto) ===== */
+  .puntos-fila { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .punto {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 28px; height: 28px; padding: 0 5px; border-radius: 999px;
+    font-size: 14px; font-weight: 700; line-height: 1;
+  }
+  .punto.si { background: var(--verde); color: #fff; }
+  .punto.quizas { background: var(--dorado-texto); color: var(--texto); }
+  .punto.veto { background: var(--rojo); color: #fff; }
+
+  /* ===== Calendario ===== */
+  .cal-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .cal-cab h3 { margin: 0; text-transform: capitalize; }
+  .cal-flecha { min-width: 44px; min-height: 44px; border-radius: 12px; border: 2px solid var(--borde); background: #fff; color: var(--verde); font-size: 20px; font-weight: 700; }
+  .cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-dia-semana { text-align: center; font-size: 14px; font-weight: 700; color: #5A4A3E; padding: 2px 0; }
+  .cal-dia {
+    min-height: 52px; border-radius: 10px; border: 2px solid transparent; background: #fff;
+    color: var(--texto); padding: 3px 1px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 14px; font-weight: 600;
+  }
+  .cal-dia.vacio { background: transparent; }
+  .cal-dia.pasado { color: #A99886; background: transparent; cursor: default; }
+  .cal-dia.candidata { border-color: var(--dorado); background: #FFF6D9; }
+  .cal-dia.oficial { border-color: var(--verde); background: var(--verde); color: var(--dorado-texto); }
+  .cal-dia.hoy .num { text-decoration: underline; text-decoration-thickness: 2px; }
+  /* En el calendario los puntos son más pequeños para que quepan los 11 */
+  .cal-puntos { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; }
+  .cal-puntos .punto { min-width: 15px; height: 15px; padding: 0 2px; font-size: 9px; }
+  .tarjeta.resaltada { box-shadow: 0 0 0 4px var(--dorado); transition: box-shadow .3s; }
   .resumen-votos { font-size: 14px; margin: 4px 0 0; }
   .resumen-votos b { font-weight: 700; }
   .etiqueta-oficial {
@@ -224,6 +258,16 @@
       <div id="fechas-ganando"></div>
 
       <div class="tarjeta">
+        <div class="cal-cab">
+          <button id="cal-antes" class="cal-flecha" aria-label="Mes anterior">‹</button>
+          <h3 id="cal-titulo"></h3>
+          <button id="cal-despues" class="cal-flecha" aria-label="Mes siguiente">›</button>
+        </div>
+        <div id="cal-rejilla" class="cal-rejilla"></div>
+        <p class="suave" style="margin:8px 0 0">Toca un día para añadirlo como candidato, o una fecha marcada para ir a votarla.</p>
+      </div>
+
+      <div class="tarjeta">
         <h3>Añadir fecha candidata</h3>
         <div class="fila">
           <input id="inp-fecha" type="date" class="campo" aria-label="Fecha candidata">
@@ -270,10 +314,12 @@ const ORGANIZADOR = "Pablo";
 const RELEER_CADA_MS = 30000;
 
 // Puntos del ranking de fechas
-const PUNTOS = { si: 2, quizas: 1, no: 0 };
-const TEXTO_VOTO = { si: "Sí", quizas: "Si hace falta", no: "No" };
+// El veto solo informa: no resta puntos, pero se ve quién veta
+const PUNTOS = { si: 2, quizas: 1, no: 0, veto: 0 };
+const TEXTO_VOTO = { si: "Sí", quizas: "Si hace falta", no: "No", veto: "Veto" };
 
 const DIAS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const MESES_LARGOS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
 /* =====================================================================
@@ -285,6 +331,7 @@ let datos = null;      // contenido de datos.json
 let shaActual = null;  // versión de datos.json que tenemos
 let guardando = 0;     // cuántos guardados hay en marcha
 let colaGuardado = Promise.resolve(); // para guardar los cambios de uno en uno
+let mesVisto = null;   // mes que enseña el calendario: { a: 2026, m: 11 } (m de 0 a 11)
 
 /* =====================================================================
    UTILIDADES
@@ -332,6 +379,28 @@ function etiquetaFecha(id) {
   const [a, m, d] = id.split("-").map(Number);
   const f = new Date(a, m - 1, d);
   return `${DIAS[f.getDay()]} ${d} ${MESES[m - 1]}`;
+}
+
+// Iniciales para los puntos: "P" si nadie más empieza por P; si se repite, "Pa", "Pe"…
+// (se alargan hasta que no coincidan con nadie)
+function calcularIniciales(nombres) {
+  const lista = [...new Set(nombres)];
+  const limpio = (n) => n.replace(/\s+/g, "");
+  const res = {};
+  for (const n of lista) {
+    let largo = 1;
+    while (largo < limpio(n).length &&
+           lista.some((o) => o !== n && normalizar(limpio(o).slice(0, largo)) === normalizar(limpio(n).slice(0, largo)))) largo++;
+    const t = limpio(n).slice(0, largo);
+    res[n] = t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+  }
+  return res;
+}
+
+// Fila de puntos de colores de una fecha (sí, si hace falta, veto)
+function puntosHtml(r, ini) {
+  const uno = (nombre, tipo) => `<span class="punto ${tipo}" title="${esc(nombre)}: ${TEXTO_VOTO[tipo]}">${esc(ini[nombre] || nombre.charAt(0))}</span>`;
+  return [...r.si.map((n) => uno(n, "si")), ...r.quizas.map((n) => uno(n, "quizas")), ...r.veto.map((n) => uno(n, "veto"))].join("");
 }
 
 function soyOrganizador() { return normalizar(yo) === normalizar(ORGANIZADOR); }
@@ -501,7 +570,7 @@ function anadirFecha(d, id) {
 function votar(d, fechaId, nombre, respuesta) {
   if (!d.votos[fechaId] || typeof d.votos[fechaId] !== "object") d.votos[fechaId] = {};
   if (d.votos[fechaId][nombre] === respuesta) return false;
-  d.votos[fechaId][nombre] = respuesta;
+  d.votos[fechaId][nombre] = respuesta; // "si", "quizas", "no" o "veto"
 }
 
 function marcarOficial(d, fechaId) {
@@ -593,7 +662,7 @@ function pintarCabecera() {
 // Puntos y recuento de una fecha
 function recuento(fechaId) {
   const v = datos.votos[fechaId] || {};
-  const r = { si: [], quizas: [], no: [], puntos: 0 };
+  const r = { si: [], quizas: [], no: [], veto: [], puntos: 0 };
   for (const [nombre, resp] of Object.entries(v)) {
     if (r[resp]) { r[resp].push(nombre); r.puntos += PUNTOS[resp]; }
   }
@@ -602,6 +671,8 @@ function recuento(fechaId) {
 
 function pintarFechas() {
   const fechas = datos.fechas.map((f) => ({ ...f, r: recuento(f.id) }));
+  const ini = calcularIniciales([...datos.participantes, ...fechas.flatMap((f) => Object.keys(datos.votos[f.id] || {}))]);
+  pintarCalendario(fechas, ini);
   // Ranking: más puntos primero; si empatan, la más temprana
   const ranking = [...fechas].sort((a, b) => b.r.puntos - a.r.puntos || a.id.localeCompare(b.id));
 
@@ -615,6 +686,8 @@ function pintarFechas() {
         <div class="grande">${empatadas.map((f) => esc(f.etiqueta)).join(" / ")}</div>
         <p class="suave">${top.r.puntos} puntos · ${top.r.si.length} sí · ${top.r.quizas.length} si hace falta
         ${empatadas.length > 1 ? " · ¡empate!" : ""}</p>
+        ${empatadas.some((f) => f.r.veto.length)
+          ? `<p class="veto-texto"><b>⛔ Vetos:</b> ${empatadas.filter((f) => f.r.veto.length).map((f) => esc(f.r.veto.join(", "))).join(" / ")}</p>` : ""}
       </div>`;
   } else {
     $("fechas-ganando").innerHTML = fechas.length
@@ -639,18 +712,20 @@ function pintarFechas() {
           : `<button class="btn btn-verde ancho" data-oficial="${esc(f.id)}">⭐ Marcar como fecha oficial</button>`;
       }
       return `
-        <div class="tarjeta ${esOficial ? "oficial" : ""}">
+        <div class="tarjeta ${esOficial ? "oficial" : ""}" data-tarjeta-fecha="${esc(f.id)}">
           ${esOficial ? `<span class="etiqueta-oficial">🎉 Fecha oficial</span>` : ""}
           <div class="fecha-cab">
             <h3>${i + 1}. ${esc(f.etiqueta)}</h3>
             <span class="puntos">${f.r.puntos} pts</span>
           </div>
           <div class="votos" role="group" aria-label="Tu voto para ${esc(f.etiqueta)}">
-            ${botonVoto("si")}${botonVoto("quizas")}${botonVoto("no")}
+            ${botonVoto("si")}${botonVoto("quizas")}${botonVoto("no")}${botonVoto("veto")}
           </div>
           <p class="resumen-votos"><b>Sí:</b> ${lista(f.r.si)}</p>
           <p class="resumen-votos"><b>Si hace falta:</b> ${lista(f.r.quizas)}</p>
           <p class="resumen-votos"><b>No:</b> ${lista(f.r.no)}</p>
+          ${f.r.veto.length ? `<p class="resumen-votos veto-texto"><b>⛔ Veto:</b> ${lista(f.r.veto)}</p>` : ""}
+          <div class="puntos-fila">${puntosHtml(f.r, ini)}</div>
           ${botonOficial ? `<div style="margin-top:12px">${botonOficial}</div>` : ""}
         </div>`;
     }).join("");
@@ -668,6 +743,59 @@ function pintarFechas() {
         ? `<p>${faltan.map((x) => esc(x.p) + (x.n < fechas.length ? ` <span class="suave">(${x.n} ${x.n === 1 ? "fecha" : "fechas"})</span>` : "")).join(", ")}</p>`
         : `<p>¡Ya ha votado todo el mundo! 🎉</p>`}
     </div>`;
+}
+
+/* =====================================================================
+   CALENDARIO (mes con las fechas candidatas y sus puntos)
+   ===================================================================== */
+function idDeDia(a, m, d) {
+  return `${a}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+function pintarCalendario(fechas, ini) {
+  const hoy = new Date();
+  const idHoy = idDeDia(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  // Primera vez: el mes de la primera fecha candidata que no haya pasado (o el actual)
+  if (!mesVisto) {
+    const prox = fechas.find((f) => f.id >= idHoy) || fechas[0];
+    const [a, m] = prox ? prox.id.split("-").map(Number) : [hoy.getFullYear(), hoy.getMonth() + 1];
+    mesVisto = { a, m: m - 1 };
+  }
+  const { a, m } = mesVisto;
+  $("cal-titulo").textContent = `${MESES_LARGOS[m]} ${a}`;
+
+  const porId = Object.fromEntries(fechas.map((f) => [f.id, f]));
+  const oficial = datos.evento.fechaOficial;
+  const huecos = (new Date(a, m, 1).getDay() + 6) % 7; // semana empieza en lunes
+  const diasMes = new Date(a, m + 1, 0).getDate();
+
+  let html = ["L", "M", "X", "J", "V", "S", "D"].map((d) => `<div class="cal-dia-semana">${d}</div>`).join("");
+  for (let i = 0; i < huecos; i++) html += `<div class="cal-dia vacio"></div>`;
+  for (let d = 1; d <= diasMes; d++) {
+    const id = idDeDia(a, m, d);
+    const f = porId[id];
+    const clases = ["cal-dia"];
+    if (f) clases.push("candidata");
+    if (id === oficial) clases.push("oficial");
+    if (id === idHoy) clases.push("hoy");
+    const pasado = id < idHoy && !f;
+    if (pasado) clases.push("pasado");
+    html += `<button class="${clases.join(" ")}" data-dia="${id}" ${pasado ? "disabled" : ""}
+              aria-label="${etiquetaFecha(id)}${f ? ", fecha candidata" : ""}">
+              <span class="num">${d}</span>
+              ${f ? `<span class="cal-puntos">${puntosHtml(f.r, ini)}</span>` : ""}
+            </button>`;
+  }
+  $("cal-rejilla").innerHTML = html;
+}
+
+function moverMes(paso) {
+  let { a, m } = mesVisto;
+  m += paso;
+  if (m < 0) { m = 11; a--; }
+  if (m > 11) { m = 0; a++; }
+  mesVisto = { a, m };
+  pintarFechas();
 }
 
 /* =====================================================================
@@ -711,6 +839,27 @@ $("btn-anadir-fecha").addEventListener("click", () => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(id)) { err.textContent = "Elige una fecha."; return; }
   if (datos.fechas.some((f) => f.id === id)) { err.textContent = "Esa fecha ya está en la lista."; return; }
   $("inp-fecha").value = "";
+  guardar(`${yo} añade la fecha ${id}`, (d) => anadirFecha(d, id));
+});
+
+// Calendario: flechas y tocar un día
+$("cal-antes").addEventListener("click", () => moverMes(-1));
+$("cal-despues").addEventListener("click", () => moverMes(1));
+$("cal-rejilla").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-dia]");
+  if (!b || b.disabled) return;
+  const id = b.dataset.dia;
+  if (datos.fechas.some((f) => f.id === id)) {
+    // Ya es candidata: ir a su tarjeta para votar
+    const t = document.querySelector(`[data-tarjeta-fecha="${id}"]`);
+    if (t) {
+      t.scrollIntoView({ behavior: "smooth", block: "center" });
+      t.classList.add("resaltada");
+      setTimeout(() => t.classList.remove("resaltada"), 1500);
+    }
+    return;
+  }
+  if (!confirm(`¿Añadir ${etiquetaFecha(id)} como fecha candidata?`)) return;
   guardar(`${yo} añade la fecha ${id}`, (d) => anadirFecha(d, id));
 });
 
