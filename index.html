@@ -793,6 +793,8 @@
   .puerta.abierta::before { display: none; }
   .puerta-contenido { animation: abrirPuerta .5s cubic-bezier(.2,.8,.2,1); }
   @keyframes abrirPuerta { from { transform: perspective(600px) rotateY(-70deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  .puerta-foto { display: block; width: 100%; max-height: 55vh; object-fit: contain; border-radius: 10px; margin: 4px 0 6px; background: #EFE4CC; }
+  .puerta-foto:not([src]) { min-height: 120px; }
   .puerta-texto { font-size: 17px; font-style: italic; white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0; }
   .leyenda-adv { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; margin-top: 10px; color: #E9DFC6; }
 </style>
@@ -1171,7 +1173,7 @@
     </div>
     <p class="suave" id="adviento-info" style="margin:6px 0 0"></p>
     <div class="puertas" id="puertas"></div>
-    <div class="leyenda-adv"><span>✍️ la has rellenado tú</span><span>🎀 ya tiene sorpresa</span><span>➕ libre para rellenar</span><span>🔒 aún cerrada</span></div>
+    <div class="leyenda-adv"><span>✍️ la has rellenado tú</span><span>📷 la tuya con foto</span><span>🎀 ya tiene sorpresa</span><span>➕ libre para rellenar</span><span>🔒 aún cerrada</span></div>
   </div>
 </div>
 
@@ -1436,6 +1438,7 @@ function completar(d) {
   if (!esObjeto(d.adviento.puertas)) d.adviento.puertas = {};
   for (const [n, pu] of Object.entries(d.adviento.puertas)) {
     if (!(Number(n) >= 1 && Number(n) <= 24) || !esObjeto(pu) || typeof pu.autor !== "string" || typeof pu.texto !== "string") delete d.adviento.puertas[n];
+    else if (typeof pu.foto !== "string") pu.foto = "";
   }
   d.carbon = (Array.isArray(d.carbon) ? d.carbon : []).filter((c) => esObjeto(c) && ["id", "de", "para", "motivo"].every((k) => typeof c[k] === "string"));
   if (!esObjeto(d.roscon) || typeof d.roscon.figurita !== "string" || typeof d.roscon.haba !== "string") d.roscon = null;
@@ -2915,14 +2918,17 @@ async function leerArchivo(ruta) {
   if (r.status === 401 || r.status === 403) throw new ErrorClave();
   if (!r.ok) throw new Error(`Error ${r.status}`);
   const j = await r.json();
-  return { texto: deBase64(j.content), sha: j.sha };
+  const base64 = String(j.content || "").replace(/\s/g, "");
+  return { get texto() { return deBase64(base64); }, base64, sha: j.sha };
 }
 
+// texto: contenido de texto, o { base64 } si ya viene codificado (fotos)
 async function escribirArchivo(ruta, texto, mensaje) {
   const previo = await leerArchivo(ruta);
+  const contenido = typeof texto === "string" ? aBase64(texto) : texto.base64;
   const r = await fetch(URL_REPO_DATOS + ruta, {
     method: "PUT", headers: { ...cabeceras(), "Content-Type": "application/json" }, cache: "no-store",
-    body: JSON.stringify({ message: mensaje, content: aBase64(texto), ...(previo ? { sha: previo.sha } : {}) })
+    body: JSON.stringify({ message: mensaje, content: contenido, ...(previo ? { sha: previo.sha } : {}) })
   });
   if (r.status === 401 || r.status === 403) throw new ErrorClave();
   if (!r.ok) throw new Error(`Error ${r.status}`);
@@ -3192,11 +3198,12 @@ const ANO_ADVIENTO = 2026;
 const ORDEN_PUERTAS = [17, 3, 22, 9, 1, 14, 6, 20, 11, 24, 5, 15, 8, 19, 2, 12, 23, 7, 16, 4, 21, 10, 18, 13];
 let puertaAbierta = null;
 
-function rellenarPuerta(d, n, autor, texto) {
+// foto: ruta de la foto en nochebuen-datos ("" = sin foto)
+function rellenarPuerta(d, n, autor, texto, foto) {
   const p = d.adviento.puertas[n];
   if (p && p.autor !== autor) return false; // ya es de otra persona
-  if (p && p.texto === texto) return false;
-  d.adviento.puertas[n] = { autor, texto, fecha: new Date().toISOString() };
+  if (p && p.texto === texto && (p.foto || "") === foto) return false;
+  d.adviento.puertas[n] = { autor, texto, foto, fecha: new Date().toISOString() };
 }
 function vaciarPuerta(d, n, autor) {
   const p = d.adviento.puertas[n];
@@ -3237,7 +3244,7 @@ function pintarAdviento() {
     if (abierta) clases.push("abierta");
     if (n === hoy) clases.push("hoy");
     let marca = "";
-    if (!abierta) marca = p ? (p.autor === yo ? "✍️" : "🎀") : (esTele() ? "" : "➕");
+    if (!abierta) marca = p ? (p.autor === yo ? (p.foto ? "📷" : "✍️") : "🎀") : (esTele() ? "" : "➕");
     return `<button class="${clases.join(" ")}" data-puerta="${n}" aria-label="Puerta ${n}${abierta ? ", abierta" : ""}">
       <span class="puerta-num">${n}</span>${!abierta ? `<span class="hueco">🔒</span>` : ""}${marca ? `<span class="marca">${marca}</span>` : ""}
     </button>`;
@@ -3257,7 +3264,10 @@ function pintarPuerta() {
   let html;
   if (puertaDisponible(n)) {
     html = p
-      ? `<div class="puerta-contenido caja-ronda"><div class="puerta-texto">${conEnlaces(p.texto)}</div><div class="suave">— Sorpresa de <b>${esc(p.autor)}</b> ${reyDe(p.autor)}</div></div>`
+      ? `<div class="puerta-contenido caja-ronda">
+          ${p.foto ? `<img class="puerta-foto" data-foto="${esc(p.foto)}" alt="Foto de la sorpresa">` : ""}
+          ${p.texto ? `<div class="puerta-texto">${conEnlaces(p.texto)}</div>` : ""}
+          <div class="suave">— Sorpresa de <b>${esc(p.autor)}</b> ${reyDe(p.autor)}</div></div>`
       : `<div class="puerta-contenido caja-ronda"><p>🎁 Esta puerta se quedó vacía… ¡alguien se despistó! Hoy toca brindar por el despistado 🥂</p></div>`;
   } else if (esTele()) {
     html = `<p>🔒 Se abre el ${n} de diciembre.</p>`;
@@ -3268,12 +3278,92 @@ function pintarPuerta() {
   } else {
     html = `<p class="suave" style="margin:0 0 6px">${p ? "Tu sorpresa (solo la ves tú hasta que se abra):" : "Escribe una sorpresa para el grupo. Nadie la verá hasta el " + n + " de diciembre."}</p>
       <textarea id="puerta-texto" class="campo campo-texto" maxlength="300" placeholder="Un chiste, un recuerdo, un reto para el grupo, un enlace a una canción…">${p ? esc(p.texto) : ""}</textarea>
+      <label for="puerta-foto-archivo">📷 Foto (opcional)</label>
+      <input id="puerta-foto-archivo" class="campo" type="file" accept="image/*">
+      <div id="puerta-foto-vista">${p && p.foto ? `<img class="puerta-foto" data-foto="${esc(p.foto)}" alt="Tu foto">
+        <label class="casilla"><input type="checkbox" id="puerta-quitar-foto"> Quitar la foto</label>` : ""}</div>
+      <div id="puerta-error" class="error-texto"></div>
       <div class="acciones">
         <button id="puerta-guardar" class="btn btn-rojo">🎀 Guardar sorpresa</button>
         ${p ? `<button id="puerta-vaciar" class="btn btn-borde">🗑️ Vaciar</button>` : ""}
       </div>`;
   }
   ponerHtml($("puerta-cuerpo"), html);
+  cargarFotos($("puerta-cuerpo"));
+}
+
+/* ----- Fotos del Adviento: se comprimen en el móvil antes de subirlas ----- */
+const FOTO_LADO_MAX = 1280;      // píxeles del lado más largo
+const FOTO_PESO_MAX = 700 * 1024; // si pesa más, se baja la calidad
+const fotosCargadas = {};         // ruta → imagen ya descargada (para no repetir)
+
+// Reduce la foto y la convierte a JPEG → base64 (sin el "data:...")
+async function comprimirFoto(archivo) {
+  const url = URL.createObjectURL(archivo);
+  try {
+    const img = await new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = mal; i.src = url; });
+    const escala = Math.min(1, FOTO_LADO_MAX / Math.max(img.naturalWidth, img.naturalHeight));
+    const lienzo = document.createElement("canvas");
+    lienzo.width = Math.round(img.naturalWidth * escala);
+    lienzo.height = Math.round(img.naturalHeight * escala);
+    const ctx = lienzo.getContext("2d");
+    ctx.fillStyle = "#fff"; // por si es un PNG con transparencia
+    ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+    ctx.drawImage(img, 0, 0, lienzo.width, lienzo.height);
+    for (const calidad of [0.78, 0.65, 0.5, 0.4]) {
+      const datos64 = lienzo.toDataURL("image/jpeg", calidad).split(",")[1];
+      if (datos64.length * 0.75 <= FOTO_PESO_MAX || calidad === 0.4) return datos64;
+    }
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+// Descarga y enseña las fotos de un hueco (las que tengan data-foto)
+async function cargarFotos(cont) {
+  for (const img of cont.querySelectorAll("img[data-foto]")) {
+    const ruta = img.dataset.foto;
+    if (img.src) continue;
+    try {
+      if (!fotosCargadas[ruta]) {
+        const a = await leerArchivo(ruta);
+        if (!a) { img.alt = "No se encuentra la foto"; continue; }
+        fotosCargadas[ruta] = "data:image/jpeg;base64," + a.base64;
+      }
+      img.src = fotosCargadas[ruta];
+    } catch (e) { img.alt = "No se pudo cargar la foto"; }
+  }
+}
+
+async function pulsarGuardarPuerta() {
+  const n = puertaAbierta;
+  const p = datos.adviento.puertas[n];
+  const texto = $("puerta-texto").value.trim();
+  const archivo = $("puerta-foto-archivo").files[0];
+  const quitar = $("puerta-quitar-foto") && $("puerta-quitar-foto").checked;
+  let foto = p && p.foto && !quitar ? p.foto : "";
+  if (!texto && !archivo && !foto) { $("puerta-error").textContent = "Escribe algo o añade una foto."; return; }
+  $("puerta-guardar").disabled = true;
+  try {
+    if (archivo) {
+      estado("Comprimiendo foto…");
+      const base64 = await comprimirFoto(archivo);
+      estado("Subiendo foto…");
+      foto = `adviento/puerta-${n}.jpg`;
+      await escribirArchivo(foto, { base64 }, `${yo} sube una foto al Adviento`);
+      fotosCargadas[foto] = "data:image/jpeg;base64," + base64;
+    } else if (quitar && p && p.foto) {
+      borrarArchivo(p.foto, `${yo} quita una foto del Adviento`).catch(() => {});
+      delete fotosCargadas[p.foto];
+    }
+    cerrarPuerta();
+    await guardar(`${yo} rellena una puerta del Adviento`, (d) => rellenarPuerta(d, n, yo, texto, foto));
+    aviso(`🎀 Sorpresa guardada en la puerta ${n}`);
+  } catch (e) {
+    if (e instanceof ErrorClave) claveMala();
+    else { estado(""); if ($("puerta-error")) $("puerta-error").textContent = "No se pudo subir la foto, inténtalo otra vez."; }
+  }
+  if ($("puerta-guardar")) $("puerta-guardar").disabled = false;
 }
 
 function abrirPuerta(n) {
@@ -3386,17 +3476,22 @@ $("puerta-cerrar").addEventListener("click", cerrarPuerta);
 $("modal-puerta").addEventListener("click", (e) => {
   if (e.target.id === "modal-puerta") { cerrarPuerta(); return; }
   const n = puertaAbierta;
-  if (e.target.closest("#puerta-guardar")) {
-    const texto = $("puerta-texto").value.trim();
-    if (!texto) return;
-    cerrarPuerta();
-    guardar(`${yo} rellena una puerta del Adviento`, (d) => rellenarPuerta(d, n, yo, texto));
-    aviso(`🎀 Sorpresa guardada en la puerta ${n}`);
-  }
+  if (e.target.closest("#puerta-guardar")) { pulsarGuardarPuerta(); return; }
   if (e.target.closest("#puerta-vaciar") && confirm("¿Vaciar esta puerta?")) {
+    const p = datos.adviento.puertas[n];
     cerrarPuerta();
+    if (p && p.foto) { borrarArchivo(p.foto, `${yo} quita una foto del Adviento`).catch(() => {}); delete fotosCargadas[p.foto]; }
     guardar(`${yo} vacía una puerta del Adviento`, (d) => vaciarPuerta(d, n, yo));
   }
+});
+// Vista previa de la foto elegida
+$("modal-puerta").addEventListener("change", (e) => {
+  if (e.target.id !== "puerta-foto-archivo" || !e.target.files[0]) return;
+  const img = document.createElement("img");
+  img.className = "puerta-foto";
+  img.alt = "Vista previa";
+  img.src = URL.createObjectURL(e.target.files[0]);
+  $("puerta-foto-vista").replaceChildren(img);
 });
 
 // Botón flotante para salir del modo tele (también en el móvil)
