@@ -6,7 +6,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 
 ## Arquitectura (no cambiar sin consultar)
 
-- Un único `index.html` con HTML, CSS y JS inline, sin frameworks, sin build y sin dependencias externas, salvo Google Fonts (Shrikhand y Work Sans, con fuentes de respaldo). Se sirve con GitHub Pages desde este repo.
+- Un único `index.html` con HTML, CSS y JS inline, sin frameworks, sin build y sin dependencias externas, salvo Google Fonts (Shrikhand y Work Sans, con fuentes de respaldo). Se sirve con GitHub Pages desde este repo. Única excepción: `logo.jpg` (el cartel de la fiesta), que sale en grande en la pantalla de elegir nombre, como franja al final de cada pestaña y en miniatura arriba a la izquierda (botón para volver a Fechas).
 - Los datos viven en otro repo privado, `nochebuen-datos`, en el archivo `datos.json`.
 - Lectura y escritura con la API de contenidos de GitHub:
   - GET https://api.github.com/repos/paniaguadediego-bit/nochebuen-datos/contents/datos.json

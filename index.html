@@ -156,6 +156,17 @@
   .cal-puntos .punto { min-width: 15px; height: 15px; padding: 0 2px; font-size: 9px; }
   .tarjeta.resaltada { box-shadow: 0 0 0 4px var(--dorado); transition: box-shadow .3s; }
 
+  /* ===== Logo (logo.jpg: el cartel de la fiesta) ===== */
+  .logo-grande { display: block; width: 100%; max-width: 320px; margin: 0 auto 12px; border-radius: 16px; box-shadow: 0 6px 20px rgba(42,30,23,.25); }
+  .cab-izq { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .btn-inicio { flex: none; width: 48px; height: 48px; padding: 0; border: 2px solid var(--dorado); border-radius: 12px; overflow: hidden; background: var(--crema); }
+  /* Se amplía el cartel para que se vea la cara de Papá Noel */
+  .btn-inicio img { width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(2.4); transform-origin: 45% 45%; }
+  header h1 { font-size: clamp(15px, 4.2vw, 26px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cab-yo { flex: none; flex-direction: column; align-items: flex-end; gap: 2px; }
+  /* Franja del cartel al final de cada pestaña */
+  .banner { display: block; width: 100%; height: 150px; object-fit: cover; object-position: 50% 46%; border-radius: 16px; border: 2px solid var(--borde); margin: 4px 0 8px; }
+
   /* ===== Comida, charlas y juegos ===== */
   .item { border-top: 1px solid var(--borde); padding: 10px 0; }
   .item:first-of-type { border-top: 0; }
@@ -257,7 +268,7 @@
 <!-- Pantalla: ¿quién eres? -->
 <section id="p-nombre" class="pantalla" hidden>
   <div class="caja">
-    <div class="emoji-grande">🎅</div>
+    <img src="logo.jpg" alt="Cartel de la NocheBuenFindeaño" class="logo-grande">
     <h1>¿Quién eres?</h1>
     <label for="sel-nombre">Elige tu nombre</label>
     <select id="sel-nombre" class="campo"></select>
@@ -275,7 +286,10 @@
 <div id="p-app" hidden>
   <header>
     <div class="cab-fila">
-      <h1 id="cab-nombre">NocheBuenFindeaño</h1>
+      <div class="cab-izq">
+        <button id="btn-inicio" class="btn-inicio" aria-label="Volver al inicio"><img src="logo.jpg" alt=""></button>
+        <h1 id="cab-nombre">NocheBuenFindeaño</h1>
+      </div>
       <div class="cab-yo">
         <span id="cab-yo"></span>
         <button id="btn-cambiar" class="btn-cambiar">Cambiar</button>
@@ -377,6 +391,7 @@
     </section>
 
     <section id="t-fiesta" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🥂</div><h2>Fiesta</h2><p>Próximamente</p></div></section>
+    <img src="logo.jpg" alt="" class="banner" loading="lazy">
   </main>
 
   <nav aria-label="Secciones">
@@ -1289,6 +1304,9 @@ $("fechas-lista").addEventListener("click", (e) => {
 // Releer al volver a la pestaña y cada 30 s mientras está visible
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refrescar(); });
 setInterval(() => { if (!document.hidden) refrescar(); }, RELEER_CADA_MS);
+
+// Botón del logo (arriba a la izquierda): volver a Fechas, arriba del todo
+$("btn-inicio").addEventListener("click", () => irA("fechas"));
 
 // --- Comida ---
 $("com-guardar").addEventListener("click", pulsarGuardarComida);
