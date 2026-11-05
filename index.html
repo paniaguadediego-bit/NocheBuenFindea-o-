@@ -116,7 +116,6 @@
     margin-bottom: 8px;
     box-shadow: 0 2px 0 var(--borde);
   }
-  .tarjeta.ganando { border-color: var(--dorado); box-shadow: 0 0 0 3px rgba(201,162,39,.25); }
   .tarjeta.oficial { border-color: var(--verde); }
   .suave { color: #5A4A3E; font-size: 13px; }
   .proximamente { text-align: center; padding: 40px 16px; }
@@ -253,9 +252,6 @@
     font-weight: 700; font-size: 12px; border-radius: 999px; padding: 1px 8px; vertical-align: 2px;
   }
   .grande { font-family: var(--titulos); font-size: 20px; color: var(--verde); }
-  .ganando { display: flex; align-items: center; gap: 10px; }
-  .ganando .copa { font-size: 28px; animation: balanceo 2.5s ease-in-out infinite; }
-  .ganando .rotulo { font-size: 12px; font-weight: 700; color: var(--rojo); text-transform: uppercase; letter-spacing: .05em; }
 
   /* ===== Gráfica de votos por fecha ===== */
   .graf-fila { display: grid; grid-template-columns: 58px 1fr 28px; align-items: center; gap: 6px; margin: 4px 0; }
@@ -488,11 +484,6 @@
   .tarjeta {
     border: 1px solid #E2D3B5;
     box-shadow: 0 1px 0 #E2D3B5, 0 10px 22px -14px rgba(42,30,23,.35);
-  }
-  .tarjeta.ganando {
-    background: linear-gradient(135deg, #FFF7DC 0%, #FFFDF7 60%);
-    border: 1.5px solid var(--dorado);
-    box-shadow: 0 0 0 3px rgba(201,162,39,.15), 0 10px 22px -14px rgba(42,30,23,.35);
   }
 
   /* Títulos de sección con una línea dorada que se desvanece */
@@ -892,7 +883,6 @@
         <span class="hero-ico">🚪</span>
         <span><b>Calendario de Adviento</b><small id="adviento-sub">24 puertas con sorpresas del grupo</small></span>
       </button>
-      <div id="fechas-ganando"></div>
 
       <div class="tarjeta">
         <div class="cal-cab">
@@ -1777,25 +1767,6 @@ function pintarFechas() {
   pintarDia();
   // Ranking: más puntos primero; si empatan, la más temprana
   const ranking = [...fechas].sort((a, b) => b.r.puntos - a.r.puntos || a.id.localeCompare(b.id));
-
-  // --- Tarjeta "Va ganando" (compacta) ---
-  const top = ranking[0];
-  if (top && top.r.puntos > 0) {
-    const empatadas = ranking.filter((f) => f.r.puntos === top.r.puntos);
-    const vetos = empatadas.filter((f) => f.r.veto.length).map((f) => f.r.veto.join(", "));
-    $("fechas-ganando").innerHTML = `
-      <div class="tarjeta ganando">
-        <span class="copa" aria-hidden="true">👑</span>
-        <div>
-          <div class="rotulo">Va ganando${empatadas.length > 1 ? " (empate)" : ""}</div>
-          <div class="grande">${empatadas.map((f) => esc(f.etiqueta)).join(" / ")}</div>
-          <div class="suave">${top.r.puntos} pts · ${top.r.si.length} sí · ${top.r.quizas.length} si hace falta</div>
-          ${vetos.length ? `<div class="suave veto-texto">⛔ Vetan: ${esc(vetos.join(" / "))}</div>` : ""}
-        </div>
-      </div>`;
-  } else {
-    $("fechas-ganando").innerHTML = "";
-  }
 
   // --- Lista de fechas (en orden de ranking) ---
   if (!fechas.length) {
