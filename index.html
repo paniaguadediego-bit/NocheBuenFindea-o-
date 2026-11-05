@@ -168,11 +168,18 @@
   .punto.si { background: var(--verde); color: #fff; }
   .punto.quizas { background: var(--dorado-texto); color: var(--texto); }
   .punto.veto { background: var(--rojo); color: #fff; }
-  /* Iniciales que empiezan igual: tono un poco distinto y aro para distinguirlas */
-  .punto.v1 { filter: brightness(1.22) saturate(.85); box-shadow: 0 0 0 1.5px #FFFDF7, 0 0 0 3px var(--dorado); margin: 0 2px; }
-  .punto.v2 { filter: brightness(.8); box-shadow: inset 0 0 0 2px rgba(255,255,255,.8); }
-  .cal-puntos .punto.v1 { box-shadow: 0 0 0 1px #FFFDF7, 0 0 0 2px var(--dorado); margin: 0 1px; }
-  .cal-puntos .punto.v2 { box-shadow: inset 0 0 0 1px rgba(255,255,255,.85); }
+  /* Iniciales que empiezan igual: aro de color por dentro (la bola mide lo mismo) y letra algo más pequeña */
+  .punto.aro { font-size: 10px; letter-spacing: -.02em; box-shadow: inset 0 0 0 2.5px var(--color-aro); }
+  .cal-puntos .punto.aro { font-size: 7px; box-shadow: inset 0 0 0 1.5px var(--color-aro); }
+  .aro1 { --color-aro: #F2C94C; } /* dorado */
+  .aro2 { --color-aro: #6EC1FF; } /* azul */
+  .aro3 { --color-aro: #FF8FC7; } /* rosa */
+  .aro4 { --color-aro: #FFFFFF; } /* blanco */
+  .aro5 { --color-aro: #F28C28; } /* naranja */
+  .aro6 { --color-aro: #B58CFF; } /* morado */
+  /* Sobre fondo amarillo, el aro dorado y el blanco se ven poco: más oscuros */
+  .punto.quizas.aro1 { --color-aro: #8A6A10; }
+  .punto.quizas.aro4 { --color-aro: #5A4A3E; }
 
   /* ===== Calendario ===== */
   .cal-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
@@ -1375,16 +1382,20 @@ function calcularIniciales(nombres) {
 
 // Fila de puntos de colores de una fecha (sí, si hace falta, veto)
 // (los puntos "no" no se pintan)
-// Si varias iniciales empiezan por la misma letra (PP y PF, Ed y Es), cada una lleva
-// un estilo distinto: la 1.ª normal, la 2.ª más clara con aro dorado, la 3.ª más oscura con aro blanco…
-function varianteInicial(nombre, ini) {
-  const letra = normalizar((ini[nombre] || nombre).charAt(0));
-  const grupo = Object.keys(ini).filter((n) => normalizar((ini[n] || n).charAt(0)) === letra).sort((a, b) => a.localeCompare(b, "es"));
-  return grupo.length > 1 ? grupo.indexOf(nombre) % 3 : 0;
+// Si varias iniciales empiezan por la misma letra (PP y PF, Ed y Es), cada una de esas
+// bolas lleva un aro de un color distinto (por orden alfabético de los nombres) para distinguirlas.
+// Devuelve 0 si la inicial no se repite, o 1, 2, 3… (el color del aro).
+function aroInicial(nombre, ini) {
+  const letra = (n) => normalizar((ini[n] || n).charAt(0));
+  const cuenta = {};
+  for (const n of Object.keys(ini)) cuenta[letra(n)] = (cuenta[letra(n)] || 0) + 1;
+  const repetidos = Object.keys(ini).filter((n) => cuenta[letra(n)] > 1).sort((a, b) => a.localeCompare(b, "es"));
+  const i = repetidos.indexOf(nombre);
+  return i < 0 ? 0 : (i % 6) + 1;
 }
 
 function puntosHtml(r, ini) {
-  const uno = (nombre, tipo) => `<span class="punto ${tipo} v${varianteInicial(nombre, ini)}" title="${esc(nombre)}: ${TEXTO_VOTO[tipo]}">${esc(ini[nombre] || nombre.charAt(0))}</span>`;
+  const uno = (nombre, tipo) => `<span class="punto ${tipo}${aroInicial(nombre, ini) ? " aro aro" + aroInicial(nombre, ini) : ""}" title="${esc(nombre)}: ${TEXTO_VOTO[tipo]}">${esc(ini[nombre] || nombre.charAt(0))}</span>`;
   return [...r.si.map((n) => uno(n, "si")), ...r.quizas.map((n) => uno(n, "quizas")), ...r.veto.map((n) => uno(n, "veto"))].join("");
 }
 
