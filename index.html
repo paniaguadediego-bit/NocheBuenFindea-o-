@@ -1306,6 +1306,9 @@ const ORGANIZADOR = "Pablo";
 const ANOS = "2026-2027";
 const SUBTITULO = "Familia de Adoce";
 
+// Nombres que no salen en "Faltan por votar" (en minúsculas y sin tildes). Ammar es una broma del grupo.
+const NO_CUENTAN_EN_FALTAN = ["ammar"];
+
 // Iniciales fijas para algunos nombres (en minúsculas y sin tildes)
 const INICIALES_FIJAS = { pablo: "PP", patri: "PF" };
 
@@ -1863,7 +1866,7 @@ function pintarFechas() {
 
   // --- Quién falta por votar ---
   if (!fechas.length) { $("fechas-faltan").innerHTML = ""; return; }
-  const faltan = datos.participantes
+  const faltan = datos.participantes.filter((p) => !NO_CUENTAN_EN_FALTAN.includes(normalizar(p)))
     .map((p) => ({ p, n: fechas.filter((f) => !(datos.votos[f.id] || {})[p]).length }))
     .filter((x) => x.n > 0);
   $("fechas-faltan").innerHTML = `
