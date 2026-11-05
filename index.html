@@ -409,7 +409,7 @@
           <button id="cal-despues" class="cal-flecha" aria-label="Mes siguiente">›</button>
         </div>
         <div id="cal-rejilla" class="cal-rejilla"></div>
-        <p class="suave" style="margin:6px 0 0">Toca un día para proponerlo, o una fecha marcada para votarla.</p>
+        <p class="suave" style="margin:6px 0 0">Toca un día para votarlo. Si aún no es candidato, se añade al votar.</p>
       </div>
 
       <div id="fechas-grafica"></div>
@@ -441,7 +441,7 @@
     <!-- Pestaña CHARLAS -->
     <section id="t-charlas" data-tab hidden>
       <div class="tarjeta">
-        <h3>🎤 Charlas de <span id="cha-minutos">3</span> minutos</h3>
+        <h3>📺 Charlas de <span id="cha-minutos">3</span> minutos</h3>
         <p class="suave">Cuenta tu hobby o lo que te apasione. Con el prompt, una IA te prepara la presentación en un momento.</p>
         <div class="acciones">
           <button id="cha-copiar" class="btn btn-verde">📋 Copiar prompt</button>
@@ -449,7 +449,7 @@
         </div>
       </div>
       <details class="tarjeta plegable" id="cha-form">
-        <summary id="cha-form-titulo">🎤 Apúntate a dar una charla</summary>
+        <summary id="cha-form-titulo">📺 Apúntate a dar una charla</summary>
         <label for="cha-tema">Tema</label>
         <input id="cha-tema" class="campo" maxlength="80" placeholder="Ej.: El mundo secreto del café">
         <label for="cha-enlace">Enlace a la presentación (opcional)</label>
@@ -488,13 +488,26 @@
   <nav aria-label="Secciones">
     <button data-ir="fechas"><span class="ico">📅</span>Fechas</button>
     <button data-ir="comida"><span class="ico">🍗</span>Comida</button>
-    <button data-ir="charlas"><span class="ico">🎤</span>Charlas</button>
+    <button data-ir="charlas"><span class="ico">📺</span>Charlas</button>
     <button data-ir="juegos"><span class="ico">🎲</span>Juegos</button>
     <button data-ir="fiesta"><span class="ico">🥂</span>Fiesta</button>
   </nav>
 </div>
 
 <div id="aviso" role="status" hidden></div>
+
+<!-- Ventana para votar un día desde el calendario -->
+<div id="modal-dia" class="modal-fondo" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dia-titulo">
+    <h2 id="dia-titulo"></h2>
+    <div id="dia-info" class="suave"></div>
+    <div id="dia-votos" class="votos" role="group" aria-label="Tu voto"></div>
+    <div class="acciones">
+      <button id="dia-blanco" class="btn btn-borde">⚪ Dejar en blanco</button>
+      <button id="dia-cerrar" class="btn btn-borde">Cerrar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Muro de sugerencias (lo ve todo el grupo) -->
 <button id="btn-sugerencias" class="fab" aria-label="Sugerencias" hidden>💡</button>
@@ -980,6 +993,7 @@ function pintarFechas() {
   const ini = calcularIniciales([...datos.participantes, ...fechas.flatMap((f) => Object.keys(datos.votos[f.id] || {}))]);
   pintarCalendario(fechas, ini);
   pintarGrafica(fechas);
+  pintarDia();
   // Ranking: más puntos primero; si empatan, la más temprana
   const ranking = [...fechas].sort((a, b) => b.r.puntos - a.r.puntos || a.id.localeCompare(b.id));
 
@@ -1257,7 +1271,7 @@ function pintarCharlas() {
   }).join("");
   $("charlas-lista").innerHTML = `
     <div class="tarjeta">
-      <h3>🎤 Apuntadas (${datos.charlas.length})</h3>
+      <h3>📺 Apuntadas (${datos.charlas.length})</h3>
       ${lista || `<p class="suave" style="margin:0">Todavía no hay charlas. ¡Anímate a ser la primera persona!</p>`}
     </div>`;
 }
@@ -1282,7 +1296,7 @@ function limpiarFormCharla() {
   $("cha-enlace").value = "";
   $("cha-remoto").checked = false;
   $("cha-error").textContent = "";
-  $("cha-form-titulo").textContent = "🎤 Apúntate a dar una charla";
+  $("cha-form-titulo").textContent = "📺 Apúntate a dar una charla";
   $("cha-form").open = false;
   $("cha-guardar").textContent = "Apuntarme";
   $("cha-cancelar").hidden = true;
@@ -1393,6 +1407,57 @@ function pulsarGuardarJuego() {
 }
 
 /* =====================================================================
+   VOTAR DESDE EL CALENDARIO (ventana al tocar un día)
+   ===================================================================== */
+let diaAbierto = null; // id del día con la ventana abierta
+
+function abrirDia(id) {
+  diaAbierto = id;
+  pintarDia();
+  $("modal-dia").hidden = false;
+}
+
+function cerrarDia() {
+  diaAbierto = null;
+  $("modal-dia").hidden = true;
+}
+
+function pintarDia() {
+  if (!diaAbierto) return;
+  const id = diaAbierto;
+  const esCandidata = datos.fechas.some((f) => f.id === id);
+  const mio = (datos.votos[id] || {})[yo];
+  $("dia-titulo").textContent = `📅 ${etiquetaFecha(id)}`;
+  if (esCandidata) {
+    const r = recuento(id);
+    const ini = calcularIniciales([...datos.participantes, ...Object.keys(datos.votos[id] || {})]);
+    $("dia-info").innerHTML = `${r.puntos} pts${r.si.length + r.quizas.length + r.veto.length ? "" : " · aún sin votos"}
+      <div class="puntos-fila">${puntosHtml(r, ini)}</div>`;
+  } else {
+    $("dia-info").textContent = "Aún no es fecha candidata. Si votas, se añade para todos.";
+  }
+  const iconos = { si: "✅", quizas: "🤷", no: "❌", veto: "⛔" };
+  $("dia-votos").innerHTML = ["si", "quizas", "no", "veto"].map((resp) =>
+    `<button class="voto ${resp}" data-dia-voto="${resp}" aria-pressed="${mio === resp}">${iconos[resp]}<br>${TEXTO_VOTO[resp]}</button>`).join("");
+  $("dia-blanco").disabled = !mio;
+}
+
+// Guarda el voto del día abierto (null = dejar en blanco)
+function votarDia(resp) {
+  const id = diaAbierto;
+  cerrarDia();
+  const mio = (datos.votos[id] || {})[yo];
+  if ((mio || null) === resp) return; // nada que cambiar
+  const esCandidata = datos.fechas.some((f) => f.id === id);
+  if (!resp && !esCandidata) return;
+  guardar(resp ? `${yo} vota "${TEXTO_VOTO[resp]}" para ${id}` : `${yo} quita su voto de ${id}`, (d) => {
+    const nueva = resp ? anadirFecha(d, id) !== false : false; // si votas, la fecha se añade si no estaba
+    const cambio = votar(d, id, yo, resp) !== false;
+    if (!nueva && !cambio) return false;
+  });
+}
+
+/* =====================================================================
    SUGERENCIAS (muro que ve todo el grupo)
    ===================================================================== */
 function anadirSugerencia(d, sug) { d.sugerencias.push(sug); }
@@ -1469,20 +1534,19 @@ $("cal-despues").addEventListener("click", () => moverMes(1));
 $("cal-rejilla").addEventListener("click", (e) => {
   const b = e.target.closest("[data-dia]");
   if (!b || b.disabled) return;
-  const id = b.dataset.dia;
-  if (datos.fechas.some((f) => f.id === id)) {
-    // Ya es candidata: ir a su tarjeta para votar
-    const t = document.querySelector(`[data-tarjeta-fecha="${id}"]`);
-    if (t) {
-      t.scrollIntoView({ behavior: "smooth", block: "center" });
-      t.classList.add("resaltada");
-      setTimeout(() => t.classList.remove("resaltada"), 1500);
-    }
-    return;
-  }
-  if (!confirm(`¿Añadir ${etiquetaFecha(id)} como fecha candidata?`)) return;
-  guardar(`${yo} añade la fecha ${id}`, (d) => anadirFecha(d, id));
+  abrirDia(b.dataset.dia);
 });
+
+// Ventana del día: votar, dejar en blanco o cerrar
+$("dia-votos").addEventListener("click", (e) => {
+  const v = e.target.closest("[data-dia-voto]");
+  if (!v) return;
+  const mio = (datos.votos[diaAbierto] || {})[yo];
+  votarDia(mio === v.dataset.diaVoto ? null : v.dataset.diaVoto); // tocar tu voto otra vez lo quita
+});
+$("dia-blanco").addEventListener("click", () => votarDia(null));
+$("dia-cerrar").addEventListener("click", cerrarDia);
+$("modal-dia").addEventListener("click", (e) => { if (e.target.id === "modal-dia") cerrarDia(); });
 
 // Votar y marcar oficial (botones que se pintan dentro de la lista)
 $("fechas-lista").addEventListener("click", (e) => {
