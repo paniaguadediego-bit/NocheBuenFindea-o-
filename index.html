@@ -264,11 +264,6 @@
   .plegable[open] > :not(summary) { animation: aparecer .25s ease-out; }
 
   /* ===== Botón y muro de sugerencias ===== */
-  .fab {
-    position: fixed; right: calc(12px + env(safe-area-inset-right)); bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 15;
-    width: 46px; height: 46px; border-radius: 50%; border: 3px solid var(--dorado); background: var(--rojo);
-    font-size: 21px; box-shadow: 0 4px 12px rgba(0,0,0,.3); animation: saltito 2.8s ease-in-out 1s 2;
-  }
   .sug { border-top: 1px dashed var(--borde); padding: 6px 0; display: flex; gap: 8px; align-items: flex-start; }
   .sug p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
   .campo-texto { min-height: 70px; resize: vertical; }
@@ -297,8 +292,8 @@
   .modal-fondo:not([hidden]) .modal { animation: subir .3s cubic-bezier(.2,.8,.2,1); }
   @keyframes subir { from { transform: translateY(40px); } to { transform: none; } }
   #aviso:not([hidden]) { animation: aparecer .25s ease-out; }
-  .btn, .voto, .icono, .cal-dia, .cal-flecha, nav button, .fab, .btn-cambiar, .btn-inicio { transition: transform .1s, background-color .2s; }
-  .btn:active, .voto:active, .icono:active, .cal-dia:active, .cal-flecha:active, nav button:active, .fab:active, .btn-cambiar:active, .btn-inicio:active { transform: scale(.94); }
+  .btn, .voto, .icono, .cal-dia, .cal-flecha, nav button, .btn-cambiar, .btn-inicio { transition: transform .1s, background-color .2s; }
+  .btn:active, .voto:active, .icono:active, .cal-dia:active, .cal-flecha:active, nav button:active, .btn-cambiar:active, .btn-inicio:active { transform: scale(.94); }
   .cal-dia.candidata:not(.oficial) { box-shadow: inset 0 0 0 1px #fff; }
   /* Quien prefiera menos movimiento en su móvil, no ve animaciones */
   @media (prefers-reduced-motion: reduce) {
@@ -326,7 +321,7 @@
   @keyframes alarma { 0%, 100% { background: var(--tarjeta); } 50% { background: #F8C9C4; } }
 
   /* Modo tele: solo la pestaña Fiesta, a lo grande */
-  body.modo-tele header, body.modo-tele nav, body.modo-tele .fab, body.modo-tele .banner,
+  body.modo-tele header, body.modo-tele nav, body.modo-tele .banner,
   body.modo-tele .estado-guardado, body.modo-tele .solo-movil { display: none !important; }
   body.modo-tele main { max-width: 1100px; padding-top: calc(16px + env(safe-area-inset-top)); padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
   body.modo-tele #t-fiesta { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: start; }
@@ -363,7 +358,7 @@
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
     background: var(--verde);
     border-top: 4px dotted var(--dorado);
-    display: grid; grid-template-columns: repeat(5, 1fr);
+    display: grid; grid-template-columns: repeat(6, 1fr);
     padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   nav button {
@@ -571,6 +566,7 @@
     <button data-ir="charlas"><span class="ico">📺</span>Charlas</button>
     <button data-ir="juegos"><span class="ico">🎲</span>Juegos</button>
     <button data-ir="fiesta"><span class="ico">🥂</span>Fiesta</button>
+    <button id="btn-sugerencias" aria-label="Tablón de sugerencias"><span class="ico">💡</span>Tablón</button>
   </nav>
 </div>
 
@@ -599,10 +595,9 @@
 </div>
 
 <!-- Muro de sugerencias (lo ve todo el grupo) -->
-<button id="btn-sugerencias" class="fab" aria-label="Sugerencias" hidden>💡</button>
 <div id="modal-sug" class="modal-fondo" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sug-titulo">
-    <h2 id="sug-titulo">💡 Sugerencias</h2>
+    <h2 id="sug-titulo">💡 Tablón de sugerencias</h2>
     <p class="suave">¿Una idea para la fiesta o para la app? Escríbela aquí y la verá todo el grupo.</p>
     <textarea id="sug-texto" class="campo campo-texto" maxlength="280" placeholder="Ej.: ¿y si hacemos amigo invisible?"></textarea>
     <div id="sug-error" class="error-texto"></div>
@@ -800,7 +795,6 @@ function estado(texto, borrarLuego) {
 // Muestra solo una pantalla
 function mostrar(id) {
   for (const p of ["p-sin-clave", "p-clave-mala", "p-cargando", "p-nombre", "p-app"]) $(p).hidden = p !== id;
-  $("btn-sugerencias").hidden = id !== "p-app";
 }
 
 /* =====================================================================
@@ -977,6 +971,16 @@ function votar(d, fechaId, nombre, respuesta) {
   if ((d.votos[fechaId][nombre] || null) === respuesta) return false;
   if (respuesta) d.votos[fechaId][nombre] = respuesta;
   else delete d.votos[fechaId][nombre];
+  // Limpieza: las fechas que ya nadie ha votado desaparecen (salvo la oficial)
+  for (const id of Object.keys(d.votos)) {
+    if (!d.votos[id] || typeof d.votos[id] !== "object" || !Object.keys(d.votos[id]).length) delete d.votos[id];
+  }
+  d.fechas = d.fechas.filter((f) => d.votos[f.id] || f.id === d.evento.fechaOficial);
+}
+
+// Una fecha se ve si alguien la ha votado o si es la oficial
+function fechaVisible(id) {
+  return Object.keys(datos.votos[id] || {}).length > 0 || datos.evento.fechaOficial === id;
 }
 
 function marcarOficial(d, fechaId) {
@@ -1083,7 +1087,7 @@ function recuento(fechaId) {
 }
 
 function pintarFechas() {
-  const fechas = datos.fechas.map((f) => ({ ...f, r: recuento(f.id) }));
+  const fechas = datos.fechas.filter((f) => fechaVisible(f.id)).map((f) => ({ ...f, r: recuento(f.id) }));
   const ini = calcularIniciales([...datos.participantes, ...fechas.flatMap((f) => Object.keys(datos.votos[f.id] || {}))]);
   pintarCalendario(fechas, ini);
   pintarGrafica(fechas);
@@ -1519,7 +1523,7 @@ function cerrarDia() {
 function pintarDia() {
   if (!diaAbierto) return;
   const id = diaAbierto;
-  const esCandidata = datos.fechas.some((f) => f.id === id);
+  const esCandidata = fechaVisible(id);
   const mio = (datos.votos[id] || {})[yo];
   $("dia-titulo").textContent = `📅 ${etiquetaFecha(id)}`;
   if (esCandidata) {
@@ -1542,7 +1546,7 @@ function votarDia(resp) {
   cerrarDia();
   const mio = (datos.votos[id] || {})[yo];
   if ((mio || null) === resp) return; // nada que cambiar
-  const esCandidata = datos.fechas.some((f) => f.id === id);
+  const esCandidata = fechaVisible(id);
   if (!resp && !esCandidata) return;
   guardar(resp ? `${yo} vota "${TEXTO_VOTO[resp]}" para ${id}` : `${yo} quita su voto de ${id}`, (d) => {
     const nueva = resp ? anadirFecha(d, id) !== false : false; // si votas, la fecha se añade si no estaba
@@ -1795,9 +1799,8 @@ function borrarSugerencia(d, id, nombre) {
 }
 
 function pintarSugerencias() {
-  $("btn-sugerencias").hidden = $("p-app").hidden;
   const n = datos.sugerencias.length;
-  $("btn-sugerencias").setAttribute("aria-label", `Sugerencias (${n})`);
+  $("btn-sugerencias").setAttribute("aria-label", `Tablón de sugerencias (${n})`);
   const lista = [...datos.sugerencias].reverse().map((x) => {
     const f = x.fecha ? new Date(x.fecha) : null;
     const cuando = f && !isNaN(f) ? ` · ${f.getDate()} ${MESES[f.getMonth()]}` : "";
