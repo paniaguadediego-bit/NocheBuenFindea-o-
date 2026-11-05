@@ -31,13 +31,13 @@
     background-size: 22px 22px;
     color: var(--texto);
     font-family: var(--cuerpo);
-    font-size: 16px;
-    line-height: 1.4;
+    font-size: 15px;
+    line-height: 1.35;
     -webkit-text-size-adjust: 100%;
   }
   h1, h2, h3 { font-family: var(--titulos); font-weight: 400; margin: 0 0 .4em; line-height: 1.15; }
-  h2 { font-size: 24px; color: var(--rojo); }
-  h3 { font-size: 18px; color: var(--verde); }
+  h2 { font-size: 20px; color: var(--rojo); }
+  h3 { font-size: 16px; color: var(--verde); }
   button, input, select { font: inherit; }
   button { cursor: pointer; }
   [hidden] { display: none !important; }
@@ -52,7 +52,7 @@
     text-align: center;
   }
   .pantalla .caja { width: 100%; max-width: 420px; }
-  .pantalla h1 { font-size: 34px; color: var(--rojo); }
+  .pantalla h1 { font-size: 28px; color: var(--rojo); }
   .emoji-grande { font-size: 56px; margin-bottom: 8px; }
 
   /* ===== Cabecera roja con borde punteado dorado ===== */
@@ -67,20 +67,20 @@
   }
   header h1 { font-size: 26px; margin: 0; color: var(--crema); }
   .cab-fila { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .cab-oficial { margin-top: 4px; font-size: 15px; font-weight: 600; color: #FFE9A8; }
+  .cab-oficial { margin-top: 2px; font-size: 13px; font-weight: 600; color: #FFE9A8; }
   .cab-yo { font-size: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   .btn-cambiar {
-    flex: none; min-height: 44px; padding: 2px 10px; border-radius: 10px;
+    flex: none; min-height: 40px; padding: 2px 8px; border-radius: 10px;
     background: transparent; color: var(--crema); border: 2px solid var(--crema); font-weight: 700; font-size: 14px;
     display: flex; flex-direction: column; align-items: center; line-height: 1.15;
   }
   .btn-cambiar span { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .btn-cambiar small { font-size: 14px; font-weight: 400; opacity: .9; }
+  .btn-cambiar small { font-size: 13px; font-weight: 400; opacity: .9; }
   /* "Guardando…" / "Guardado": pastilla flotante encima de las pestañas */
   .estado-guardado {
-    position: fixed; left: calc(12px + env(safe-area-inset-left)); bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 15;
-    background: var(--verde); color: var(--dorado-texto); font-size: 14px; font-weight: 600;
-    padding: 6px 12px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    position: fixed; left: calc(12px + env(safe-area-inset-left)); bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 15;
+    background: var(--verde); color: var(--dorado-texto); font-size: 13px; font-weight: 600;
+    padding: 4px 10px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,.2);
     animation: aparecer .25s ease-out;
   }
   .estado-guardado:empty { display: none; }
@@ -88,26 +88,26 @@
   /* ===== Contenido ===== */
   main {
     max-width: 640px; margin: 0 auto;
-    padding: 12px calc(12px + env(safe-area-inset-right)) calc(150px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+    padding: 4px calc(10px + env(safe-area-inset-right)) calc(130px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
   }
   .tarjeta {
     background: var(--tarjeta);
     border: 2px solid var(--borde);
-    border-radius: 16px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    box-shadow: 0 3px 0 var(--borde);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 0 var(--borde);
   }
   .tarjeta.ganando { border-color: var(--dorado); box-shadow: 0 0 0 3px rgba(201,162,39,.25); }
   .tarjeta.oficial { border-color: var(--verde); }
-  .suave { color: #5A4A3E; font-size: 14px; }
+  .suave { color: #5A4A3E; font-size: 13px; }
   .proximamente { text-align: center; padding: 40px 16px; }
   .proximamente .emoji-grande { font-size: 48px; }
 
   /* ===== Botones y campos ===== */
   .btn {
-    min-height: 44px; padding: 10px 16px; border-radius: 12px; border: 2px solid transparent;
-    font-weight: 700; font-size: 16px;
+    min-height: 40px; padding: 7px 14px; border-radius: 10px; border: 2px solid transparent;
+    font-weight: 700; font-size: 15px;
   }
   .btn-rojo { background: var(--rojo); color: #fff; }
   .btn-verde { background: var(--verde); color: var(--dorado-texto); }
@@ -115,23 +115,23 @@
   .btn:disabled { opacity: .5; cursor: default; }
   .ancho { width: 100%; }
   .campo {
-    width: 100%; min-height: 48px; padding: 10px 12px; border-radius: 12px;
+    width: 100%; min-height: 42px; padding: 7px 10px; border-radius: 10px;
     border: 2px solid var(--borde); background: #fff; color: var(--texto); font-size: 16px;
   }
   .campo:focus, .btn:focus-visible, .voto:focus-visible, nav button:focus-visible { outline: 3px solid var(--dorado); outline-offset: 2px; }
   .fila { display: flex; gap: 8px; align-items: stretch; }
   .fila .campo { flex: 1; min-width: 0; }
-  label { display: block; font-weight: 600; margin: 10px 0 6px; text-align: left; }
-  .error-texto { color: var(--rojo); font-weight: 600; font-size: 14px; min-height: 1.4em; margin-top: 6px; text-align: left; }
+  label { display: block; font-weight: 600; font-size: 14px; margin: 8px 0 4px; text-align: left; }
+  .error-texto { color: var(--rojo); font-weight: 600; font-size: 13px; min-height: 1em; margin-top: 4px; text-align: left; }
 
   /* ===== Fechas ===== */
   .fecha-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .fecha-cab h3 { margin: 0; }
   .puntos { font-weight: 700; color: var(--rojo); white-space: nowrap; }
-  .votos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 8px 0 6px; }
+  .votos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 6px 0 4px; }
   .voto {
-    min-height: 44px; line-height: 1.1; border-radius: 12px; border: 2px solid var(--borde); background: #fff;
-    color: var(--texto); font-weight: 600; font-size: 14px; padding: 4px;
+    min-height: 40px; line-height: 1.05; border-radius: 10px; border: 2px solid var(--borde); background: #fff;
+    color: var(--texto); font-weight: 600; font-size: 13px; padding: 2px;
   }
   .voto[aria-pressed="true"].si { background: var(--verde); border-color: var(--verde); color: #fff; }
   .voto[aria-pressed="true"].quizas { background: var(--dorado-texto); border-color: var(--dorado); color: var(--texto); }
@@ -140,26 +140,28 @@
   .veto-texto { color: var(--rojo); }
 
   /* ===== Puntos con iniciales (verde = sí, amarillo = si hace falta, rojo = veto) ===== */
+  .fecha-pie { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .fecha-pie .btn-peque { flex: none; min-height: 32px; }
   .puntos-fila { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
   .punto {
     display: inline-flex; align-items: center; justify-content: center;
-    min-width: 26px; height: 26px; padding: 0 5px; border-radius: 999px;
-    font-size: 14px; font-weight: 700; line-height: 1;
+    min-width: 22px; height: 22px; padding: 0 4px; border-radius: 999px;
+    font-size: 12px; font-weight: 700; line-height: 1;
   }
   .punto.si { background: var(--verde); color: #fff; }
   .punto.quizas { background: var(--dorado-texto); color: var(--texto); }
   .punto.veto { background: var(--rojo); color: #fff; }
 
   /* ===== Calendario ===== */
-  .cal-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .cal-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
   .cal-cab h3 { margin: 0; text-transform: capitalize; }
-  .cal-flecha { min-width: 44px; min-height: 44px; border-radius: 12px; border: 2px solid var(--borde); background: #fff; color: var(--verde); font-size: 20px; font-weight: 700; }
+  .cal-flecha { min-width: 40px; min-height: 36px; border-radius: 10px; border: 2px solid var(--borde); background: #fff; color: var(--verde); font-size: 20px; font-weight: 700; }
   .cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .cal-dia-semana { text-align: center; font-size: 14px; font-weight: 700; color: #5A4A3E; padding: 2px 0; }
+  .cal-dia-semana { text-align: center; font-size: 13px; font-weight: 700; color: #5A4A3E; padding: 2px 0; }
   .cal-dia {
-    min-height: 44px; border-radius: 10px; border: 2px solid transparent; background: #fff;
-    color: var(--texto); padding: 3px 1px; display: flex; flex-direction: column; align-items: center; gap: 2px;
-    font-size: 14px; font-weight: 600;
+    min-height: 38px; border-radius: 8px; border: 2px solid transparent; background: #fff;
+    color: var(--texto); padding: 2px 1px; display: flex; flex-direction: column; align-items: center; gap: 1px;
+    font-size: 13px; font-weight: 600;
   }
   .cal-dia.vacio { background: transparent; }
   .cal-dia.pasado { color: #A99886; background: transparent; cursor: default; }
@@ -168,47 +170,47 @@
   .cal-dia.hoy .num { text-decoration: underline; text-decoration-thickness: 2px; }
   /* En el calendario los puntos son más pequeños para que quepan los 11 */
   .cal-puntos { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; }
-  .cal-puntos .punto { min-width: 15px; height: 15px; padding: 0 2px; font-size: 9px; }
+  .cal-puntos .punto { min-width: 14px; height: 14px; padding: 0 2px; font-size: 8px; }
   .tarjeta.resaltada { box-shadow: 0 0 0 4px var(--dorado); transition: box-shadow .3s; }
 
   /* ===== Logo (logo.jpg: el cartel de la fiesta) ===== */
-  .logo-grande { display: block; width: 100%; max-width: 320px; margin: 0 auto 12px; border-radius: 16px; box-shadow: 0 6px 20px rgba(42,30,23,.25); }
+  .logo-grande { display: block; width: 100%; max-width: 260px; margin: 0 auto 12px; border-radius: 16px; box-shadow: 0 6px 20px rgba(42,30,23,.25); }
   .cab-izq { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .btn-inicio { flex: none; width: 48px; height: 48px; padding: 0; border: 2px solid var(--dorado); border-radius: 12px; overflow: hidden; background: var(--crema); }
+  .btn-inicio { flex: none; width: 40px; height: 40px; padding: 0; border: 2px solid var(--dorado); border-radius: 12px; overflow: hidden; background: var(--crema); }
   /* Se amplía el cartel para que se vea la cara de Papá Noel */
   .btn-inicio img { width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(2.4); transform-origin: 45% 45%; }
   .cab-textos { min-width: 0; }
-  header h1 { font-size: clamp(17px, 5vw, 26px); display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; }
+  header h1 { font-size: clamp(16px, 4.6vw, 22px); display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; }
   header h1 #cab-nombre { white-space: nowrap; }
-  .anos { font-family: var(--cuerpo); font-weight: 700; font-size: 14px; color: var(--dorado-texto); white-space: nowrap; }
-  .subtitulo { font-size: 14px; font-style: italic; color: #FFE9A8; }
+  .anos { font-family: var(--cuerpo); font-weight: 700; font-size: 13px; color: var(--dorado-texto); white-space: nowrap; }
+  .subtitulo { font-size: 13px; font-style: italic; color: #FFE9A8; }
   /* Franja del cartel al final de cada pestaña */
-  .banner { display: block; width: 100%; height: 150px; object-fit: cover; object-position: 50% 46%; border-radius: 16px; border: 2px solid var(--borde); margin: 4px 0 8px; }
+  .banner { display: block; width: 100%; height: 110px; object-fit: cover; object-position: 50% 46%; border-radius: 16px; border: 2px solid var(--borde); margin: 4px 0 8px; }
 
   /* ===== Comida, charlas y juegos ===== */
-  .item { border-top: 1px dashed var(--borde); padding: 8px 0; display: flex; align-items: center; gap: 8px; }
+  .item { border-top: 1px dashed var(--borde); padding: 5px 0; display: flex; align-items: center; gap: 8px; }
   .item-texto { flex: 1; min-width: 0; }
   .item-botones { display: flex; gap: 4px; flex: none; }
   .icono {
-    min-width: 44px; min-height: 44px; border-radius: 12px; border: 2px solid var(--borde);
-    background: #fff; font-size: 18px; padding: 0 8px; font-weight: 700; color: var(--verde);
+    min-width: 38px; min-height: 38px; border-radius: 10px; border: 2px solid var(--borde);
+    background: #fff; font-size: 15px; padding: 0 6px; font-weight: 700; color: var(--verde);
   }
-  .cat-titulo { font-weight: 700; color: var(--verde); margin: 10px 0 0; font-size: 16px; }
+  .cat-titulo { font-weight: 700; color: var(--verde); margin: 6px 0 0; font-size: 15px; }
   .cat-titulo:first-of-type { margin-top: 2px; }
   .item:first-of-type { border-top: 0; }
-  .item-titulo { font-weight: 700; font-size: 16px; }
+  .item-titulo { font-weight: 700; font-size: 15px; }
   .etiqueta {
     display: inline-block; background: #FBE3DF; color: #7A1A14; border-radius: 999px;
-    font-size: 14px; font-weight: 600; padding: 2px 10px; margin-top: 4px;
+    font-size: 12px; font-weight: 600; padding: 1px 8px; margin-top: 2px;
   }
   .etiqueta.verde { background: #DDEBE3; color: var(--verde); }
-  .acciones { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .acciones { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
   .acciones .btn { flex: 1; min-width: 120px; }
-  .btn-peque { min-height: 44px; padding: 6px 12px; font-size: 14px; }
+  .btn-peque { min-height: 36px; padding: 4px 10px; font-size: 13px; }
   .acciones .btn-peque { flex: 0 1 auto; min-width: 0; }
   .aviso-vacio { color: #7A1A14; font-weight: 600; margin: 0; }
-  .casilla { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; margin: 8px 0; }
-  .casilla input { width: 24px; height: 24px; accent-color: var(--verde); }
+  .casilla { display: flex; align-items: center; gap: 8px; min-height: 38px; font-weight: 600; font-size: 14px; margin: 4px 0; }
+  .casilla input { width: 20px; height: 20px; accent-color: var(--verde); }
   a { color: var(--verde); font-weight: 600; word-break: break-word; }
   .voto-juego[aria-pressed="true"] { background: var(--verde); color: var(--dorado-texto); border-color: var(--verde); }
 
@@ -220,41 +222,41 @@
   }
   .modal {
     background: var(--tarjeta); width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto;
-    border-radius: 20px 20px 0 0; border-top: 4px dotted var(--dorado);
-    padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+    border-radius: 18px 18px 0 0; border-top: 4px dotted var(--dorado);
+    padding: 14px 14px calc(14px + env(safe-area-inset-bottom)); font-size: 14px;
   }
   .modal ol { padding-left: 22px; }
-  .modal li { margin-bottom: 8px; }
+  .modal li { margin-bottom: 5px; }
   .modal code { background: #F1E6CF; padding: 1px 5px; border-radius: 6px; }
-  .resumen-votos { font-size: 14px; margin: 4px 0 0; }
+  .resumen-votos { font-size: 13px; margin: 2px 0 0; }
   .resumen-votos b { font-weight: 700; }
   .etiqueta-oficial {
     display: inline-block; background: var(--verde); color: var(--dorado-texto);
-    font-weight: 700; font-size: 14px; border-radius: 999px; padding: 2px 10px; margin-bottom: 6px;
+    font-weight: 700; font-size: 12px; border-radius: 999px; padding: 1px 8px; vertical-align: 2px;
   }
-  .grande { font-family: var(--titulos); font-size: 24px; color: var(--verde); }
-  .ganando { display: flex; align-items: center; gap: 12px; }
-  .ganando .copa { font-size: 36px; animation: balanceo 2.5s ease-in-out infinite; }
-  .ganando .rotulo { font-size: 14px; font-weight: 700; color: var(--rojo); text-transform: uppercase; letter-spacing: .05em; }
+  .grande { font-family: var(--titulos); font-size: 20px; color: var(--verde); }
+  .ganando { display: flex; align-items: center; gap: 10px; }
+  .ganando .copa { font-size: 28px; animation: balanceo 2.5s ease-in-out infinite; }
+  .ganando .rotulo { font-size: 12px; font-weight: 700; color: var(--rojo); text-transform: uppercase; letter-spacing: .05em; }
 
   /* ===== Gráfica de votos por fecha ===== */
-  .graf-fila { display: grid; grid-template-columns: 64px 1fr 34px; align-items: center; gap: 8px; margin: 6px 0; }
-  .graf-et { font-size: 14px; font-weight: 700; white-space: nowrap; }
-  .graf-barra { display: flex; height: 26px; border-radius: 999px; overflow: hidden; background: #EFE4CC; transform-origin: left; }
+  .graf-fila { display: grid; grid-template-columns: 58px 1fr 28px; align-items: center; gap: 6px; margin: 4px 0; }
+  .graf-et { font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .graf-barra { display: flex; height: 20px; border-radius: 999px; overflow: hidden; background: #EFE4CC; transform-origin: left; }
   .graf-barra.anima { animation: crecer .9s cubic-bezier(.2,.8,.2,1) both; }
-  .graf-tramo { display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; min-width: 0; overflow: hidden; }
+  .graf-tramo { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; min-width: 0; overflow: hidden; }
   .graf-tramo.si { background: var(--verde); color: #fff; }
   .graf-tramo.quizas { background: var(--dorado-texto); color: var(--texto); }
   .graf-tramo.no { background: #8A7A6E; color: #fff; }
   .graf-tramo.veto { background: var(--rojo); color: #fff; }
-  .graf-pts { font-weight: 700; color: var(--rojo); text-align: right; font-size: 14px; }
-  .leyenda { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 14px; margin-top: 8px; }
+  .graf-pts { font-weight: 700; color: var(--rojo); text-align: right; font-size: 13px; }
+  .leyenda { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 12px; margin-top: 4px; }
   .leyenda i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
 
   /* ===== Formularios plegables (para que todo ocupe menos) ===== */
   .plegable summary {
-    list-style: none; cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: space-between;
-    font-family: var(--titulos); font-size: 18px; color: var(--rojo);
+    list-style: none; cursor: pointer; min-height: 36px; display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--titulos); font-size: 16px; color: var(--rojo);
   }
   .plegable summary::-webkit-details-marker { display: none; }
   .plegable summary::after { content: "＋"; font-family: var(--cuerpo); font-weight: 700; color: var(--verde); transition: transform .25s; }
@@ -263,13 +265,13 @@
 
   /* ===== Botón y muro de sugerencias ===== */
   .fab {
-    position: fixed; right: calc(14px + env(safe-area-inset-right)); bottom: calc(80px + env(safe-area-inset-bottom)); z-index: 15;
-    width: 56px; height: 56px; border-radius: 50%; border: 3px solid var(--dorado); background: var(--rojo);
-    font-size: 26px; box-shadow: 0 4px 12px rgba(0,0,0,.3); animation: saltito 2.8s ease-in-out 1s 2;
+    position: fixed; right: calc(12px + env(safe-area-inset-right)); bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 15;
+    width: 46px; height: 46px; border-radius: 50%; border: 3px solid var(--dorado); background: var(--rojo);
+    font-size: 21px; box-shadow: 0 4px 12px rgba(0,0,0,.3); animation: saltito 2.8s ease-in-out 1s 2;
   }
-  .sug { border-top: 1px dashed var(--borde); padding: 8px 0; display: flex; gap: 8px; align-items: flex-start; }
+  .sug { border-top: 1px dashed var(--borde); padding: 6px 0; display: flex; gap: 8px; align-items: flex-start; }
   .sug p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .campo-texto { min-height: 88px; resize: vertical; }
+  .campo-texto { min-height: 70px; resize: vertical; }
 
   /* ===== Guirnalda de luces bajo la cabecera ===== */
   .guirnalda {
@@ -312,19 +314,19 @@
     padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   nav button {
-    min-height: 60px; background: transparent; border: 0; color: var(--crema);
-    font-size: 14px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    min-height: 50px; background: transparent; border: 0; color: var(--crema);
+    font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
     padding: 4px 2px;
   }
-  nav button .ico { font-size: 22px; line-height: 1; }
+  nav button .ico { font-size: 19px; line-height: 1; }
   nav button[aria-current="page"] { color: var(--dorado-texto); box-shadow: inset 0 4px 0 var(--dorado-texto); }
 
   /* ===== Aviso flotante ===== */
   #aviso {
     position: fixed; left: 50%; transform: translateX(-50%);
-    bottom: calc(80px + env(safe-area-inset-bottom));
+    bottom: calc(120px + env(safe-area-inset-bottom));
     background: var(--texto); color: var(--crema);
-    padding: 12px 16px; border-radius: 12px; font-size: 15px; z-index: 20;
+    padding: 8px 14px; border-radius: 10px; font-size: 14px; z-index: 20;
     max-width: calc(100% - 32px); text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,.25);
   }
 </style>
@@ -1025,10 +1027,12 @@ function pintarFechas() {
           <div class="votos" role="group" aria-label="Tu voto para ${esc(f.etiqueta)}">
             ${botonVoto("si", "✅")}${botonVoto("quizas", "🤷")}${botonVoto("no", "❌")}${botonVoto("veto", "⛔")}
           </div>
-          <div class="puntos-fila">${puntosHtml(f.r, ini)}</div>
+          <div class="fecha-pie">
+            <div class="puntos-fila">${puntosHtml(f.r, ini)}</div>
+            ${botonOficial}
+          </div>
           ${f.r.veto.length ? `<p class="resumen-votos veto-texto"><b>⛔ Vetan:</b> ${f.r.veto.map(esc).join(", ")}</p>` : ""}
           ${f.r.no.length ? `<p class="resumen-votos suave"><b>No:</b> ${f.r.no.map(esc).join(", ")}</p>` : ""}
-          ${botonOficial ? `<div class="acciones">${botonOficial}</div>` : ""}
         </div>`;
     }).join("");
   }

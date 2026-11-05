@@ -82,7 +82,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Estilo retro navideño. Colores: rojo #B3261E, verde bosque #1F4D3A, crema #F6EEDC, dorado #C9A227 (decoración) y #F2C94C (texto sobre verde), texto #2A1E17, tarjetas #FFFDF7 con borde #E2D3B5.
 - Títulos en Shrikhand y texto en Work Sans.
 - Cabecera roja con el nombre de la fiesta y borde punteado dorado. Pestañas inferiores verdes, con la activa en dorado.
-- Primero para móvil: botones de al menos 44 px, texto mínimo 14 px y buen contraste.
+- Primero para móvil y compacto: botones de unos 36-40 px, texto normal de 15 px (mínimo 12 px en etiquetas pequeñas) y buen contraste. Los campos de texto se quedan en 16 px para que el iPhone no haga zoom.
 - Confirmar antes de borrar cualquier cosa.
 - Respetar la zona segura del móvil (env(safe-area-inset-*)).
 
@@ -93,3 +93,4 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Al terminar, explicar cómo probarlo desde el móvil.
 - No añadir funciones que no estén aquí sin preguntar.
 - Nunca escribir la clave ni ningún token en ningún archivo.
+- Pablo autoriza a hacer commit, push y fusionar PRs en este repo sin pedir permiso, salvo que diga lo contrario.
