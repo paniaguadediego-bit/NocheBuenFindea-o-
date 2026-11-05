@@ -602,6 +602,117 @@
   .campanadas .numero { text-shadow: 0 6px 0 rgba(0,0,0,.25), 0 0 40px rgba(242,201,76,.35); }
 
   @media (prefers-reduced-motion: reduce) { #nieve { display: none; } }
+
+  /* =====================================================================
+     REYES MAGOS Y CARTAS
+     ===================================================================== */
+  /* Estrella de Oriente que cruza la cabecera */
+  .cielo { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .cometa { position: absolute; top: 8px; left: -40px; font-size: 13px; animation: cometa 24s linear infinite; filter: drop-shadow(0 0 4px #FFE9A8); }
+  .cometa::before {
+    content: ""; position: absolute; right: 100%; top: 50%; width: 70px; height: 2px; margin-top: -1px; border-radius: 2px;
+    background: linear-gradient(90deg, rgba(255,233,168,0), rgba(255,233,168,.9));
+  }
+  @keyframes cometa { 0% { transform: translate(0, 0); } 22% { transform: translate(calc(100vw + 120px), 14px); } 100% { transform: translate(calc(100vw + 120px), 14px); } }
+
+  /* Caravana de los Reyes en la pantalla de entrada */
+  .caravana { position: relative; height: 40px; overflow: hidden; margin-top: 14px; }
+  .caravana .fila-reyes { position: absolute; top: 4px; white-space: nowrap; font-size: 24px; animation: caravana 26s linear -9s infinite; }
+  .caravana .fila-reyes span { display: inline-block; animation: paso .9s ease-in-out infinite alternate; margin-right: 10px; }
+  .caravana .fila-reyes span:nth-child(2n) { animation-delay: .45s; }
+  /* Van hacia la derecha, siguiendo a la estrella */
+  @keyframes caravana { from { transform: translateX(-110%); } to { transform: translateX(110%); } }
+  @keyframes paso { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+  .caravana .fila-reyes { left: 0; width: 100%; }
+
+  /* Carta en papel antiguo */
+  .carta {
+    position: relative; margin: 4px 2px 18px; padding: 16px 14px 16px;
+    background: linear-gradient(180deg, #FDF7E6 0%, #F8EDD0 100%);
+    border: 1px solid #E0CFA6; border-radius: 4px 4px 10px 10px;
+    box-shadow: 0 1px 0 #E0CFA6, 0 14px 26px -16px rgba(42,30,23,.45);
+    transform: rotate(-.4deg);
+  }
+  .carta::after { /* esquina doblada */
+    content: ""; position: absolute; right: 0; bottom: 0; width: 26px; height: 26px;
+    background: linear-gradient(315deg, var(--crema) 50%, #E8D7AE 50%); border-radius: 0 0 10px 0;
+  }
+  .carta-sello {
+    position: absolute; top: 12px; right: 12px; width: 44px; height: 52px; display: grid; place-items: center; font-size: 24px;
+    background: #fff; border: 2px dashed var(--rojo); outline: 3px solid #fff; transform: rotate(6deg); box-shadow: 0 2px 4px rgba(0,0,0,.15);
+  }
+  .para-selector { margin-right: 60px; }
+  .carta-saludo { font-family: var(--titulos); color: var(--rojo); font-size: 20px; margin: 10px 0 2px; }
+  .carta textarea {
+    display: block; width: 100%; min-height: 140px; resize: vertical; border: 0; outline: none; padding: 2px 2px 0;
+    background: repeating-linear-gradient(transparent 0 27px, #D9C7A0 27px 28px); line-height: 28px;
+    font: italic 16px var(--cuerpo); color: var(--texto);
+  }
+  .carta-firma { text-align: right; font-style: italic; margin: 6px 4px 10px; color: #5A4A3E; }
+
+  /* Sobres del buzón */
+  .sobre {
+    position: relative; margin: 0 0 22px; padding: 30px 14px 22px;
+    background: linear-gradient(180deg, #F6EACB, #EFDFB8); border: 1px solid #DCC79A; border-radius: 6px;
+    box-shadow: 0 10px 20px -14px rgba(42,30,23,.45);
+  }
+  .sobre::before { /* solapa */
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 26px; background: #E6D2A2;
+    clip-path: polygon(0 0, 100% 0, 50% 100%); border-radius: 6px 6px 0 0;
+  }
+  .sobre-sello { position: absolute; top: 6px; right: 10px; font-size: 18px; background: #fff; border: 1.5px dashed var(--rojo); padding: 2px 4px; transform: rotate(5deg); }
+  .sobre-para { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--verde); }
+  .sobre-texto { margin: 6px 0; font-style: italic; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .lacre {
+    position: absolute; left: 50%; bottom: -14px; margin-left: -17px; width: 34px; height: 34px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 15px; color: #FFE9A8;
+    background: radial-gradient(circle at 35% 30%, #E0584C, #9E1F18 70%); box-shadow: 0 2px 5px rgba(0,0,0,.3);
+  }
+  .sobre .icono { position: absolute; right: 8px; bottom: 8px; }
+
+  /* Elegir Rey Mago */
+  .reyes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .rey {
+    border: 1.5px solid #E2D3B5; border-radius: 12px; background: linear-gradient(180deg, #fff, #FBF6EA); box-shadow: 0 2px 0 #E2D3B5;
+    padding: 6px 4px; text-align: center; font-size: 13px; color: var(--texto);
+  }
+  .rey .cara { display: block; font-size: 30px; line-height: 1.1; }
+  .rey b { display: block; font-size: 14px; }
+  .rey[aria-pressed="true"] {
+    background: linear-gradient(180deg, #FFF0B8, #E9B93A); border-color: var(--dorado); box-shadow: 0 2px 0 #A8861B, 0 0 0 3px rgba(201,162,39,.25);
+  }
+
+  /* Carbón */
+  .carbon-fila { display: flex; align-items: baseline; gap: 6px; }
+  .carbon-trozos { letter-spacing: -2px; }
+
+  /* Roscón en la tele */
+  /* Roscón dibujado: masa, azúcar y fruta escarchada */
+  .roscon {
+    width: 150px; height: 150px; margin: 4px auto 8px; border-radius: 50%; position: relative;
+    background:
+      radial-gradient(circle at 50% 14%, #D6262B 0 6px, transparent 7px),
+      radial-gradient(circle at 84% 38%, #3E9B4F 0 6px, transparent 7px),
+      radial-gradient(circle at 76% 80%, #F28C28 0 6px, transparent 7px),
+      radial-gradient(circle at 26% 82%, #D6262B 0 6px, transparent 7px),
+      radial-gradient(circle at 14% 40%, #3E9B4F 0 6px, transparent 7px),
+      radial-gradient(circle at 34% 20%, #FFF 0 3px, transparent 4px),
+      radial-gradient(circle at 70% 22%, #FFF 0 3px, transparent 4px),
+      radial-gradient(circle at 88% 62%, #FFF 0 3px, transparent 4px),
+      radial-gradient(circle at 50% 90%, #FFF 0 3px, transparent 4px),
+      radial-gradient(circle at 12% 64%, #FFF 0 3px, transparent 4px),
+      radial-gradient(circle, transparent 0 30%, #E8B46A 31%, #D99A4E 52%, #B7752F 68%, #9C5F22 70%, transparent 71%);
+    filter: drop-shadow(0 6px 8px rgba(42,30,23,.3));
+  }
+  .roscon.girando { animation: girar 1s linear infinite; }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  .roscon-giro { font-family: var(--titulos); font-size: 32px; color: var(--rojo); text-align: center; min-height: 1.2em; }
+  .roscon-res { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: center; }
+  .roscon-res .caja-ronda { margin: 0; }
+  body.modo-tele .roscon { width: clamp(150px, 22vw, 280px); height: clamp(150px, 22vw, 280px); }
+  body.modo-tele .roscon-giro { font-size: clamp(40px, 7vw, 90px); }
+
+  @media (prefers-reduced-motion: reduce) { .cometa, .caravana { display: none; } }
 </style>
 </head>
 <body>
@@ -613,6 +724,7 @@
     <h1>NocheBuenFindeaño</h1>
     <p>Abre el enlace que se ha compartido en el grupo de WhatsApp.</p>
     <p class="suave">Es la llave para entrar. Solo hace falta abrirlo una vez en cada móvil.</p>
+    <div class="caravana" aria-hidden="true"><div class="fila-reyes"><span>🤴🏿</span><span>🐪</span> <span>🤴🏼</span><span>🐪</span> <span>🤴🏻</span><span>🐪</span> <span>⭐</span></div></div>
   </div>
 </section>
 
@@ -649,6 +761,7 @@
     </div>
     <div id="nombre-error" class="error-texto"></div>
     <button id="btn-entrar" class="btn btn-rojo ancho" style="margin-top:8px">Entrar</button>
+    <div class="caravana" aria-hidden="true"><div class="fila-reyes"><span>🤴🏿</span><span>🐪</span> <span>🤴🏼</span><span>🐪</span> <span>🤴🏻</span><span>🐪</span> <span>⭐</span></div></div>
   </div>
 </section>
 
@@ -667,6 +780,7 @@
     </div>
     <div id="cab-oficial" class="cab-oficial" hidden></div>
     <div class="guirnalda"></div>
+    <div class="cielo" aria-hidden="true"><span class="cometa">⭐</span></div>
   </header>
   <div id="estado" class="estado-guardado" aria-live="polite"></div>
 
@@ -864,6 +978,8 @@
           <button data-vista="quiz" aria-pressed="false">🧠 Quiz</button>
           <button data-vista="premios" aria-pressed="false">🏆 Premios</button>
           <button data-vista="predic" aria-pressed="false">🔮 Predicciones</button>
+          <button data-vista="roscon" aria-pressed="false">👑 Roscón</button>
+          <button data-vista="carbon" aria-pressed="false">⚫ Carbón</button>
         </div>
       </div>
 
@@ -889,6 +1005,46 @@
       <!-- Juego que se enseña en la tele -->
       <div class="tarjeta" id="fie-juego"></div>
     </section>
+    <!-- Pestaña CARTAS (tablón con forma de carta a los Reyes o a Papá Noel) -->
+    <section id="t-cartas" data-tab hidden>
+      <div class="carta solo-jugador">
+        <div class="carta-sello" id="carta-sello" aria-hidden="true">👑</div>
+        <div class="segmentos para-selector" role="group" aria-label="¿A quién escribes?">
+          <button data-para="reyes" aria-pressed="true">👑 Reyes</button>
+          <button data-para="noel" aria-pressed="false">🎅 Papá Noel</button>
+        </div>
+        <div class="carta-saludo" id="carta-saludo">Queridos Reyes Magos:</div>
+        <textarea id="sug-texto" maxlength="400" aria-label="Tu carta" placeholder="Este año me he portado muy bien y os pido…"></textarea>
+        <div class="carta-firma" id="carta-firma"></div>
+        <div id="sug-error" class="error-texto"></div>
+        <button id="sug-enviar" class="btn btn-rojo ancho">✉️ Echar al buzón</button>
+      </div>
+      <p class="suave" style="margin:-6px 4px 10px">Deseos, ideas para la fiesta o peticiones para la app: todas las cartas se ven en el buzón.</p>
+
+      <h2>📬 El buzón</h2>
+      <div id="sug-lista"></div>
+
+      <div class="tarjeta">
+        <h3>👑 Tu Rey Mago</h3>
+        <p class="suave" style="margin:0 0 6px">Elige a tu favorito: saldrá junto a tu nombre.</p>
+        <div class="reyes solo-jugador" id="reyes-elegir"></div>
+      </div>
+
+      <div class="tarjeta">
+        <h3>⚫ Carbón dulce</h3>
+        <p class="suave" style="margin:0 0 6px">En broma: deja un trozo de carbón a quien se lo haya ganado.</p>
+        <div class="solo-jugador">
+          <select id="carbon-para" class="campo" aria-label="¿Para quién?"></select>
+          <div class="resp-fila">
+            <input id="carbon-motivo" class="campo" maxlength="80" placeholder="Por… (ej.: llegar tarde a todo)">
+            <button id="carbon-dejar" class="btn btn-verde">⚫ Dejar</button>
+          </div>
+          <div id="carbon-error" class="error-texto"></div>
+        </div>
+        <div id="carbon-lista"></div>
+      </div>
+    </section>
+
     <img src="logo.jpg" alt="" class="banner" loading="lazy">
   </main>
 
@@ -898,7 +1054,7 @@
     <button data-ir="charlas"><span class="ico">📺</span>Charlas</button>
     <button data-ir="juegos"><span class="ico">🎲</span>Juegos</button>
     <button data-ir="fiesta"><span class="ico">🥂</span>Fiesta</button>
-    <button id="btn-sugerencias" aria-label="Tablón de sugerencias"><span class="ico">💡</span>Tablón</button>
+    <button data-ir="cartas"><span class="ico">💌</span>Cartas</button>
   </nav>
 </div>
 
@@ -933,20 +1089,6 @@
   </div>
 </div>
 
-<!-- Muro de sugerencias (lo ve todo el grupo) -->
-<div id="modal-sug" class="modal-fondo" hidden>
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sug-titulo">
-    <h2 id="sug-titulo">💡 Tablón de sugerencias</h2>
-    <p class="suave">¿Una idea para la fiesta o para la app? Escríbela aquí y la verá todo el grupo.</p>
-    <textarea id="sug-texto" class="campo campo-texto" maxlength="280" placeholder="Ej.: ¿y si hacemos amigo invisible?"></textarea>
-    <div id="sug-error" class="error-texto"></div>
-    <div class="acciones">
-      <button id="sug-enviar" class="btn btn-rojo">Enviar</button>
-      <button id="sug-cerrar" class="btn btn-borde">Cerrar</button>
-    </div>
-    <div id="sug-lista" style="margin-top:12px"></div>
-  </div>
-</div>
 
 <!-- Ventana con la guía de las charlas (contenido de guia.md) -->
 <div id="modal-guia" class="modal-fondo" hidden>
@@ -1175,12 +1317,17 @@ function completar(d) {
     if (!Array.isArray(j.votos)) j.votos = [];
     j.votos = [...new Set(j.votos.filter((n) => typeof n === "string"))];
   }
+  // Reyes Magos: rey favorito de cada uno, carbón y roscón
+  if (!esObjeto(d.reyes)) d.reyes = {};
+  d.carbon = (Array.isArray(d.carbon) ? d.carbon : []).filter((c) => esObjeto(c) && ["id", "de", "para", "motivo"].every((k) => typeof c[k] === "string"));
+  if (!esObjeto(d.roscon) || typeof d.roscon.figurita !== "string" || typeof d.roscon.haba !== "string") d.roscon = null;
   if (!Array.isArray(d.sugerencias)) d.sugerencias = [];
   d.sugerencias = d.sugerencias.filter((x) => x && typeof x === "object" && typeof x.texto === "string");
   for (const x of d.sugerencias) {
     if (typeof x.id !== "string" || !x.id) x.id = nuevoId();
     if (typeof x.nombre !== "string") x.nombre = "";
     if (typeof x.fecha !== "string") x.fecha = "";
+    if (x.para !== "noel") x.para = "reyes";
   }
   if (!d.fiesta || typeof d.fiesta !== "object" || Array.isArray(d.fiesta)) d.fiesta = {};
   if (!Array.isArray(d.fiesta.orden)) d.fiesta.orden = [];
@@ -1431,7 +1578,7 @@ function pintarCabecera() {
   $("cab-anos").textContent = ANOS;
   $("cab-subtitulo").textContent = SUBTITULO;
   document.title = `${datos.evento.nombre} ${ANOS}`;
-  $("cab-yo").textContent = yo;
+  $("cab-yo").textContent = `${reyDe(yo)} ${yo}`.trim();
   const of = datos.evento.fechaOficial;
   const cab = $("cab-oficial");
   if (of) {
@@ -1470,7 +1617,7 @@ function pintarFechas() {
     const vetos = empatadas.filter((f) => f.r.veto.length).map((f) => f.r.veto.join(", "));
     $("fechas-ganando").innerHTML = `
       <div class="tarjeta ganando">
-        <span class="copa" aria-hidden="true">🏆</span>
+        <span class="copa" aria-hidden="true">👑</span>
         <div>
           <div class="rotulo">Va ganando${empatadas.length > 1 ? " (empate)" : ""}</div>
           <div class="grande">${empatadas.map((f) => esc(f.etiqueta)).join(" / ")}</div>
@@ -1501,7 +1648,7 @@ function pintarFechas() {
       return `
         <div class="tarjeta ${esOficial ? "oficial" : ""}" data-tarjeta-fecha="${esc(f.id)}">
           <div class="fecha-cab">
-            <h3>${i + 1}. ${esc(f.etiqueta)} ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>
+            <h3>${i === 0 && f.r.puntos > 0 ? "👑 " : ""}${i + 1}. ${esc(f.etiqueta)} ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>
             <span class="puntos">${f.r.puntos} pts</span>
           </div>
           <div class="votos" role="group" aria-label="Tu voto para ${esc(f.etiqueta)}">
@@ -2625,7 +2772,7 @@ function ponerVista(v) {
 }
 
 function pintarJuegoTele() {
-  const html = { quien: pintarQuienTele, quiz: pintarQuizTele, premios: pintarPremiosTele, predic: pintarPrediccionesTele }[vistaFiesta];
+  const html = { quien: pintarQuienTele, quiz: pintarQuizTele, premios: pintarPremiosTele, predic: pintarPrediccionesTele, roscon: pintarRosconTele, carbon: pintarCarbonTele }[vistaFiesta];
   if (html) ponerHtml($("fie-juego"), html());
 }
 
@@ -2757,8 +2904,14 @@ async function cerrarPresentacion() {
 }
 
 /* =====================================================================
-   SUGERENCIAS (muro que ve todo el grupo)
+   CARTAS (el tablón: cartas a los Reyes Magos o a Papá Noel)
    ===================================================================== */
+const DESTINOS = {
+  reyes: { saludo: "Queridos Reyes Magos:", para: "SS. MM. los Reyes Magos de Oriente", sello: "👑", lacre: "✦", placeholder: "Este año me he portado muy bien y os pido…" },
+  noel: { saludo: "Querido Papá Noel:", para: "Papá Noel · Polo Norte", sello: "🎅", lacre: "🎄", placeholder: "Querido Papá Noel, este año me gustaría…" }
+};
+let cartaPara = "reyes";
+
 function anadirSugerencia(d, sug) { d.sugerencias.push(sug); }
 function borrarSugerencia(d, id, nombre) {
   const antes = d.sugerencias.length;
@@ -2766,31 +2919,150 @@ function borrarSugerencia(d, id, nombre) {
   if (d.sugerencias.length === antes) return false;
 }
 
+function ponerDestino(para) {
+  cartaPara = DESTINOS[para] ? para : "reyes";
+  const dest = DESTINOS[cartaPara];
+  document.querySelectorAll("[data-para]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.para === cartaPara));
+  $("carta-saludo").textContent = dest.saludo;
+  $("carta-sello").textContent = dest.sello;
+  $("sug-texto").placeholder = dest.placeholder;
+}
+
+function fechaCorta(iso) {
+  const f = iso ? new Date(iso) : null;
+  return f && !isNaN(f) ? `${f.getDate()} ${MESES[f.getMonth()]}` : "";
+}
+
 function pintarSugerencias() {
-  const n = datos.sugerencias.length;
-  $("btn-sugerencias").setAttribute("aria-label", `Tablón de sugerencias (${n})`);
+  $("carta-firma").textContent = yo ? `Con cariño, ${yo}${reyDe(yo) ? " " + reyDe(yo) : ""}` : "";
   const lista = [...datos.sugerencias].reverse().map((x) => {
-    const f = x.fecha ? new Date(x.fecha) : null;
-    const cuando = f && !isNaN(f) ? ` · ${f.getDate()} ${MESES[f.getMonth()]}` : "";
+    const dest = DESTINOS[x.para] || DESTINOS.reyes;
+    const cuando = fechaCorta(x.fecha);
     return `
-      <div class="sug">
-        <div style="flex:1;min-width:0">
-          <p>${esc(x.texto)}</p>
-          <div class="suave">— ${esc(x.nombre)}${cuando}</div>
-        </div>
-        ${x.nombre === yo ? `<button class="icono" data-sug-borrar="${esc(x.id)}" aria-label="Borrar sugerencia">🗑️</button>` : ""}
+      <div class="sobre">
+        <span class="sobre-sello" aria-hidden="true">${dest.sello}</span>
+        <div class="sobre-para">Para: ${dest.para}</div>
+        <p class="sobre-texto">${esc(x.texto)}</p>
+        <div class="suave">De: ${esc(x.nombre)} ${reyDe(x.nombre)}${cuando ? " · " + cuando : ""}</div>
+        ${x.nombre === yo ? `<button class="icono" data-sug-borrar="${esc(x.id)}" aria-label="Borrar carta">🗑️</button>` : ""}
+        <span class="lacre" aria-hidden="true">${dest.lacre}</span>
       </div>`;
   }).join("");
-  $("sug-lista").innerHTML = lista || `<p class="suave">Aún no hay sugerencias. ¡Sé la primera persona!</p>`;
+  $("sug-lista").innerHTML = lista || `<p class="suave">El buzón está vacío. ¡Escribe la primera carta!</p>`;
+  pintarReyes();
+  pintarCarbon();
 }
 
 function pulsarEnviarSugerencia() {
   const texto = $("sug-texto").value.trim();
-  if (!texto) { $("sug-error").textContent = "Escribe tu sugerencia."; return; }
+  if (!texto) { $("sug-error").textContent = "Escribe tu carta antes de echarla al buzón."; return; }
   $("sug-error").textContent = "";
   $("sug-texto").value = "";
-  const sug = { id: nuevoId(), nombre: yo, texto, fecha: new Date().toISOString() };
-  guardar(`${yo} deja una sugerencia`, (d) => anadirSugerencia(d, sug));
+  const sug = { id: nuevoId(), nombre: yo, para: cartaPara, texto, fecha: new Date().toISOString() };
+  guardar(`${yo} escribe una carta`, (d) => anadirSugerencia(d, sug));
+  aviso(cartaPara === "noel" ? "Carta enviada al Polo Norte 🎅" : "Carta enviada a Oriente 🐪✨");
+}
+
+/* =====================================================================
+   TU REY MAGO
+   ===================================================================== */
+const REYES = {
+  melchor: { cara: "🤴🏻", nombre: "Melchor", regalo: "oro" },
+  gaspar: { cara: "🤴🏼", nombre: "Gaspar", regalo: "incienso" },
+  baltasar: { cara: "🤴🏿", nombre: "Baltasar", regalo: "mirra" }
+};
+function reyDe(nombre) {
+  const r = datos && datos.reyes[nombre];
+  return REYES[r] ? REYES[r].cara : "";
+}
+function elegirRey(d, nombre, rey) {
+  if (d.reyes[nombre] === rey) delete d.reyes[nombre]; // tocarlo otra vez lo quita
+  else d.reyes[nombre] = rey;
+}
+function pintarReyes() {
+  const mio = datos.reyes[yo];
+  const cuenta = (r) => Object.values(datos.reyes).filter((x) => x === r).length;
+  ponerHtml($("reyes-elegir"), Object.entries(REYES).map(([id, r]) =>
+    `<button class="rey" data-rey="${id}" aria-pressed="${mio === id}">
+      <span class="cara">${r.cara}</span><b>${r.nombre}</b><span class="suave">${r.regalo} · ${cuenta(id)}</span>
+    </button>`).join(""));
+}
+
+/* =====================================================================
+   CARBÓN DULCE
+   ===================================================================== */
+function dejarCarbon(d, c) { d.carbon.push(c); }
+function quitarCarbon(d, id, nombre) {
+  const antes = d.carbon.length;
+  d.carbon = d.carbon.filter((c) => !(c.id === id && c.de === nombre));
+  if (d.carbon.length === antes) return false;
+}
+function rankingCarbon() {
+  const por = {};
+  for (const c of datos.carbon) (por[c.para] = por[c.para] || []).push(c);
+  return Object.entries(por).sort((a, b) => b[1].length - a[1].length);
+}
+function carbonHtml(conBorrar) {
+  const ranking = rankingCarbon();
+  if (!ranking.length) return `<p class="suave" style="margin:6px 0 0">Nadie tiene carbón… de momento 😇</p>`;
+  return ranking.map(([nombre, trozos], i) => `
+    <div class="item" style="display:block">
+      <div class="carbon-fila"><b>${i === 0 ? "🏴 " : ""}${esc(nombre)} ${reyDe(nombre)}</b>
+        <span class="carbon-trozos" aria-label="${trozos.length} trozos">${"⚫".repeat(Math.min(trozos.length, 12))}</span>
+        <span class="suave">${trozos.length}</span></div>
+      ${trozos.map((c) => `<div class="suave">· ${esc(c.motivo)} <i>(de ${esc(c.de)})</i>
+        ${conBorrar && c.de === yo ? `<button class="icono" style="min-height:28px;min-width:28px;font-size:12px" data-carbon-quitar="${esc(c.id)}" aria-label="Quitar carbón">✕</button>` : ""}</div>`).join("")}
+    </div>`).join("");
+}
+function pintarCarbon() {
+  ponerHtml($("carbon-para"), `<option value="">¿Para quién?</option>` +
+    jugadores().filter((n) => n !== yo).map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join(""));
+  ponerHtml($("carbon-lista"), carbonHtml(true));
+}
+function pintarCarbonTele() {
+  return `<h2>⚫ Carbón dulce</h2><p class="suave" style="margin:0">Los que este año se han ganado carbón… con cariño.</p>${carbonHtml(false)}`;
+}
+
+/* =====================================================================
+   ROSCÓN DE REYES: figurita (rey de la noche) y haba (paga el roscón)
+   ===================================================================== */
+let rosconGirando = null; // intervalo de la animación mientras se "parte"
+
+function partirRoscon(d, res) { d.roscon = res; }
+
+function pintarRosconTele() {
+  const r = datos.roscon;
+  let html = `<h2>👑 Roscón de Reyes</h2><div class="roscon${rosconGirando ? " girando" : ""}" aria-hidden="true"></div>`;
+  if (rosconGirando) html += `<div class="roscon-giro" data-roscon-giro>…</div>`;
+  else if (r) html += `<div class="roscon-res">
+      <div class="caja-ronda"><div class="pregunta">👑 La figurita</div><div class="ganador">${esc(r.figurita)}</div><div class="suave">¡Rey o reina de la noche!</div></div>
+      <div class="caja-ronda"><div class="pregunta">🫘 El haba</div><div class="ganador">${esc(r.haba)}</div><div class="suave">Paga el roscón el año que viene</div></div>
+    </div>`;
+  else html += `<p style="text-align:center">¿A quién le tocará la figurita… y a quién el haba?</p>`;
+  if (puedeDirigir() && !rosconGirando && jugadores().length >= 2) {
+    html += `<div class="acciones" style="justify-content:center"><button class="btn btn-rojo" data-roscon-partir>🔪 ${r ? "Volver a partir" : "Partir el roscón"}</button></div>`;
+  }
+  return html;
+}
+
+function pulsarPartirRoscon() {
+  if (datos.roscon && !confirm("¿Volver a partir el roscón?")) return;
+  const nombres = [...jugadores()];
+  for (let k = nombres.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [nombres[k], nombres[j]] = [nombres[j], nombres[k]]; }
+  const res = { figurita: nombres[0], haba: nombres[1], fecha: new Date().toISOString() };
+  // Los nombres van pasando rápido durante 3 segundos (con redoble) y luego sale el resultado
+  rosconGirando = setInterval(() => {
+    const el = document.querySelector("[data-roscon-giro]");
+    if (el) el.textContent = alAzar(nombres);
+  }, 90);
+  pintarFiesta();
+  sonarRedoble();
+  setTimeout(() => {
+    clearInterval(rosconGirando);
+    rosconGirando = null;
+    guardar("Se parte el roscón", (d) => partirRoscon(d, res));
+    sonarCampana();
+  }, 3000);
 }
 
 /* =====================================================================
@@ -2896,7 +3168,7 @@ $("fie-anterior").addEventListener("click", () => moverCharla(-1));
 $("fie-sortear").addEventListener("click", pulsarSortear);
 
 // --- Juegos en vivo ---
-document.querySelector(".segmentos").addEventListener("click", (e) => {
+document.querySelector("#t-juegos .segmentos").addEventListener("click", (e) => {
   const b = e.target.closest("[data-seg]");
   if (b) ponerSegmento(b.dataset.seg);
 });
@@ -3010,6 +3282,7 @@ $("predic-lista").addEventListener("click", (e) => {
 // Controles de la tele (todos los juegos)
 $("fie-juego").addEventListener("click", (e) => {
   if (!puedeDirigir()) return;
+  if (e.target.closest("[data-roscon-partir]")) { pulsarPartirRoscon(); return; }
   const q = e.target.closest("[data-quien-accion]");
   if (q) {
     const acc = q.dataset.quienAccion;
@@ -3059,15 +3332,41 @@ $("visor-cerrar").addEventListener("click", cerrarPresentacion);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("visor").hidden) cerrarPresentacion(); });
 
 // --- Sugerencias ---
-$("btn-sugerencias").addEventListener("click", () => { $("modal-sug").hidden = false; });
-$("sug-cerrar").addEventListener("click", () => { $("modal-sug").hidden = true; });
-$("modal-sug").addEventListener("click", (e) => { if (e.target.id === "modal-sug") $("modal-sug").hidden = true; });
+document.querySelector(".para-selector").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-para]");
+  if (b) ponerDestino(b.dataset.para);
+});
+ponerDestino("reyes");
 $("sug-enviar").addEventListener("click", pulsarEnviarSugerencia);
 $("sug-lista").addEventListener("click", (e) => {
   const b = e.target.closest("[data-sug-borrar]");
-  if (!b || !confirm("¿Borrar tu sugerencia?")) return;
+  if (!b || !confirm("¿Borrar tu carta?")) return;
   const id = b.dataset.sugBorrar;
-  guardar(`${yo} borra una sugerencia`, (d) => borrarSugerencia(d, id, yo));
+  guardar(`${yo} borra una carta`, (d) => borrarSugerencia(d, id, yo));
+});
+
+// --- Rey Mago y carbón ---
+$("reyes-elegir").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-rey]");
+  if (!b) return;
+  const rey = b.dataset.rey;
+  guardar(`${yo} elige Rey Mago`, (d) => elegirRey(d, yo, rey));
+});
+$("carbon-dejar").addEventListener("click", () => {
+  const para = $("carbon-para").value, motivo = $("carbon-motivo").value.trim();
+  if (!para || !motivo) { $("carbon-error").textContent = "Elige a quién y escribe el motivo."; return; }
+  $("carbon-error").textContent = "";
+  $("carbon-motivo").value = "";
+  $("carbon-para").value = "";
+  const c = { id: nuevoId(), de: yo, para, motivo, fecha: new Date().toISOString() };
+  guardar(`${yo} deja carbón a ${para}`, (d) => dejarCarbon(d, c));
+  aviso(`⚫ Carbón para ${para}`);
+});
+$("carbon-lista").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-carbon-quitar]");
+  if (!b || !confirm("¿Quitar este carbón?")) return;
+  const id = b.dataset.carbonQuitar;
+  guardar(`${yo} quita un carbón`, (d) => quitarCarbon(d, id, yo));
 });
 
 // --- Comida ---
