@@ -91,7 +91,8 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 
 - Se abre desde la tarjeta grande de arriba en Fechas (pantalla entera). 24 puertas en orden desordenado, del 1 al 24 de diciembre de 2026.
 - Lo rellena el grupo: cada uno puede rellenar hasta ceil(24 / participantes) puertas (mínimo 2) con un texto de hasta 300 caracteres (los enlaces http/https se vuelven clicables). Nadie más ve el contenido hasta su día; entonces se abre y se ve quién lo escribió.
-- `adviento` = { puertas: { "5": { autor, texto, fecha } } }. Cada uno edita o vacía las suyas mientras siguen cerradas.
+- Cada puerta puede llevar una foto (opcional). Antes de subirla se reduce en el móvil a 1280 px como máximo y se pasa a JPEG (calidad 0,78, que baja hasta 0,4 si pesa más de 700 KB). Se guarda en `nochebuen-datos/adviento/puerta-<n>.jpg`.
+- `adviento` = { puertas: { "5": { autor, texto, foto, fecha } } } (`foto` es la ruta o ""). Cada uno edita o vacía las suyas mientras siguen cerradas; al vaciar o quitar la foto, se borra el archivo.
 
 ## Cartas (el tablón) y Reyes Magos
 
