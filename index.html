@@ -155,6 +155,39 @@
   .cal-puntos { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; }
   .cal-puntos .punto { min-width: 15px; height: 15px; padding: 0 2px; font-size: 9px; }
   .tarjeta.resaltada { box-shadow: 0 0 0 4px var(--dorado); transition: box-shadow .3s; }
+
+  /* ===== Comida, charlas y juegos ===== */
+  .item { border-top: 1px solid var(--borde); padding: 10px 0; }
+  .item:first-of-type { border-top: 0; }
+  .item-titulo { font-weight: 700; font-size: 17px; }
+  .etiqueta {
+    display: inline-block; background: #FBE3DF; color: #7A1A14; border-radius: 999px;
+    font-size: 14px; font-weight: 600; padding: 2px 10px; margin-top: 4px;
+  }
+  .etiqueta.verde { background: #DDEBE3; color: var(--verde); }
+  .acciones { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .acciones .btn { flex: 1; min-width: 120px; }
+  .btn-peque { min-height: 44px; padding: 6px 12px; font-size: 14px; }
+  .aviso-vacio { color: #7A1A14; font-weight: 600; margin: 0; }
+  .casilla { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; margin: 8px 0; }
+  .casilla input { width: 24px; height: 24px; accent-color: var(--verde); }
+  a { color: var(--verde); font-weight: 600; word-break: break-word; }
+  .voto-juego[aria-pressed="true"] { background: var(--verde); color: var(--dorado-texto); border-color: var(--verde); }
+
+  /* Ventana de la guía */
+  .modal-fondo {
+    position: fixed; inset: 0; z-index: 30; background: rgba(42,30,23,.6);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+  .modal {
+    background: var(--tarjeta); width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto;
+    border-radius: 20px 20px 0 0; border-top: 4px dotted var(--dorado);
+    padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  }
+  .modal ol { padding-left: 22px; }
+  .modal li { margin-bottom: 8px; }
+  .modal code { background: #F1E6CF; padding: 1px 5px; border-radius: 6px; }
   .resumen-votos { font-size: 14px; margin: 4px 0 0; }
   .resumen-votos b { font-weight: 700; }
   .etiqueta-oficial {
@@ -281,9 +314,68 @@
     </section>
 
     <!-- Pestañas que llegan en otras sesiones -->
-    <section id="t-comida" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🍗</div><h2>Comida</h2><p>Próximamente</p></div></section>
-    <section id="t-charlas" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🎤</div><h2>Charlas</h2><p>Próximamente</p></div></section>
-    <section id="t-juegos" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🎲</div><h2>Juegos</h2><p>Próximamente</p></div></section>
+    <!-- Pestaña COMIDA -->
+    <section id="t-comida" data-tab hidden>
+      <div class="tarjeta" id="com-form">
+        <h3 id="com-form-titulo">¿Qué traes?</h3>
+        <label for="com-plato">Plato o bebida</label>
+        <input id="com-plato" class="campo" maxlength="60" placeholder="Ej.: Tortilla de patatas">
+        <label for="com-cat">Categoría</label>
+        <select id="com-cat" class="campo"></select>
+        <label for="com-notas">Alergias o notas (opcional)</label>
+        <input id="com-notas" class="campo" maxlength="80" placeholder="Ej.: lleva frutos secos, sin gluten…">
+        <div id="com-error" class="error-texto"></div>
+        <div class="acciones">
+          <button id="com-guardar" class="btn btn-rojo">Apuntar</button>
+          <button id="com-cancelar" class="btn btn-borde" hidden>Cancelar</button>
+        </div>
+      </div>
+      <div id="comida-lista"></div>
+    </section>
+
+    <!-- Pestaña CHARLAS -->
+    <section id="t-charlas" data-tab hidden>
+      <div class="tarjeta">
+        <h3>🎤 Charlas de <span id="cha-minutos">3</span> minutos</h3>
+        <p class="suave">Cuenta tu hobby o lo que te apasione. Con el prompt, una IA te prepara la presentación en un momento.</p>
+        <div class="acciones">
+          <button id="cha-copiar" class="btn btn-verde">📋 Copiar prompt</button>
+          <button id="cha-guia" class="btn btn-borde">📖 Ver la guía</button>
+        </div>
+      </div>
+      <div class="tarjeta" id="cha-form">
+        <h3 id="cha-form-titulo">Apúntate</h3>
+        <label for="cha-tema">Tema</label>
+        <input id="cha-tema" class="campo" maxlength="80" placeholder="Ej.: El mundo secreto del café">
+        <label for="cha-enlace">Enlace a la presentación (opcional)</label>
+        <input id="cha-enlace" class="campo" type="url" maxlength="300" placeholder="https://…">
+        <label class="casilla"><input id="cha-remoto" type="checkbox"> Por videollamada</label>
+        <div id="cha-error" class="error-texto"></div>
+        <div class="acciones">
+          <button id="cha-guardar" class="btn btn-rojo">Apuntarme</button>
+          <button id="cha-cancelar" class="btn btn-borde" hidden>Cancelar</button>
+        </div>
+      </div>
+      <div id="charlas-lista"></div>
+    </section>
+
+    <!-- Pestaña JUEGOS -->
+    <section id="t-juegos" data-tab hidden>
+      <div class="tarjeta" id="jue-form">
+        <h3 id="jue-form-titulo">¿Traes un juego?</h3>
+        <label for="jue-juego">Juego</label>
+        <input id="jue-juego" class="campo" maxlength="40" placeholder="Ej.: Dixit">
+        <label for="jue-jugadores">Número de jugadores</label>
+        <input id="jue-jugadores" class="campo" maxlength="10" placeholder="Ej.: 3-8">
+        <div id="jue-error" class="error-texto"></div>
+        <div class="acciones">
+          <button id="jue-guardar" class="btn btn-rojo">Apuntar juego</button>
+          <button id="jue-cancelar" class="btn btn-borde" hidden>Cancelar</button>
+        </div>
+      </div>
+      <div id="juegos-lista"></div>
+    </section>
+
     <section id="t-fiesta" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🥂</div><h2>Fiesta</h2><p>Próximamente</p></div></section>
   </main>
 
@@ -297,6 +389,53 @@
 </div>
 
 <div id="aviso" role="status" hidden></div>
+
+<!-- Ventana con la guía de las charlas (contenido de guia.md) -->
+<div id="modal-guia" class="modal-fondo" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="guia-titulo">
+    <h2 id="guia-titulo">Cómo preparar tu charla en 10 minutos</h2>
+    <p>Piensa en la IA como un camarero: tú eliges el plato y él lo prepara.</p>
+    <ol>
+      <li><b>Copia</b> el prompt con el botón "Copiar prompt" y pégalo en tu IA (ChatGPT, Claude, Gemini…).</li>
+      <li><b>Contesta</b> a sus 4 preguntas: tema, por qué te gusta, una anécdota y nivel de humor. Con 2-3 frases basta.</li>
+      <li><b>Guarda</b> el código que te dé como <code>presentacion.html</code> y ábrelo con el navegador. Pulsa <b>F</b> para pantalla completa.</li>
+      <li><b>Revisa</b> los datos. Si algo suena raro, pide a la IA que lo corrija. Si prefieres PowerPoint o Google Slides, pídeselo al final.</li>
+      <li><b>Apúntate</b> en la pestaña Charlas con tu tema.</li>
+    </ol>
+    <p>Cada charla dura 3 minutos. Vale todo: videojuegos, cocina, plantas, motor, fotografía, juegos de mesa, café… 🥂</p>
+    <button id="guia-cerrar" class="btn btn-rojo ancho">Cerrar</button>
+  </div>
+</div>
+
+<!-- Texto del prompt para las charlas (contenido de prompt.md). Si cambias prompt.md, pégalo aquí también. -->
+<script type="text/plain" id="texto-prompt">
+Vas a ayudarme a preparar una mini presentación para una cena de amigos (NochebuenFindeaño: celebramos Navidad y Fin de Año por adelantado). Cada persona presenta durante 3 minutos su hobby o el tema que más le apasiona, sea serio, friki o absurdo. El tono es DIVERTIDO Y DESENFADADO. Nadie busca perfección, buscamos pasarlo bien y descubrir qué mueve a cada uno.
+
+PASO 1 – ANTES DE CREAR NADA, hazme estas preguntas (todas juntas, y espera mi respuesta):
+1. ¿Cuál es tu tema? (hobby, obsesión, afición rara, viaje, lo que sea)
+2. ¿Por qué te gusta? Cuéntame en 2-3 frases, aunque sea desordenado.
+3. ¿Tienes alguna anécdota, dato favorito o "momento épico" relacionado?
+4. ¿Cuál es tu nivel de humor: suave, normal o sin freno?
+Si algo no me lo sé responder, propón tú opciones.
+
+PASO 2 – CREA LA PRESENTACIÓN con estas reglas:
+- Entre 6 y 10 diapositivas, pensadas para 3 minutos.
+- Estructura sugerida: portada con título gracioso → ¿qué es? → ¿por qué me engancha? → datos curiosos o sorprendentes → anécdota personal → mito vs. realidad → ¿cómo te metes tú en esto? → cierre con una pregunta o reto para el grupo.
+- Máximo 25 palabras por diapositiva. Letra grande, pensada para verse desde lejos en una tele.
+- Humor ligero y cercano, con guiños navideños sutiles.
+- No inventes datos. Si dudas de una cifra, márcala con "(aprox.)" o evítala. Al final, avísame de qué datos conviene que verifique.
+- No uses imágenes de internet. Usa emojis, formas y colores CSS para decorar.
+
+FORMATO DE SALIDA:
+Entrégame UN SOLO archivo HTML completo, autocontenido (sin librerías externas), listo para abrir en el navegador:
+- Diapositivas en 16:9, a pantalla completa.
+- Navegación con flechas del teclado, clic y deslizar en móvil.
+- Diseño moderno, con buen contraste, una paleta coherente con mi tema y fuentes del sistema.
+- Indicador discreto de progreso (ej. 3/8).
+Muéstramelo dentro de un bloque de código para copiarlo y guardarlo como "presentacion.html".
+
+PASO 3 – AL FINAL ofréceme: (a) ajustar el tono o el contenido, (b) exportarlo como PowerPoint o Google Slides, (c) un guion de 30 segundos para presentarlo en voz alta.
+</script>
 
 <script>
 /* =====================================================================
@@ -444,7 +583,25 @@ function completar(d) {
   d.fechas = d.fechas.filter((f) => f && typeof f.id === "string");
   for (const f of d.fechas) if (typeof f.etiqueta !== "string" || !f.etiqueta) f.etiqueta = f.id;
   if (!d.votos || typeof d.votos !== "object" || Array.isArray(d.votos)) d.votos = {};
-  for (const k of ["comida", "charlas", "juegos"]) if (!Array.isArray(d[k])) d[k] = [];
+  for (const k of ["comida", "charlas", "juegos"]) {
+    if (!Array.isArray(d[k])) d[k] = [];
+    d[k] = d[k].filter((x) => x && typeof x === "object");
+    for (const x of d[k]) {
+      if (typeof x.id !== "string" || !x.id) x.id = nuevoId();
+      if (typeof x.nombre !== "string") x.nombre = "";
+    }
+  }
+  const texto = (x, campo) => { if (typeof x[campo] !== "string") x[campo] = ""; };
+  for (const c of d.comida) {
+    texto(c, "plato"); texto(c, "notas");
+    if (!["entrante", "principal", "postre", "bebida", "otros"].includes(c.categoria)) c.categoria = "otros";
+  }
+  for (const c of d.charlas) { texto(c, "tema"); texto(c, "enlace"); c.remoto = !!c.remoto; }
+  for (const j of d.juegos) {
+    texto(j, "juego"); texto(j, "jugadores");
+    if (!Array.isArray(j.votos)) j.votos = [];
+    j.votos = [...new Set(j.votos.filter((n) => typeof n === "string"))];
+  }
   if (!d.ajustes || typeof d.ajustes !== "object") d.ajustes = {};
   if (typeof d.ajustes.minutosCharla !== "number") d.ajustes.minutosCharla = 3;
   return d;
@@ -641,6 +798,9 @@ function pintar() {
   if ($("p-app").hidden) return;
   pintarCabecera();
   pintarFechas();
+  pintarComida();
+  pintarCharlas();
+  pintarJuegos();
 }
 
 function pintarCabecera() {
@@ -799,6 +959,253 @@ function moverMes(paso) {
 }
 
 /* =====================================================================
+   COMIDA
+   ===================================================================== */
+const CATEGORIAS = [
+  { id: "entrante", texto: "Entrantes", emoji: "🥗" },
+  { id: "principal", texto: "Principales", emoji: "🍗" },
+  { id: "postre", texto: "Postres", emoji: "🍰" },
+  { id: "bebida", texto: "Bebidas", emoji: "🍷" },
+  { id: "otros", texto: "Otros", emoji: "🧺" }
+];
+let editandoComida = null; // id del plato que se está editando (o null)
+
+// Cambios de comida (cada uno solo toca lo suyo)
+function anadirComida(d, plato) { d.comida.push(plato); }
+function editarComida(d, id, nombre, campos) {
+  const c = d.comida.find((x) => x.id === id && x.nombre === nombre);
+  if (!c) return false;
+  Object.assign(c, campos);
+}
+function borrarComida(d, id, nombre) {
+  const antes = d.comida.length;
+  d.comida = d.comida.filter((x) => !(x.id === id && x.nombre === nombre));
+  if (d.comida.length === antes) return false;
+}
+
+function pintarComida() {
+  // Rellenar el desplegable de categorías una sola vez
+  const sel = $("com-cat");
+  if (!sel.options.length) sel.innerHTML = CATEGORIAS.map((c) => `<option value="${c.id}">${c.emoji} ${c.texto}</option>`).join("");
+
+  $("comida-lista").innerHTML = CATEGORIAS.map((cat) => {
+    const platos = datos.comida.filter((c) => c.categoria === cat.id);
+    const items = platos.map((c) => `
+      <div class="item">
+        <div class="item-titulo">${esc(c.plato)}</div>
+        <div class="suave">Lo trae ${esc(c.nombre)}</div>
+        ${c.notas ? `<span class="etiqueta">⚠️ ${esc(c.notas)}</span>` : ""}
+        ${c.nombre === yo ? `<div class="acciones">
+          <button class="btn btn-borde btn-peque" data-com-editar="${esc(c.id)}">✏️ Editar</button>
+          <button class="btn btn-borde btn-peque" data-com-borrar="${esc(c.id)}">🗑️ Borrar</button>
+        </div>` : ""}
+      </div>`).join("");
+    return `
+      <div class="tarjeta">
+        <h3>${cat.emoji} ${cat.texto}</h3>
+        ${items || `<p class="aviso-vacio">⚠️ Nadie trae ${cat.id === "otros" ? "otras cosas" : cat.texto.toLowerCase()} todavía</p>`}
+      </div>`;
+  }).join("");
+}
+
+function limpiarFormComida() {
+  editandoComida = null;
+  $("com-plato").value = "";
+  $("com-notas").value = "";
+  $("com-cat").value = "entrante";
+  $("com-error").textContent = "";
+  $("com-form-titulo").textContent = "¿Qué traes?";
+  $("com-guardar").textContent = "Apuntar";
+  $("com-cancelar").hidden = true;
+}
+
+function pulsarGuardarComida() {
+  const plato = $("com-plato").value.trim();
+  const categoria = $("com-cat").value;
+  const notas = $("com-notas").value.trim();
+  if (!plato) { $("com-error").textContent = "Escribe qué traes."; return; }
+  if (editandoComida) {
+    const id = editandoComida;
+    guardar(`${yo} cambia su plato: ${plato}`, (d) => editarComida(d, id, yo, { plato, categoria, notas }));
+  } else {
+    const nuevo = { id: nuevoId(), nombre: yo, plato, categoria, notas };
+    guardar(`${yo} trae ${plato}`, (d) => anadirComida(d, nuevo));
+  }
+  limpiarFormComida();
+}
+
+/* =====================================================================
+   CHARLAS (una por persona)
+   ===================================================================== */
+let editandoCharla = false;
+
+function guardarCharla(d, nombre, campos) {
+  const c = d.charlas.find((x) => x.nombre === nombre);
+  if (c) Object.assign(c, campos);
+  else d.charlas.push({ id: nuevoId(), nombre, ...campos });
+}
+function borrarCharla(d, nombre) {
+  const antes = d.charlas.length;
+  d.charlas = d.charlas.filter((x) => x.nombre !== nombre);
+  if (d.charlas.length === antes) return false;
+}
+
+// Solo dejamos enlaces http(s), por seguridad
+function enlaceSeguro(u) { return /^https?:\/\//i.test(u || "") ? u : ""; }
+
+function pintarCharlas() {
+  $("cha-minutos").textContent = datos.ajustes.minutosCharla;
+  const mia = datos.charlas.find((c) => c.nombre === yo);
+  // Si ya tienes charla, el formulario solo aparece al pulsar "Editar"
+  $("cha-form").hidden = !!mia && !editandoCharla;
+
+  const lista = datos.charlas.map((c) => {
+    const url = enlaceSeguro(c.enlace);
+    return `
+      <div class="item">
+        <div class="item-titulo">${esc(c.tema)}</div>
+        <div class="suave">Presenta ${esc(c.nombre)}</div>
+        ${c.remoto ? `<span class="etiqueta verde">💻 Por videollamada</span>` : ""}
+        ${url ? `<div style="margin-top:4px"><a href="${esc(url)}" target="_blank" rel="noopener">🔗 Ver presentación</a></div>` : ""}
+        ${c.nombre === yo ? `<div class="acciones">
+          <button class="btn btn-borde btn-peque" data-cha-editar>✏️ Editar</button>
+          <button class="btn btn-borde btn-peque" data-cha-borrar>🗑️ Borrar</button>
+        </div>` : ""}
+      </div>`;
+  }).join("");
+  $("charlas-lista").innerHTML = `
+    <div class="tarjeta">
+      <h3>Apuntadas (${datos.charlas.length})</h3>
+      ${lista || `<p class="suave">Todavía no hay charlas. ¡Anímate a ser la primera persona!</p>`}
+    </div>`;
+}
+
+function abrirEdicionCharla() {
+  const mia = datos.charlas.find((c) => c.nombre === yo);
+  editandoCharla = true;
+  $("cha-tema").value = mia ? mia.tema : "";
+  $("cha-enlace").value = mia ? mia.enlace : "";
+  $("cha-remoto").checked = mia ? !!mia.remoto : false;
+  $("cha-form-titulo").textContent = "Cambia tu charla";
+  $("cha-guardar").textContent = "Guardar cambios";
+  $("cha-cancelar").hidden = false;
+  pintarCharlas();
+  $("cha-form").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function limpiarFormCharla() {
+  editandoCharla = false;
+  $("cha-tema").value = "";
+  $("cha-enlace").value = "";
+  $("cha-remoto").checked = false;
+  $("cha-error").textContent = "";
+  $("cha-form-titulo").textContent = "Apúntate";
+  $("cha-guardar").textContent = "Apuntarme";
+  $("cha-cancelar").hidden = true;
+}
+
+function pulsarGuardarCharla() {
+  const tema = $("cha-tema").value.trim();
+  const enlace = $("cha-enlace").value.trim();
+  const remoto = $("cha-remoto").checked;
+  if (!tema) { $("cha-error").textContent = "Escribe el tema de tu charla."; return; }
+  if (enlace && !enlaceSeguro(enlace)) { $("cha-error").textContent = "El enlace tiene que empezar por https://"; return; }
+  limpiarFormCharla();
+  guardar(`${yo} se apunta a charla: ${tema}`, (d) => guardarCharla(d, yo, { tema, enlace, remoto }));
+}
+
+// Copiar el prompt (con plan B para navegadores antiguos)
+async function copiarPrompt() {
+  const texto = $("texto-prompt").textContent.trim();
+  try {
+    await navigator.clipboard.writeText(texto);
+  } catch (e) {
+    const t = document.createElement("textarea");
+    t.value = texto;
+    document.body.appendChild(t);
+    t.select();
+    document.execCommand("copy");
+    t.remove();
+  }
+  aviso("Prompt copiado. Pégalo en tu IA 🤖");
+}
+
+/* =====================================================================
+   JUEGOS
+   ===================================================================== */
+let editandoJuego = null;
+
+function anadirJuego(d, juego) { d.juegos.push(juego); }
+function editarJuego(d, id, nombre, campos) {
+  const j = d.juegos.find((x) => x.id === id && x.nombre === nombre);
+  if (!j) return false;
+  Object.assign(j, campos);
+}
+function borrarJuego(d, id, nombre) {
+  const antes = d.juegos.length;
+  d.juegos = d.juegos.filter((x) => !(x.id === id && x.nombre === nombre));
+  if (d.juegos.length === antes) return false;
+}
+// Un voto por persona y juego; poner = true para votar, false para quitarlo
+function votarJuego(d, id, nombre, poner) {
+  const j = d.juegos.find((x) => x.id === id);
+  if (!j) return false;
+  const tiene = j.votos.includes(nombre);
+  if (poner === tiene) return false;
+  j.votos = poner ? [...j.votos, nombre] : j.votos.filter((n) => n !== nombre);
+}
+
+function pintarJuegos() {
+  // Más votados primero
+  const juegos = [...datos.juegos].sort((a, b) => b.votos.length - a.votos.length);
+  const lista = juegos.map((j) => {
+    const voto = j.votos.includes(yo);
+    return `
+      <div class="item">
+        <div class="item-titulo">${esc(j.juego)}</div>
+        <div class="suave">${j.jugadores ? `👥 ${esc(j.jugadores)} jugadores · ` : ""}Lo trae ${esc(j.nombre)}</div>
+        <div class="suave">${j.votos.length ? `Quieren jugar: ${j.votos.map(esc).join(", ")}` : "Sin votos todavía"}</div>
+        <div class="acciones">
+          <button class="btn btn-borde btn-peque voto-juego" data-jue-votar="${esc(j.id)}" aria-pressed="${voto}">
+            ${voto ? "✅ Quiero jugar" : "👍 Quiero jugar"} (${j.votos.length})</button>
+          ${j.nombre === yo ? `
+            <button class="btn btn-borde btn-peque" data-jue-editar="${esc(j.id)}">✏️ Editar</button>
+            <button class="btn btn-borde btn-peque" data-jue-borrar="${esc(j.id)}">🗑️ Borrar</button>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+  $("juegos-lista").innerHTML = `
+    <div class="tarjeta">
+      <h3>🎲 Juegos (${juegos.length})</h3>
+      ${lista || `<p class="suave">Todavía no hay juegos. ¿Traes uno?</p>`}
+    </div>`;
+}
+
+function limpiarFormJuego() {
+  editandoJuego = null;
+  $("jue-juego").value = "";
+  $("jue-jugadores").value = "";
+  $("jue-error").textContent = "";
+  $("jue-form-titulo").textContent = "¿Traes un juego?";
+  $("jue-guardar").textContent = "Apuntar juego";
+  $("jue-cancelar").hidden = true;
+}
+
+function pulsarGuardarJuego() {
+  const juego = $("jue-juego").value.trim();
+  const jugadores = $("jue-jugadores").value.trim();
+  if (!juego) { $("jue-error").textContent = "Escribe el nombre del juego."; return; }
+  if (editandoJuego) {
+    const id = editandoJuego;
+    guardar(`${yo} cambia su juego: ${juego}`, (d) => editarJuego(d, id, yo, { juego, jugadores }));
+  } else {
+    const nuevo = { id: nuevoId(), nombre: yo, juego, jugadores, votos: [] };
+    guardar(`${yo} trae ${juego}`, (d) => anadirJuego(d, nuevo));
+  }
+  limpiarFormJuego();
+}
+
+/* =====================================================================
    PESTAÑAS
    ===================================================================== */
 function irA(tab) {
@@ -882,6 +1289,84 @@ $("fechas-lista").addEventListener("click", (e) => {
 // Releer al volver a la pestaña y cada 30 s mientras está visible
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refrescar(); });
 setInterval(() => { if (!document.hidden) refrescar(); }, RELEER_CADA_MS);
+
+// --- Comida ---
+$("com-guardar").addEventListener("click", pulsarGuardarComida);
+$("com-cancelar").addEventListener("click", limpiarFormComida);
+$("comida-lista").addEventListener("click", (e) => {
+  const ed = e.target.closest("[data-com-editar]");
+  if (ed) {
+    const c = datos.comida.find((x) => x.id === ed.dataset.comEditar);
+    if (!c) return;
+    editandoComida = c.id;
+    $("com-plato").value = c.plato;
+    $("com-cat").value = c.categoria;
+    $("com-notas").value = c.notas;
+    $("com-form-titulo").textContent = "Cambia tu plato";
+    $("com-guardar").textContent = "Guardar cambios";
+    $("com-cancelar").hidden = false;
+    $("com-form").scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  const bo = e.target.closest("[data-com-borrar]");
+  if (bo) {
+    const c = datos.comida.find((x) => x.id === bo.dataset.comBorrar);
+    if (!c || !confirm(`¿Borrar "${c.plato}"?`)) return;
+    if (editandoComida === c.id) limpiarFormComida();
+    guardar(`${yo} borra ${c.plato}`, (d) => borrarComida(d, c.id, yo));
+  }
+});
+
+// --- Charlas ---
+$("cha-copiar").addEventListener("click", copiarPrompt);
+$("cha-guia").addEventListener("click", () => { $("modal-guia").hidden = false; });
+$("guia-cerrar").addEventListener("click", () => { $("modal-guia").hidden = true; });
+$("modal-guia").addEventListener("click", (e) => { if (e.target.id === "modal-guia") $("modal-guia").hidden = true; });
+$("cha-guardar").addEventListener("click", pulsarGuardarCharla);
+$("cha-cancelar").addEventListener("click", () => { limpiarFormCharla(); pintarCharlas(); });
+$("charlas-lista").addEventListener("click", (e) => {
+  if (e.target.closest("[data-cha-editar]")) { abrirEdicionCharla(); return; }
+  if (e.target.closest("[data-cha-borrar]")) {
+    if (!confirm("¿Borrar tu charla?")) return;
+    limpiarFormCharla();
+    guardar(`${yo} borra su charla`, (d) => borrarCharla(d, yo));
+  }
+});
+
+// --- Juegos ---
+$("jue-guardar").addEventListener("click", pulsarGuardarJuego);
+$("jue-cancelar").addEventListener("click", limpiarFormJuego);
+$("juegos-lista").addEventListener("click", (e) => {
+  const vo = e.target.closest("[data-jue-votar]");
+  if (vo) {
+    const id = vo.dataset.jueVotar;
+    const j = datos.juegos.find((x) => x.id === id);
+    if (!j) return;
+    const poner = !j.votos.includes(yo);
+    guardar(`${yo} ${poner ? "vota" : "quita su voto a"} ${j.juego}`, (d) => votarJuego(d, id, yo, poner));
+    return;
+  }
+  const ed = e.target.closest("[data-jue-editar]");
+  if (ed) {
+    const j = datos.juegos.find((x) => x.id === ed.dataset.jueEditar);
+    if (!j) return;
+    editandoJuego = j.id;
+    $("jue-juego").value = j.juego;
+    $("jue-jugadores").value = j.jugadores;
+    $("jue-form-titulo").textContent = "Cambia tu juego";
+    $("jue-guardar").textContent = "Guardar cambios";
+    $("jue-cancelar").hidden = false;
+    $("jue-form").scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  const bo = e.target.closest("[data-jue-borrar]");
+  if (bo) {
+    const j = datos.juegos.find((x) => x.id === bo.dataset.jueBorrar);
+    if (!j || !confirm(`¿Borrar "${j.juego}"?`)) return;
+    if (editandoJuego === j.id) limpiarFormJuego();
+    guardar(`${yo} borra ${j.juego}`, (d) => borrarJuego(d, j.id, yo));
+  }
+});
 
 $("btn-reintentar").addEventListener("click", arrancar);
 
