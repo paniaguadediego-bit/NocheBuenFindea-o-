@@ -1804,14 +1804,16 @@ function pintarFechas() {
   pintarGrafica(fechas);
   pintarDia();
   // Ranking: más puntos primero; si empatan, la más temprana
-  const ranking = [...fechas].sort((a, b) => b.r.puntos - a.r.puntos || a.id.localeCompare(b.id));
+  // Las fechas se enseñan en orden de calendario; la corona va en la que más puntos tiene (o las empatadas)
+  const cronologico = [...fechas].sort((a, b) => a.id.localeCompare(b.id));
+  const maxPuntos = Math.max(0, ...fechas.map((f) => f.r.puntos));
 
-  // --- Lista de fechas (en orden de ranking) ---
+  // --- Lista de fechas (en orden cronológico) ---
   if (!fechas.length) {
     $("fechas-lista").innerHTML = `<div class="tarjeta"><p>Todavía no hay fechas. Toca un día del calendario para proponer la primera 👆</p></div>`;
   } else {
     const oficial = datos.evento.fechaOficial;
-    $("fechas-lista").innerHTML = `<h2>Ranking</h2><p class="suave" style="margin:-4px 0 8px">Toca tu voto otra vez para quitarlo.</p>` + ranking.map((f, i) => {
+    $("fechas-lista").innerHTML = `<h2>Ranking</h2><p class="suave" style="margin:-4px 0 8px">Toca tu voto otra vez para quitarlo.</p>` + cronologico.map((f) => {
       const mio = (datos.votos[f.id] || {})[yo];
       const botonVoto = (resp, icono) =>
         `<button class="voto ${resp}" data-votar="${esc(f.id)}" data-resp="${resp}" aria-pressed="${mio === resp}">${icono}<br>${TEXTO_VOTO[resp]}</button>`;
@@ -1825,7 +1827,7 @@ function pintarFechas() {
       return `
         <div class="tarjeta ${esOficial ? "oficial" : ""}" data-tarjeta-fecha="${esc(f.id)}">
           <div class="fecha-cab">
-            <h3>${i === 0 && f.r.puntos > 0 ? "👑 " : ""}${i + 1}. ${esc(f.etiqueta)} ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>
+            <h3>${maxPuntos > 0 && f.r.puntos === maxPuntos ? "👑 " : ""}${esc(f.etiqueta)} ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>
             <span class="puntos">${f.r.puntos} pts</span>
           </div>
           <div class="votos" role="group" aria-label="Tu voto para ${esc(f.etiqueta)}">
