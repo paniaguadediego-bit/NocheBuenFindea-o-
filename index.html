@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#B3261E">
+<title>NocheBuenFindeaño</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ===== Colores y tipos (ver CLAUDE.md → Diseño) ===== */
+  :root {
+    --rojo: #B3261E;
+    --verde: #1F4D3A;
+    --crema: #F6EEDC;
+    --dorado: #C9A227;      /* decoración */
+    --dorado-texto: #F2C94C; /* texto sobre verde */
+    --texto: #2A1E17;
+    --tarjeta: #FFFDF7;
+    --borde: #E2D3B5;
+    --titulos: "Shrikhand", Georgia, "Times New Roman", serif;
+    --cuerpo: "Work Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--crema);
+    color: var(--texto);
+    font-family: var(--cuerpo);
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-text-size-adjust: 100%;
+  }
+  h1, h2, h3 { font-family: var(--titulos); font-weight: 400; margin: 0 0 .4em; line-height: 1.15; }
+  h2 { font-size: 24px; color: var(--rojo); }
+  h3 { font-size: 20px; color: var(--verde); }
+  button, input, select { font: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+
+  /* ===== Pantallas sueltas (sin clave, cargando, elegir nombre) ===== */
+  .pantalla {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: calc(24px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right))
+             calc(24px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+    text-align: center;
+  }
+  .pantalla .caja { width: 100%; max-width: 420px; }
+  .pantalla h1 { font-size: 34px; color: var(--rojo); }
+  .emoji-grande { font-size: 56px; margin-bottom: 8px; }
+
+  /* ===== Cabecera roja con borde punteado dorado ===== */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--rojo);
+    color: var(--crema);
+    border-bottom: 4px dotted var(--dorado);
+    padding: calc(10px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+             10px calc(16px + env(safe-area-inset-left));
+  }
+  header h1 { font-size: 26px; margin: 0; color: var(--crema); }
+  .cab-fila { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .cab-oficial { margin-top: 4px; font-size: 15px; font-weight: 600; color: #FFE9A8; }
+  .cab-yo { font-size: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .btn-cambiar {
+    min-height: 44px; padding: 0 12px; border-radius: 10px;
+    background: transparent; color: var(--crema); border: 2px solid var(--crema); font-weight: 600; font-size: 14px;
+  }
+  .estado-guardado { font-size: 14px; min-height: 1.4em; margin-top: 2px; color: var(--crema); opacity: .95; }
+
+  /* ===== Contenido ===== */
+  main {
+    max-width: 640px; margin: 0 auto;
+    padding: 16px calc(16px + env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  }
+  .tarjeta {
+    background: var(--tarjeta);
+    border: 2px solid var(--borde);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .tarjeta.ganando { border-color: var(--dorado); box-shadow: 0 0 0 3px rgba(201,162,39,.25); }
+  .tarjeta.oficial { border-color: var(--verde); }
+  .suave { color: #5A4A3E; font-size: 14px; }
+  .proximamente { text-align: center; padding: 40px 16px; }
+  .proximamente .emoji-grande { font-size: 48px; }
+
+  /* ===== Botones y campos ===== */
+  .btn {
+    min-height: 44px; padding: 10px 16px; border-radius: 12px; border: 2px solid transparent;
+    font-weight: 700; font-size: 16px;
+  }
+  .btn-rojo { background: var(--rojo); color: #fff; }
+  .btn-verde { background: var(--verde); color: var(--dorado-texto); }
+  .btn-borde { background: var(--tarjeta); color: var(--verde); border-color: var(--verde); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .ancho { width: 100%; }
+  .campo {
+    width: 100%; min-height: 48px; padding: 10px 12px; border-radius: 12px;
+    border: 2px solid var(--borde); background: #fff; color: var(--texto); font-size: 16px;
+  }
+  .campo:focus, .btn:focus-visible, .voto:focus-visible, nav button:focus-visible { outline: 3px solid var(--dorado); outline-offset: 2px; }
+  .fila { display: flex; gap: 8px; align-items: stretch; }
+  .fila .campo { flex: 1; min-width: 0; }
+  label { display: block; font-weight: 600; margin: 10px 0 6px; text-align: left; }
+  .error-texto { color: var(--rojo); font-weight: 600; font-size: 14px; min-height: 1.4em; margin-top: 6px; text-align: left; }
+
+  /* ===== Fechas ===== */
+  .fecha-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .fecha-cab h3 { margin: 0; }
+  .puntos { font-weight: 700; color: var(--rojo); white-space: nowrap; }
+  .votos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 12px 0 8px; }
+  .voto {
+    min-height: 48px; border-radius: 12px; border: 2px solid var(--borde); background: #fff;
+    color: var(--texto); font-weight: 600; font-size: 14px; padding: 4px;
+  }
+  .voto[aria-pressed="true"].si { background: var(--verde); border-color: var(--verde); color: #fff; }
+  .voto[aria-pressed="true"].quizas { background: var(--dorado-texto); border-color: var(--dorado); color: var(--texto); }
+  .voto[aria-pressed="true"].no { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+  .resumen-votos { font-size: 14px; margin: 4px 0 0; }
+  .resumen-votos b { font-weight: 700; }
+  .etiqueta-oficial {
+    display: inline-block; background: var(--verde); color: var(--dorado-texto);
+    font-weight: 700; font-size: 14px; border-radius: 999px; padding: 2px 10px; margin-bottom: 6px;
+  }
+  .ganando h2 { margin-bottom: .2em; }
+  .grande { font-family: var(--titulos); font-size: 30px; color: var(--verde); }
+
+  /* ===== Pestañas inferiores verdes, activa en dorado ===== */
+  nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    background: var(--verde);
+    border-top: 4px dotted var(--dorado);
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  nav button {
+    min-height: 60px; background: transparent; border: 0; color: var(--crema);
+    font-size: 14px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    padding: 4px 2px;
+  }
+  nav button .ico { font-size: 22px; line-height: 1; }
+  nav button[aria-current="page"] { color: var(--dorado-texto); box-shadow: inset 0 4px 0 var(--dorado-texto); }
+
+  /* ===== Aviso flotante ===== */
+  #aviso {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    background: var(--texto); color: var(--crema);
+    padding: 12px 16px; border-radius: 12px; font-size: 15px; z-index: 20;
+    max-width: calc(100% - 32px); text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  }
+</style>
+</head>
+<body>
+
+<!-- Pantalla: no hay clave guardada -->
+<section id="p-sin-clave" class="pantalla" hidden>
+  <div class="caja">
+    <div class="emoji-grande">🎄</div>
+    <h1>NocheBuenFindeaño</h1>
+    <p>Abre el enlace que se ha compartido en el grupo de WhatsApp.</p>
+    <p class="suave">Es la llave para entrar. Solo hace falta abrirlo una vez en cada móvil.</p>
+  </div>
+</section>
+
+<!-- Pantalla: la clave no vale (401/403) -->
+<section id="p-clave-mala" class="pantalla" hidden>
+  <div class="caja">
+    <div class="emoji-grande">🔑</div>
+    <h1>La llave no funciona</h1>
+    <p>La clave ha caducado o no es válida.</p>
+    <p>Pide el enlace nuevo en el grupo de WhatsApp y ábrelo.</p>
+  </div>
+</section>
+
+<!-- Pantalla: cargando o error de red -->
+<section id="p-cargando" class="pantalla" hidden>
+  <div class="caja">
+    <div class="emoji-grande">🎁</div>
+    <p id="cargando-texto">Cargando…</p>
+    <button id="btn-reintentar" class="btn btn-verde" hidden>Reintentar</button>
+  </div>
+</section>
+
+<!-- Pantalla: ¿quién eres? -->
+<section id="p-nombre" class="pantalla" hidden>
+  <div class="caja">
+    <div class="emoji-grande">🎅</div>
+    <h1>¿Quién eres?</h1>
+    <label for="sel-nombre">Elige tu nombre</label>
+    <select id="sel-nombre" class="campo"></select>
+
+    <div id="bloque-nuevo" hidden>
+      <label for="inp-nombre">Escribe tu nombre</label>
+      <input id="inp-nombre" class="campo" maxlength="20" autocomplete="given-name" placeholder="Tu nombre">
+    </div>
+    <div id="nombre-error" class="error-texto"></div>
+    <button id="btn-entrar" class="btn btn-rojo ancho" style="margin-top:8px">Entrar</button>
+  </div>
+</section>
+
+<!-- La app -->
+<div id="p-app" hidden>
+  <header>
+    <div class="cab-fila">
+      <h1 id="cab-nombre">NocheBuenFindeaño</h1>
+      <div class="cab-yo">
+        <span id="cab-yo"></span>
+        <button id="btn-cambiar" class="btn-cambiar">Cambiar</button>
+      </div>
+    </div>
+    <div id="cab-oficial" class="cab-oficial" hidden></div>
+    <div id="estado" class="estado-guardado" aria-live="polite"></div>
+  </header>
+
+  <main>
+    <!-- Pestaña FECHAS -->
+    <section id="t-fechas" data-tab>
+      <div id="fechas-ganando"></div>
+
+      <div class="tarjeta">
+        <h3>Añadir fecha candidata</h3>
+        <div class="fila">
+          <input id="inp-fecha" type="date" class="campo" aria-label="Fecha candidata">
+          <button id="btn-anadir-fecha" class="btn btn-rojo">Añadir</button>
+        </div>
+        <div id="fecha-error" class="error-texto"></div>
+      </div>
+
+      <div id="fechas-lista"></div>
+      <div id="fechas-faltan"></div>
+    </section>
+
+    <!-- Pestañas que llegan en otras sesiones -->
+    <section id="t-comida" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🍗</div><h2>Comida</h2><p>Próximamente</p></div></section>
+    <section id="t-charlas" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🎤</div><h2>Charlas</h2><p>Próximamente</p></div></section>
+    <section id="t-juegos" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🎲</div><h2>Juegos</h2><p>Próximamente</p></div></section>
+    <section id="t-fiesta" data-tab hidden><div class="tarjeta proximamente"><div class="emoji-grande">🥂</div><h2>Fiesta</h2><p>Próximamente</p></div></section>
+  </main>
+
+  <nav aria-label="Secciones">
+    <button data-ir="fechas"><span class="ico">📅</span>Fechas</button>
+    <button data-ir="comida"><span class="ico">🍗</span>Comida</button>
+    <button data-ir="charlas"><span class="ico">🎤</span>Charlas</button>
+    <button data-ir="juegos"><span class="ico">🎲</span>Juegos</button>
+    <button data-ir="fiesta"><span class="ico">🥂</span>Fiesta</button>
+  </nav>
+</div>
+
+<div id="aviso" role="status" hidden></div>
+
+<script>
+/* =====================================================================
+   CONSTANTES
+   ===================================================================== */
+const USUARIO = "paniaguadediego-bit";
+const REPO_DATOS = "nochebuen-datos";
+const ARCHIVO = "datos.json";
+const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
+
+// Solo esta persona puede marcar la fecha oficial
+const ORGANIZADOR = "Pablo";
+
+// Cada cuánto se releen los datos mientras la app está visible
+const RELEER_CADA_MS = 30000;
+
+// Puntos del ranking de fechas
+const PUNTOS = { si: 2, quizas: 1, no: 0 };
+const TEXTO_VOTO = { si: "Sí", quizas: "Si hace falta", no: "No" };
+
+const DIAS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+/* =====================================================================
+   ESTADO EN MEMORIA
+   ===================================================================== */
+let clave = null;      // token del grupo
+let yo = null;         // nombre elegido
+let datos = null;      // contenido de datos.json
+let shaActual = null;  // versión de datos.json que tenemos
+let guardando = 0;     // cuántos guardados hay en marcha
+let colaGuardado = Promise.resolve(); // para guardar los cambios de uno en uno
+
+/* =====================================================================
+   UTILIDADES
+   ===================================================================== */
+const $ = (id) => document.getElementById(id);
+
+// localStorage puede fallar (modo privado): no rompemos la app por eso
+function leerLocal(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function guardarLocal(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function borrarLocal(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+// Escapar texto antes de meterlo en HTML
+function esc(t) {
+  return String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// "Sofía" → "sofia", " EDU " → "edu" (para comparar nombres)
+function normalizar(t) {
+  return String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+}
+
+// Base64 con UTF-8 (tildes y eñes). Nunca btoa/atob a pelo.
+function aBase64(texto) {
+  const bytes = new TextEncoder().encode(texto);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(bin);
+}
+function deBase64(b64) {
+  const bin = atob(String(b64).replace(/\s/g, ""));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+// Id nuevo: Date.now() en base 36 + sufijo aleatorio corto
+function nuevoId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+// "2026-12-12" → "Sáb 12 dic"
+function etiquetaFecha(id) {
+  const [a, m, d] = id.split("-").map(Number);
+  const f = new Date(a, m - 1, d);
+  return `${DIAS[f.getDay()]} ${d} ${MESES[m - 1]}`;
+}
+
+function soyOrganizador() { return normalizar(yo) === normalizar(ORGANIZADOR); }
+
+// Mensaje flotante unos segundos
+let temporizadorAviso = null;
+function aviso(texto) {
+  const el = $("aviso");
+  el.textContent = texto;
+  el.hidden = false;
+  clearTimeout(temporizadorAviso);
+  temporizadorAviso = setTimeout(() => { el.hidden = true; }, 4000);
+}
+
+// Texto de "Guardando…" / "Guardado" en la cabecera
+let temporizadorEstado = null;
+function estado(texto, borrarLuego) {
+  $("estado").textContent = texto;
+  clearTimeout(temporizadorEstado);
+  if (borrarLuego) temporizadorEstado = setTimeout(() => { $("estado").textContent = ""; }, 2500);
+}
+
+// Muestra solo una pantalla
+function mostrar(id) {
+  for (const p of ["p-sin-clave", "p-clave-mala", "p-cargando", "p-nombre", "p-app"]) $(p).hidden = p !== id;
+}
+
+/* =====================================================================
+   DATOS: rellenar campos que falten (archivo antiguo o editado a mano)
+   ===================================================================== */
+function completar(d) {
+  if (!d || typeof d !== "object" || Array.isArray(d)) d = {};
+  if (typeof d.version !== "number") d.version = 1;
+  if (!d.evento || typeof d.evento !== "object") d.evento = {};
+  if (typeof d.evento.nombre !== "string" || !d.evento.nombre.trim()) d.evento.nombre = "NocheBuenFindeaño";
+  if (d.evento.fechaOficial === undefined) d.evento.fechaOficial = null;
+  if (typeof d.evento.lugar !== "string") d.evento.lugar = "";
+  if (!Array.isArray(d.participantes)) d.participantes = [];
+  d.participantes = d.participantes.filter((p) => typeof p === "string" && p.trim());
+  if (!Array.isArray(d.fechas)) d.fechas = [];
+  d.fechas = d.fechas.filter((f) => f && typeof f.id === "string");
+  for (const f of d.fechas) if (typeof f.etiqueta !== "string" || !f.etiqueta) f.etiqueta = f.id;
+  if (!d.votos || typeof d.votos !== "object" || Array.isArray(d.votos)) d.votos = {};
+  for (const k of ["comida", "charlas", "juegos"]) if (!Array.isArray(d[k])) d[k] = [];
+  if (!d.ajustes || typeof d.ajustes !== "object") d.ajustes = {};
+  if (typeof d.ajustes.minutosCharla !== "number") d.ajustes.minutosCharla = 3;
+  return d;
+}
+
+/* =====================================================================
+   API DE GITHUB
+   ===================================================================== */
+class ErrorClave extends Error {}
+
+function cabeceras() {
+  return { Authorization: `Bearer ${clave}`, Accept: "application/vnd.github+json" };
+}
+
+// Lee la versión más reciente de datos.json → { datos, sha }
+async function leerRemoto() {
+  const r = await fetch(URL_DATOS, { headers: cabeceras(), cache: "no-store" });
+  if (r.status === 401 || r.status === 403) throw new ErrorClave();
+  if (!r.ok) throw new Error(r.status === 404 ? "No encuentro datos.json en nochebuen-datos." : `Error ${r.status} al leer los datos.`);
+  const j = await r.json();
+  let d;
+  try { d = JSON.parse(deBase64(j.content)); } catch (e) { d = {}; }
+  return { datos: completar(d), sha: j.sha };
+}
+
+// Escribe datos.json. Devuelve la respuesta tal cual para mirar el código.
+function escribirRemoto(d, sha, mensaje) {
+  return fetch(URL_DATOS, {
+    method: "PUT",
+    headers: { ...cabeceras(), "Content-Type": "application/json" },
+    cache: "no-store",
+    body: JSON.stringify({ message: mensaje, content: aBase64(JSON.stringify(d, null, 2) + "\n"), sha })
+  });
+}
+
+/* =====================================================================
+   GUARDAR UN CAMBIO
+   cambio(d) modifica el objeto d. Si devuelve false, no hay nada que guardar.
+   Pasos: leer lo último → aplicar el cambio → PUT con su sha.
+   Si alguien guardó a la vez (409/422), se repite hasta 3 veces.
+   ===================================================================== */
+function guardar(mensaje, cambio) {
+  // Se ve al instante en pantalla (sobre una copia de lo que tenemos)
+  try {
+    const copia = completar(JSON.parse(JSON.stringify(datos)));
+    if (cambio(copia) !== false) { datos = copia; pintar(); }
+  } catch (e) {}
+
+  // Y se guarda en GitHub, un cambio detrás de otro
+  guardando++;
+  estado("Guardando…");
+  const tarea = colaGuardado.then(() => guardarEnGitHub(mensaje, cambio)).finally(() => { guardando--; });
+  colaGuardado = tarea.catch(() => {});
+  return tarea;
+}
+
+async function guardarEnGitHub(mensaje, cambio) {
+  const INTENTOS = 1 + 3; // el primero y hasta 3 reintentos
+  try {
+    for (let i = 0; i < INTENTOS; i++) {
+      const { datos: d, sha } = await leerRemoto();
+      if (cambio(d) === false) { datos = d; shaActual = sha; pintar(); estado("Guardado", true); return true; }
+      const r = await escribirRemoto(d, sha, mensaje);
+      if (r.ok) {
+        const j = await r.json();
+        datos = d;
+        shaActual = j.content && j.content.sha;
+        pintar();
+        estado("Guardado", true);
+        return true;
+      }
+      if (r.status === 401 || r.status === 403) throw new ErrorClave();
+      if (r.status !== 409 && r.status !== 422) break; // otro error: no insistimos
+      // 409/422: alguien guardó a la vez → volvemos a leer y aplicar
+    }
+  } catch (e) {
+    if (e instanceof ErrorClave) { claveMala(); return false; }
+  }
+  estado("", false);
+  aviso("No se pudo guardar, inténtalo otra vez");
+  refrescar(true);
+  return false;
+}
+
+/* =====================================================================
+   RELEER DATOS (al abrir, al volver a la pestaña y cada 30 s)
+   ===================================================================== */
+async function refrescar(forzar) {
+  if (!clave || (guardando && !forzar)) return;
+  try {
+    const r = await leerRemoto();
+    if (guardando && !forzar) return; // empezó un guardado mientras leíamos
+    if (r.sha === shaActual && datos) return; // no ha cambiado nada
+    datos = r.datos;
+    shaActual = r.sha;
+    pintar();
+  } catch (e) {
+    if (e instanceof ErrorClave) claveMala();
+    // si falla la red, ya lo intentaremos en la próxima vuelta
+  }
+}
+
+function claveMala() {
+  borrarLocal("nb_clave");
+  clave = null;
+  mostrar("p-clave-mala");
+}
+
+/* =====================================================================
+   CAMBIOS (funciones pequeñas que modifican el objeto de datos)
+   ===================================================================== */
+function anadirParticipante(d, nombre) {
+  if (d.participantes.some((p) => normalizar(p) === normalizar(nombre))) return false;
+  d.participantes.push(nombre);
+}
+
+function anadirFecha(d, id) {
+  if (d.fechas.some((f) => f.id === id)) return false;
+  d.fechas.push({ id, etiqueta: etiquetaFecha(id) });
+  d.fechas.sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function votar(d, fechaId, nombre, respuesta) {
+  if (!d.votos[fechaId] || typeof d.votos[fechaId] !== "object") d.votos[fechaId] = {};
+  if (d.votos[fechaId][nombre] === respuesta) return false;
+  d.votos[fechaId][nombre] = respuesta;
+}
+
+function marcarOficial(d, fechaId) {
+  if (d.evento.fechaOficial === fechaId) return false;
+  d.evento.fechaOficial = fechaId; // null = quitar
+}
+
+/* =====================================================================
+   PANTALLA "¿QUIÉN ERES?"
+   ===================================================================== */
+function pintarSelectorNombre() {
+  const sel = $("sel-nombre");
+  const elegido = sel.value;
+  sel.innerHTML =
+    `<option value="">Elige tu nombre…</option>` +
+    datos.participantes.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join("") +
+    `<option value="__nuevo__">➕ Añadirme</option>`;
+  // conservar lo que estaba elegido si sigue existiendo
+  if ([...sel.options].some((o) => o.value === elegido)) sel.value = elegido;
+  actualizarBloqueNuevo();
+}
+
+function actualizarBloqueNuevo() {
+  const nuevo = $("sel-nombre").value === "__nuevo__";
+  $("bloque-nuevo").hidden = !nuevo;
+  $("btn-entrar").textContent = nuevo ? "Añadirme a la lista" : "Entrar";
+  $("nombre-error").textContent = "";
+}
+
+function entrarComo(nombre) {
+  yo = nombre;
+  guardarLocal("nb_nombre", nombre);
+  mostrar("p-app");
+  pintar();
+}
+
+async function pulsarEntrar() {
+  const valor = $("sel-nombre").value;
+  const error = $("nombre-error");
+  if (!valor) { error.textContent = "Elige tu nombre en la lista."; return; }
+  if (valor !== "__nuevo__") { entrarComo(valor); return; }
+
+  // Añadirme
+  const nombre = $("inp-nombre").value.trim().replace(/\s+/g, " ");
+  if (!nombre) { error.textContent = "Escribe tu nombre."; return; }
+  if (nombre.length > 20) { error.textContent = "Máximo 20 caracteres."; return; }
+
+  const igual = datos.participantes.find((p) => normalizar(p) === normalizar(nombre));
+  if (igual) {
+    if (confirm(`Ya hay alguien llamado "${igual}" en la lista. ¿Eres tú?`)) { entrarComo(igual); return; }
+    error.textContent = "Ese nombre ya existe. Añade una inicial para distinguirte (por ejemplo, \"" + nombre + " M\").";
+    return;
+  }
+
+  $("btn-entrar").disabled = true;
+  entrarComo(nombre);
+  await guardar(`${nombre} se añade a la lista`, (d) => anadirParticipante(d, nombre));
+  $("btn-entrar").disabled = false;
+  $("inp-nombre").value = "";
+}
+
+/* =====================================================================
+   PINTAR LA APP
+   ===================================================================== */
+function pintar() {
+  if (!datos) return;
+  if (!$("p-nombre").hidden) pintarSelectorNombre();
+  if ($("p-app").hidden) return;
+  pintarCabecera();
+  pintarFechas();
+}
+
+function pintarCabecera() {
+  $("cab-nombre").textContent = datos.evento.nombre;
+  document.title = datos.evento.nombre;
+  $("cab-yo").textContent = `Hola, ${yo}`;
+  const of = datos.evento.fechaOficial;
+  const cab = $("cab-oficial");
+  if (of) {
+    const f = datos.fechas.find((x) => x.id === of);
+    const lugar = datos.evento.lugar ? ` · 📍 ${datos.evento.lugar}` : "";
+    cab.textContent = `🎉 Fecha oficial: ${f ? f.etiqueta : etiquetaFecha(of)}${lugar}`;
+    cab.hidden = false;
+  } else {
+    cab.hidden = true;
+  }
+}
+
+// Puntos y recuento de una fecha
+function recuento(fechaId) {
+  const v = datos.votos[fechaId] || {};
+  const r = { si: [], quizas: [], no: [], puntos: 0 };
+  for (const [nombre, resp] of Object.entries(v)) {
+    if (r[resp]) { r[resp].push(nombre); r.puntos += PUNTOS[resp]; }
+  }
+  return r;
+}
+
+function pintarFechas() {
+  const fechas = datos.fechas.map((f) => ({ ...f, r: recuento(f.id) }));
+  // Ranking: más puntos primero; si empatan, la más temprana
+  const ranking = [...fechas].sort((a, b) => b.r.puntos - a.r.puntos || a.id.localeCompare(b.id));
+
+  // --- Tarjeta "Va ganando" ---
+  const top = ranking[0];
+  if (top && top.r.puntos > 0) {
+    const empatadas = ranking.filter((f) => f.r.puntos === top.r.puntos);
+    $("fechas-ganando").innerHTML = `
+      <div class="tarjeta ganando">
+        <h2>🏆 Va ganando</h2>
+        <div class="grande">${empatadas.map((f) => esc(f.etiqueta)).join(" / ")}</div>
+        <p class="suave">${top.r.puntos} puntos · ${top.r.si.length} sí · ${top.r.quizas.length} si hace falta
+        ${empatadas.length > 1 ? " · ¡empate!" : ""}</p>
+      </div>`;
+  } else {
+    $("fechas-ganando").innerHTML = fechas.length
+      ? `<div class="tarjeta"><p class="suave">Aún no hay votos. ¡Vota abajo!</p></div>` : "";
+  }
+
+  // --- Lista de fechas (en orden de ranking) ---
+  if (!fechas.length) {
+    $("fechas-lista").innerHTML = `<div class="tarjeta"><p>Todavía no hay fechas. Añade la primera arriba 👆</p></div>`;
+  } else {
+    const oficial = datos.evento.fechaOficial;
+    $("fechas-lista").innerHTML = `<h2>Ranking</h2>` + ranking.map((f, i) => {
+      const mio = (datos.votos[f.id] || {})[yo];
+      const botonVoto = (resp) =>
+        `<button class="voto ${resp}" data-votar="${esc(f.id)}" data-resp="${resp}" aria-pressed="${mio === resp}">${TEXTO_VOTO[resp]}</button>`;
+      const lista = (arr) => arr.length ? arr.map(esc).join(", ") : "—";
+      const esOficial = oficial === f.id;
+      let botonOficial = "";
+      if (soyOrganizador()) {
+        botonOficial = esOficial
+          ? `<button class="btn btn-borde ancho" data-oficial="">Quitar como fecha oficial</button>`
+          : `<button class="btn btn-verde ancho" data-oficial="${esc(f.id)}">⭐ Marcar como fecha oficial</button>`;
+      }
+      return `
+        <div class="tarjeta ${esOficial ? "oficial" : ""}">
+          ${esOficial ? `<span class="etiqueta-oficial">🎉 Fecha oficial</span>` : ""}
+          <div class="fecha-cab">
+            <h3>${i + 1}. ${esc(f.etiqueta)}</h3>
+            <span class="puntos">${f.r.puntos} pts</span>
+          </div>
+          <div class="votos" role="group" aria-label="Tu voto para ${esc(f.etiqueta)}">
+            ${botonVoto("si")}${botonVoto("quizas")}${botonVoto("no")}
+          </div>
+          <p class="resumen-votos"><b>Sí:</b> ${lista(f.r.si)}</p>
+          <p class="resumen-votos"><b>Si hace falta:</b> ${lista(f.r.quizas)}</p>
+          <p class="resumen-votos"><b>No:</b> ${lista(f.r.no)}</p>
+          ${botonOficial ? `<div style="margin-top:12px">${botonOficial}</div>` : ""}
+        </div>`;
+    }).join("");
+  }
+
+  // --- Quién falta por votar ---
+  if (!fechas.length) { $("fechas-faltan").innerHTML = ""; return; }
+  const faltan = datos.participantes
+    .map((p) => ({ p, n: fechas.filter((f) => !(datos.votos[f.id] || {})[p]).length }))
+    .filter((x) => x.n > 0);
+  $("fechas-faltan").innerHTML = `
+    <div class="tarjeta">
+      <h3>⏳ Faltan por votar</h3>
+      ${faltan.length
+        ? `<p>${faltan.map((x) => esc(x.p) + (x.n < fechas.length ? ` <span class="suave">(${x.n} ${x.n === 1 ? "fecha" : "fechas"})</span>` : "")).join(", ")}</p>`
+        : `<p>¡Ya ha votado todo el mundo! 🎉</p>`}
+    </div>`;
+}
+
+/* =====================================================================
+   PESTAÑAS
+   ===================================================================== */
+function irA(tab) {
+  if (!$("t-" + tab)) tab = "fechas";
+  document.querySelectorAll("[data-tab]").forEach((s) => { s.hidden = s.id !== "t-" + tab; });
+  document.querySelectorAll("nav button").forEach((b) => {
+    if (b.dataset.ir === tab) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+  });
+  guardarLocal("nb_tab", tab);
+  window.scrollTo(0, 0);
+}
+
+/* =====================================================================
+   EVENTOS
+   ===================================================================== */
+$("sel-nombre").addEventListener("change", actualizarBloqueNuevo);
+$("btn-entrar").addEventListener("click", pulsarEntrar);
+$("inp-nombre").addEventListener("keydown", (e) => { if (e.key === "Enter") pulsarEntrar(); });
+
+$("btn-cambiar").addEventListener("click", () => {
+  $("sel-nombre").value = "";
+  mostrar("p-nombre");
+  pintarSelectorNombre();
+  if (yo) $("sel-nombre").value = yo;
+  actualizarBloqueNuevo();
+});
+
+document.querySelector("nav").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-ir]");
+  if (b) irA(b.dataset.ir);
+});
+
+// Añadir fecha candidata
+$("btn-anadir-fecha").addEventListener("click", () => {
+  const id = $("inp-fecha").value; // "AAAA-MM-DD"
+  const err = $("fecha-error");
+  err.textContent = "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(id)) { err.textContent = "Elige una fecha."; return; }
+  if (datos.fechas.some((f) => f.id === id)) { err.textContent = "Esa fecha ya está en la lista."; return; }
+  $("inp-fecha").value = "";
+  guardar(`${yo} añade la fecha ${id}`, (d) => anadirFecha(d, id));
+});
+
+// Votar y marcar oficial (botones que se pintan dentro de la lista)
+$("fechas-lista").addEventListener("click", (e) => {
+  const v = e.target.closest("[data-votar]");
+  if (v) {
+    const fechaId = v.dataset.votar, resp = v.dataset.resp;
+    guardar(`${yo} vota "${TEXTO_VOTO[resp]}" para ${fechaId}`, (d) => votar(d, fechaId, yo, resp));
+    return;
+  }
+  const o = e.target.closest("[data-oficial]");
+  if (o && soyOrganizador()) {
+    const fechaId = o.dataset.oficial || null;
+    if (!fechaId && !confirm("¿Quitar la fecha oficial?")) return;
+    guardar(fechaId ? `Fecha oficial: ${fechaId}` : "Se quita la fecha oficial", (d) => marcarOficial(d, fechaId));
+  }
+});
+
+// Releer al volver a la pestaña y cada 30 s mientras está visible
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refrescar(); });
+setInterval(() => { if (!document.hidden) refrescar(); }, RELEER_CADA_MS);
+
+$("btn-reintentar").addEventListener("click", arrancar);
+
+/* =====================================================================
+   ARRANQUE
+   ===================================================================== */
+async function arrancar() {
+  // 1. ¿Viene la clave en el enlace (#k=...)? La guardamos y la quitamos de la URL.
+  const m = location.hash.match(/[#&]k=([^&]+)/);
+  if (m) {
+    clave = decodeURIComponent(m[1]).trim();
+    guardarLocal("nb_clave", clave);
+    history.replaceState(null, "", location.pathname + location.search);
+  } else {
+    clave = leerLocal("nb_clave");
+  }
+  if (!clave) { mostrar("p-sin-clave"); return; }
+
+  // 2. Leer los datos
+  mostrar("p-cargando");
+  $("cargando-texto").textContent = "Cargando…";
+  $("btn-reintentar").hidden = true;
+  try {
+    const r = await leerRemoto();
+    datos = r.datos;
+    shaActual = r.sha;
+  } catch (e) {
+    if (e instanceof ErrorClave) { claveMala(); return; }
+    $("cargando-texto").textContent = "No se pudieron cargar los datos. Revisa la conexión. " + (e.message || "");
+    $("btn-reintentar").hidden = false;
+    return;
+  }
+
+  // 3. ¿Sabemos quién eres?
+  irA(leerLocal("nb_tab") || "fechas");
+  yo = leerLocal("nb_nombre");
+  if (yo) { mostrar("p-app"); pintar(); }
+  else { mostrar("p-nombre"); pintarSelectorNombre(); }
+}
+
+arrancar();
+</script>
+</body>
+</html>
