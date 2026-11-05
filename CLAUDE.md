@@ -6,7 +6,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 
 ## Arquitectura (no cambiar sin consultar)
 
-- Un único `index.html` con HTML, CSS y JS inline, sin frameworks, sin build y sin dependencias externas, salvo Google Fonts (Shrikhand y Work Sans, con fuentes de respaldo). Se sirve con GitHub Pages desde este repo. Única excepción: `logo.jpg` (el cartel de la fiesta), que sale en grande en la pantalla de elegir nombre, como franja al final de cada pestaña y en miniatura arriba a la izquierda (botón para volver a Fechas).
+- Un único `index.html` con HTML, CSS y JS inline, sin frameworks, sin build y sin dependencias externas, salvo Google Fonts (Fraunces, Shrikhand y Work Sans, con fuentes de respaldo). Se sirve con GitHub Pages desde este repo. Única excepción: `logo.jpg` (el cartel de la fiesta), que sale en grande en la pantalla de elegir nombre, como franja al final de cada pestaña y en miniatura arriba a la izquierda (botón para volver a Fechas).
 - Los datos viven en otro repo privado, `nochebuen-datos`, en el archivo `datos.json`.
 - Lectura y escritura con la API de contenidos de GitHub:
   - GET https://api.github.com/repos/paniaguadediego-bit/nochebuen-datos/contents/datos.json
@@ -87,6 +87,12 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Mientras hay una ronda de juego abierta, se relee cada 10 s (GitHub permite ~5.000 lecturas por hora con la misma clave, entre todos).
 - Presentaciones: en Charlas → "📎 Mi presentación" cada uno sube su archivo .html o pega el código (máx. 900 KB). Se guarda en `nochebuen-datos/presentaciones/<idCharla>.html` y la charla guarda la ruta en `presentacion`. En Fiesta, "▶ Lanzar presentación" la abre a pantalla completa en un iframe con sandbox="allow-scripts" (sin allow-same-origin, para que no pueda leer la clave).
 
+## Calendario de Adviento
+
+- Se abre desde la tarjeta grande de arriba en Fechas (pantalla entera). 24 puertas en orden desordenado, del 1 al 24 de diciembre de 2026.
+- Lo rellena el grupo: cada uno puede rellenar hasta ceil(24 / participantes) puertas (mínimo 2) con un texto de hasta 300 caracteres (los enlaces http/https se vuelven clicables). Nadie más ve el contenido hasta su día; entonces se abre y se ve quién lo escribió.
+- `adviento` = { puertas: { "5": { autor, texto, fecha } } }. Cada uno edita o vacía las suyas mientras siguen cerradas.
+
 ## Cartas (el tablón) y Reyes Magos
 
 - Pestaña "💌 Cartas" en la barra inferior: se escribe una carta en papel antiguo a los Reyes Magos o a Papá Noel (campo `para`: "reyes" o "noel" en cada elemento de `sugerencias`, máx. 400 caracteres). El buzón muestra todas como sobres con sello y lacre; cada uno borra las suyas.
@@ -99,11 +105,13 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 
 - Cabecera: "NocheBuenFindeaño" con "2026-2027" al lado y el subtítulo "Familia de Adoce". El nombre de la persona va en el botón "Cambiar".
 - Todo compacto: los formularios de Comida, Charlas y Juegos van plegados hasta que se pulsan.
+- Icono de Fechas: hoja de calendario dibujada con "DIC 24" (en vez del emoji 📅).
+- Modo tele: en el móvil se ve en una columna y siempre hay un botón flotante "✕ Salir del modo tele".
 - Decoración navideña: guirnalda de bombillas de colores bajo la cabecera, nieve dorada suave de fondo, botones con relieve (filo dorado, se hunden al pulsar), tarjetas-botón grandes ("hero") para las acciones importantes (Modo tele, Campanadas con marco de bombillas, Copiar prompt, Ver la guía) y en la barra inferior la pestaña activa lleva el icono en una bola de Navidad dorada.
 - Animaciones básicas (aparecer al cambiar de pestaña, barras que crecen, botones que se hunden al pulsar, guirnalda que parpadea) y se desactivan si el móvil pide menos movimiento.
 
 - Estilo retro navideño. Colores: rojo #B3261E, verde bosque #1F4D3A, crema #F6EEDC, dorado #C9A227 (decoración) y #F2C94C (texto sobre verde), texto #2A1E17, tarjetas #FFFDF7 con borde #E2D3B5.
-- Títulos en Shrikhand y texto en Work Sans.
+- Títulos en Fraunces (serif retro, legible), el nombre de la fiesta en la cabecera en Shrikhand y el texto en Work Sans.
 - Cabecera roja con el nombre de la fiesta y borde punteado dorado. Pestañas inferiores verdes, con la activa en dorado.
 - Primero para móvil y compacto: botones de unos 36-40 px, texto normal de 15 px (mínimo 12 px en etiquetas pequeñas) y buen contraste. Los campos de texto se quedan en 16 px para que el iPhone no haga zoom.
 - Confirmar antes de borrar cualquier cosa.
