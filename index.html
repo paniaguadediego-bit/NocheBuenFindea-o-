@@ -312,7 +312,8 @@
   .crono.ultimos { color: var(--rojo); animation: latido 1s ease-in-out infinite; }
   .crono.fin { color: var(--rojo); }
   .tiempo-fuera { animation: alarma .5s ease-in-out 6; }
-  .controles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .controles { display: grid; grid-template-columns: 48px 1fr 48px 1fr; gap: 6px; }
+  .controles .btn { padding: 6px 4px; font-size: 14px; white-space: nowrap; }
   .orden-lista { margin: 0; padding-left: 26px; }
   .orden-lista li { padding: 3px 0; }
   .orden-lista li.actual { font-weight: 700; color: var(--rojo); }
@@ -431,6 +432,176 @@
     padding: 8px 14px; border-radius: 10px; font-size: 14px; z-index: 20;
     max-width: calc(100% - 32px); text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,.25);
   }
+
+  /* =====================================================================
+     DECORACIÓN NAVIDEÑA (capa final: retoca el aspecto de todo lo anterior)
+     ===================================================================== */
+
+  /* Nieve dorada que cae despacio por el fondo */
+  #nieve { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  #nieve span { position: absolute; top: -20px; color: var(--dorado); opacity: .28; animation: nevar linear infinite; }
+  @keyframes nevar { to { transform: translateY(110vh) translateX(30px) rotate(200deg); } }
+  #p-app, .pantalla { position: relative; z-index: 1; }
+
+  /* Cabecera: rojo con profundidad y filo dorado */
+  header {
+    background: radial-gradient(130% 160% at 50% -30%, #CC3A2F 0%, #A8231B 55%, #8E1C15 100%);
+    border-bottom: 3px solid var(--dorado);
+    box-shadow: 0 4px 14px rgba(42,30,23,.25);
+    margin-bottom: 16px;
+  }
+  header h1 #cab-nombre { text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+  .btn-inicio { border-color: var(--dorado-texto); box-shadow: 0 0 0 2px rgba(0,0,0,.15), 0 2px 6px rgba(0,0,0,.3); }
+  .btn-cambiar { border: 1.5px solid rgba(246,238,220,.85); background: rgba(0,0,0,.12); }
+
+  /* Guirnalda: cable ondulado con bombillas que cuelgan y parpadean a su ritmo */
+  .guirnalda {
+    position: absolute; left: 0; right: 0; bottom: -16px; height: 16px; pointer-events: none; animation: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16'%3E%3Cpath d='M0 1 Q14 11 28 1' fill='none' stroke='%231F4D3A' stroke-width='1.6'/%3E%3C/svg%3E") repeat-x 0 0 / 28px 16px;
+  }
+  .bombilla {
+    position: absolute; top: 5px; width: 7px; height: 10px; margin-left: -3.5px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    animation: encender 2.4s ease-in-out infinite alternate;
+  }
+  .bombilla::before { content: ""; position: absolute; top: -2px; left: 1.5px; width: 4px; height: 3px; background: #8A7A6E; border-radius: 1px; }
+  @keyframes encender { 0% { opacity: .45; filter: none; } 100% { opacity: 1; filter: drop-shadow(0 0 4px currentColor); } }
+
+  /* Tarjetas: papel de carta con sombra suave */
+  .tarjeta {
+    border: 1px solid #E2D3B5;
+    box-shadow: 0 1px 0 #E2D3B5, 0 10px 22px -14px rgba(42,30,23,.35);
+  }
+  .tarjeta.ganando {
+    background: linear-gradient(135deg, #FFF7DC 0%, #FFFDF7 60%);
+    border: 1.5px solid var(--dorado);
+    box-shadow: 0 0 0 3px rgba(201,162,39,.15), 0 10px 22px -14px rgba(42,30,23,.35);
+  }
+
+  /* Títulos de sección con una línea dorada que se desvanece */
+  /* (truco: la línea ocupa el resto del renglón sin romper el texto del título) */
+  main h2, main h3 { overflow: hidden; }
+  main h2::after, main h3::after {
+    content: ""; display: inline-block; vertical-align: middle; width: 100%; margin-right: -100%; margin-left: 10px;
+    height: 2px; border-radius: 2px; background: linear-gradient(90deg, rgba(201,162,39,.7), rgba(201,162,39,0));
+  }
+  .fecha-cab h3::after, .presenta h3::after, .cal-cab h3::after, .caja-ronda h3::after { display: none; }
+
+  /* Botones con relieve: brillo, filo dorado y "se hunden" al pulsar */
+  .btn { position: relative; overflow: hidden; letter-spacing: .01em; transition: transform .08s, box-shadow .08s, filter .2s; }
+  .btn-rojo {
+    background: linear-gradient(180deg, #CF3D31 0%, #A3221A 100%); color: #FFF6E0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), inset 0 0 0 1.5px rgba(242,201,76,.5), 0 3px 0 #741510;
+  }
+  .btn-verde {
+    background: linear-gradient(180deg, #2C664C 0%, #1A4232 100%); color: var(--dorado-texto);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 1.5px rgba(242,201,76,.45), 0 3px 0 #0F271D;
+  }
+  .btn-borde {
+    background: linear-gradient(180deg, #FFFFFF 0%, #FBF4E4 100%); border: 1.5px solid var(--verde);
+    box-shadow: 0 3px 0 #BFAE86;
+  }
+  .btn:active:not(:disabled) { transform: translateY(2px); }
+  .btn-rojo:active:not(:disabled) { box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.5), 0 1px 0 #741510; }
+  .btn-verde:active:not(:disabled) { box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.45), 0 1px 0 #0F271D; }
+  .btn-borde:active:not(:disabled) { box-shadow: 0 1px 0 #BFAE86; }
+  @media (hover: hover) { .btn:hover:not(:disabled) { filter: brightness(1.07); } }
+
+  /* Botones de voto, iconos y días: pastillas con relieve */
+  .voto, .icono, .opcion, .rejilla-nombres button, .cal-flecha {
+    border: 1.5px solid #E2D3B5; background: linear-gradient(180deg, #FFFFFF, #FBF6EA); box-shadow: 0 2px 0 #E2D3B5;
+  }
+  .voto:active, .icono:active, .opcion:active, .rejilla-nombres button:active, .cal-flecha:active { transform: translateY(1px); box-shadow: 0 1px 0 #E2D3B5; }
+  .voto[aria-pressed="true"].si, .opcion[aria-pressed="true"], .rejilla-nombres button[aria-pressed="true"] {
+    background: linear-gradient(180deg, #2C664C, #1A4232); border-color: #1A4232; box-shadow: 0 2px 0 #0F271D, 0 0 0 3px rgba(31,77,58,.15);
+  }
+  .voto[aria-pressed="true"].quizas { background: linear-gradient(180deg, #FFDB6E, #F2C94C); border-color: var(--dorado); box-shadow: 0 2px 0 #A8861B, 0 0 0 3px rgba(242,201,76,.25); }
+  .voto[aria-pressed="true"].no { background: linear-gradient(180deg, #7E6E62, #5E5047); border-color: #5E5047; box-shadow: 0 2px 0 #3E342E; }
+  .voto[aria-pressed="true"].veto { background: linear-gradient(180deg, #CF3D31, #A3221A); border-color: #A3221A; box-shadow: 0 2px 0 #741510, 0 0 0 3px rgba(179,38,30,.18); }
+  .cal-dia { box-shadow: 0 1px 0 #EADFC8; }
+  .cal-dia.candidata { background: linear-gradient(180deg, #FFF8E0, #FFEFC2); }
+  .cal-dia.oficial { background: linear-gradient(180deg, #2C664C, #1A4232); }
+
+  /* Segmentos y selector de la tele */
+  .segmentos, .vistas { background: #EADFC8; box-shadow: inset 0 1px 3px rgba(42,30,23,.15); }
+  .segmentos button[aria-pressed="true"], .vistas button[aria-pressed="true"] {
+    background: linear-gradient(180deg, #2C664C, #1A4232); box-shadow: 0 2px 4px rgba(0,0,0,.2), inset 0 0 0 1px rgba(242,201,76,.4);
+  }
+
+  /* Tarjetas-botón grandes (Modo tele, Campanadas, Copiar prompt, Ver la guía) */
+  .heroes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .hero {
+    position: relative; overflow: hidden; display: flex; align-items: center; gap: 10px; text-align: left;
+    min-height: 62px; padding: 8px 10px; border: 0; border-radius: 14px; color: var(--crema); min-width: 0;
+    transition: transform .08s, box-shadow .08s, filter .2s;
+  }
+  .hero > span:last-child { min-width: 0; }
+  .hero b { display: block; font-family: var(--titulos); font-weight: 400; font-size: 15px; line-height: 1.1; color: var(--dorado-texto); }
+  .hero small { display: block; font-size: 12px; opacity: .9; margin-top: 2px; line-height: 1.2; }
+  .hero-ico {
+    flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 18px;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.35), rgba(255,255,255,.08));
+    box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.6);
+  }
+  .hero-verde { background: linear-gradient(135deg, #2C664C 0%, #163828 100%); box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.55), 0 3px 0 #0F271D; }
+  .hero-rojo { background: linear-gradient(135deg, #CF3D31 0%, #8E1C15 100%); box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.6), 0 3px 0 #741510; }
+  .hero-crema { background: linear-gradient(135deg, #FFFFFF 0%, #F6EEDC 100%); color: var(--texto); box-shadow: inset 0 0 0 1.5px var(--dorado), 0 3px 0 #BFAE86; }
+  .hero-crema b { color: var(--rojo); }
+  .hero:active { transform: translateY(2px); }
+  /* Marco de bombillas, como el cartel */
+  .hero-marquesina::before {
+    content: ""; position: absolute; inset: 4px; border-radius: 11px; pointer-events: none;
+    border: 3px dotted #FFE9A8; animation: marquesina 1.2s steps(2) infinite;
+  }
+  @keyframes marquesina { 50% { border-color: rgba(255,233,168,.35); } }
+  /* Brillo que cruza la tarjeta de vez en cuando */
+  .hero::after {
+    content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 30%; pointer-events: none;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.28), transparent); transform: skewX(-20deg);
+    animation: brillo 7s ease-in-out infinite;
+  }
+  .hero:nth-child(2)::after { animation-delay: 3.5s; }
+  @keyframes brillo { 0%, 80% { left: -40%; } 100% { left: 130%; } }
+  .campana { display: inline-block; transform-origin: 50% 10%; animation: campaneo 2.2s ease-in-out infinite; }
+  @keyframes campaneo { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(16deg); } 80% { transform: rotate(-14deg); } 90% { transform: rotate(8deg); } }
+  body.modo-tele .hero { min-height: 80px; }
+  body.modo-tele .hero b { font-size: 22px; }
+
+  /* Barra inferior: sin rayita; la pestaña activa lleva el icono en una bola de Navidad */
+  nav {
+    background: linear-gradient(180deg, #24573F 0%, #163828 100%);
+    border-top: 2px solid var(--dorado);
+    box-shadow: 0 -6px 16px rgba(42,30,23,.18);
+  }
+  nav button { min-height: 56px; gap: 1px; }
+  nav button[aria-current="page"] { box-shadow: none; color: var(--dorado-texto); }
+  nav button .ico {
+    position: relative; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%;
+    transition: transform .25s cubic-bezier(.3,1.6,.5,1), background .2s;
+  }
+  nav button[aria-current="page"] .ico {
+    transform: translateY(-5px);
+    background: radial-gradient(circle at 35% 30%, #FFF0B8 0%, #E9B93A 45%, #A8861B 100%);
+    box-shadow: 0 3px 8px rgba(0,0,0,.35), inset 0 -2px 3px rgba(0,0,0,.18);
+  }
+  /* El "gancho" dorado de la bola */
+  nav button[aria-current="page"] .ico::before {
+    content: ""; position: absolute; top: -4px; left: 50%; width: 8px; height: 5px; margin-left: -4px;
+    background: #C9A227; border-radius: 2px 2px 0 0;
+  }
+
+  /* Campanadas: cielo de noche con estrellas */
+  .campanadas {
+    background:
+      radial-gradient(1.5px 1.5px at 20% 30%, #FFE9A8 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 70% 20%, #FFE9A8 50%, transparent 51%),
+      radial-gradient(1px 1px at 40% 70%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 85% 60%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 10% 85%, #FFE9A8 50%, transparent 51%),
+      radial-gradient(120% 90% at 50% 0%, #2C664C 0%, #163828 60%, #0E2419 100%);
+  }
+  .campanadas .numero { text-shadow: 0 6px 0 rgba(0,0,0,.25), 0 0 40px rgba(242,201,76,.35); }
+
+  @media (prefers-reduced-motion: reduce) { #nieve { display: none; } }
 </style>
 </head>
 <body>
@@ -546,8 +717,16 @@
         <h3>📺 Charlas de <span id="cha-minutos">3</span> minutos</h3>
         <p class="suave">Cuenta tu hobby o lo que te apasione. Con el prompt, una IA te prepara la presentación en un momento.</p>
         <div class="acciones">
-          <button id="cha-copiar" class="btn btn-verde">📋 Copiar prompt</button>
-          <button id="cha-guia" class="btn btn-borde">📖 Ver la guía</button>
+        </div>
+        <div class="heroes" style="margin-top:8px">
+          <button id="cha-copiar" class="hero hero-verde">
+            <span class="hero-ico">📋</span>
+            <span><b>Copiar prompt</b><small>Pégalo en tu IA</small></span>
+          </button>
+          <button id="cha-guia" class="hero hero-crema">
+            <span class="hero-ico">📖</span>
+            <span><b>Ver la guía</b><small>Menos de 5 min</small></span>
+          </button>
         </div>
       </div>
       <details class="tarjeta plegable" id="cha-form">
@@ -669,9 +848,15 @@
     <!-- Pestaña FIESTA (para la tele) -->
     <section id="t-fiesta" data-tab hidden>
       <div class="tarjeta" id="fie-barra">
-        <div class="acciones" style="margin-top:0">
-          <button id="fie-tele" class="btn btn-verde">📺 Modo tele</button>
-          <button id="fie-campanadas" class="btn btn-rojo">🔔 Empezar las campanadas</button>
+        <div class="heroes">
+          <button id="fie-tele" class="hero hero-verde">
+            <span class="hero-ico">📺</span>
+            <span><b id="fie-tele-titulo">Modo tele</b><small id="fie-tele-sub">Pantalla completa</small></span>
+          </button>
+          <button id="fie-campanadas" class="hero hero-rojo hero-marquesina">
+            <span class="hero-ico"><span class="campana">🔔</span></span>
+            <span><b>Campanadas</b><small>12 toques y ¡Feliz 2027!</small></span>
+          </button>
         </div>
         <div class="vistas" role="group" aria-label="Qué enseñar en la tele">
           <button data-vista="charlas" aria-pressed="true">📺 Charlas</button>
@@ -718,6 +903,7 @@
 </div>
 
 <div id="aviso" role="status" hidden></div>
+<div id="nieve" aria-hidden="true"></div>
 
 <!-- Visor de presentaciones (pantalla entera). sandbox sin allow-same-origin: la presentación no puede leer la clave -->
 <div id="visor" class="visor" hidden>
@@ -948,6 +1134,7 @@ function estado(texto, borrarLuego) {
 
 // Muestra solo una pantalla
 function mostrar(id) {
+  if (id === "p-app") setTimeout(colgarBombillas, 0);
   for (const p of ["p-sin-clave", "p-clave-mala", "p-cargando", "p-nombre", "p-app"]) $(p).hidden = p !== id;
 }
 
@@ -1963,7 +2150,8 @@ function cerrarCampanadas() {
 async function alternarModoTele() {
   const activar = !document.body.classList.contains("modo-tele");
   document.body.classList.toggle("modo-tele", activar);
-  $("fie-tele").textContent = activar ? "↩ Salir del modo tele" : "📺 Modo tele";
+  $("fie-tele-titulo").textContent = activar ? "Salir del modo tele" : "Modo tele";
+  $("fie-tele-sub").textContent = activar ? "Volver a lo normal" : "Pantalla completa";
   try {
     if (activar && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
     if (!activar && document.fullscreenElement) await document.exitFullscreen();
@@ -3003,6 +3191,38 @@ async function arrancar() {
   if (yo) { mostrar("p-app"); pintar(); }
   else { mostrar("p-nombre"); pintarSelectorNombre(); }
 }
+
+/* =====================================================================
+   DECORACIÓN: bombillas de la guirnalda y nieve
+   ===================================================================== */
+const COLORES_BOMBILLAS = ["#FF5A4E", "#F2C94C", "#7BD389", "#6EC1FF", "#FFB4E6"];
+
+function colgarBombillas() {
+  const g = document.querySelector(".guirnalda");
+  if (!g) return;
+  const ancho = g.offsetWidth || window.innerWidth;
+  let html = "";
+  // Una bombilla en cada curva del cable (cada 28 px)
+  for (let i = 0, x = 14; x < ancho; i++, x += 28) {
+    const color = COLORES_BOMBILLAS[i % COLORES_BOMBILLAS.length];
+    html += `<span class="bombilla" style="left:${x}px;background:${color};color:${color};animation-delay:${(Math.random() * 2.4).toFixed(2)}s;animation-duration:${(1.8 + Math.random() * 1.4).toFixed(2)}s"></span>`;
+  }
+  g.innerHTML = html;
+}
+
+function nevar() {
+  const n = $("nieve");
+  let html = "";
+  for (let i = 0; i < 22; i++) {
+    const tam = 8 + Math.random() * 10;
+    const dur = 14 + Math.random() * 14;
+    html += `<span style="left:${(Math.random() * 100).toFixed(1)}%;font-size:${tam.toFixed(0)}px;animation-duration:${dur.toFixed(1)}s;animation-delay:-${(Math.random() * dur).toFixed(1)}s">❄</span>`;
+  }
+  n.innerHTML = html;
+}
+
+nevar();
+window.addEventListener("resize", colgarBombillas);
 
 arrancar();
 </script>

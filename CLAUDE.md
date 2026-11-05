@@ -95,6 +95,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 
 - Cabecera: "NocheBuenFindeaño" con "2026-2027" al lado y el subtítulo "Familia de Adoce". El nombre de la persona va en el botón "Cambiar".
 - Todo compacto: los formularios de Comida, Charlas y Juegos van plegados hasta que se pulsan.
+- Decoración navideña: guirnalda de bombillas de colores bajo la cabecera, nieve dorada suave de fondo, botones con relieve (filo dorado, se hunden al pulsar), tarjetas-botón grandes ("hero") para las acciones importantes (Modo tele, Campanadas con marco de bombillas, Copiar prompt, Ver la guía) y en la barra inferior la pestaña activa lleva el icono en una bola de Navidad dorada.
 - Animaciones básicas (aparecer al cambiar de pestaña, barras que crecen, botones que se hunden al pulsar, guirnalda que parpadea) y se desactivan si el móvil pide menos movimiento.
 
 - Estilo retro navideño. Colores: rojo #B3261E, verde bosque #1F4D3A, crema #F6EEDC, dorado #C9A227 (decoración) y #F2C94C (texto sobre verde), texto #2A1E17, tarjetas #FFFDF7 con borde #E2D3B5.
