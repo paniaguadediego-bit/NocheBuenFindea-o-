@@ -1005,28 +1005,8 @@
 
     <!-- Pestaña JUEGOS -->
     <section id="t-juegos" data-tab hidden>
-      <div class="segmentos" role="group" aria-label="Tipo de juego">
-        <button data-seg="mesa" aria-pressed="true">🎲 De mesa</button>
-        <button data-seg="vivo" aria-pressed="false">🎉 En vivo</button>
-      </div>
-      <div id="jue-mesa">
-      <details class="tarjeta plegable" id="jue-form">
-        <summary id="jue-form-titulo">🎲 ¿Traes un juego?</summary>
-        <label for="jue-juego">Juego</label>
-        <input id="jue-juego" class="campo" maxlength="40" placeholder="Ej.: Dixit">
-        <label for="jue-jugadores">Número de jugadores</label>
-        <input id="jue-jugadores" class="campo" maxlength="10" placeholder="Ej.: 3-8">
-        <div id="jue-error" class="error-texto"></div>
-        <div class="acciones">
-          <button id="jue-guardar" class="btn btn-rojo">Apuntar juego</button>
-          <button id="jue-cancelar" class="btn btn-borde" hidden>Cancelar</button>
-        </div>
-      </details>
-      <div id="juegos-lista"></div>
-      </div>
-
       <!-- Juegos en vivo: cada uno participa desde su móvil -->
-      <div id="jue-vivo" hidden>
+      <div id="jue-vivo">
         <p class="suave solo-tele-aviso" id="vivo-tele-aviso" hidden>📺 Este es el PC de la tele: los juegos se enseñan y se controlan desde la pestaña 🥂 Fiesta.</p>
 
         <div class="tarjeta">
@@ -1776,12 +1756,12 @@ function pintar() {
   pintarFechas();
   pintarComida();
   pintarCharlas();
-  pintarJuegos();
   pintarSugerencias();
   pintarAdviento();
   pintarFiesta();
   pintarVivo();
   pintarPresentacionMia();
+  ajustarRelectura();
 }
 
 function pintarCabecera() {
@@ -2129,84 +2109,6 @@ async function copiarPrompt() {
     t.remove();
   }
   aviso("Prompt copiado. Pégalo en tu IA 🤖");
-}
-
-/* =====================================================================
-   JUEGOS
-   ===================================================================== */
-let editandoJuego = null;
-
-function anadirJuego(d, juego) { d.juegos.push(juego); }
-function editarJuego(d, id, nombre, campos) {
-  const j = d.juegos.find((x) => x.id === id && x.nombre === nombre);
-  if (!j) return false;
-  Object.assign(j, campos);
-}
-function borrarJuego(d, id, nombre) {
-  const antes = d.juegos.length;
-  d.juegos = d.juegos.filter((x) => !(x.id === id && x.nombre === nombre));
-  if (d.juegos.length === antes) return false;
-}
-// Un voto por persona y juego; poner = true para votar, false para quitarlo
-function votarJuego(d, id, nombre, poner) {
-  const j = d.juegos.find((x) => x.id === id);
-  if (!j) return false;
-  const tiene = j.votos.includes(nombre);
-  if (poner === tiene) return false;
-  j.votos = poner ? [...j.votos, nombre] : j.votos.filter((n) => n !== nombre);
-}
-
-function pintarJuegos() {
-  // Más votados primero
-  const juegos = [...datos.juegos].sort((a, b) => b.votos.length - a.votos.length);
-  const lista = juegos.map((j) => {
-    const voto = j.votos.includes(yo);
-    return `
-      <div class="item">
-        <div class="item-texto">
-          <div class="item-titulo">${esc(j.juego)}</div>
-          <div class="suave">${j.jugadores ? `👥 ${esc(j.jugadores)} · ` : ""}Lo trae ${esc(j.nombre)}</div>
-          ${j.votos.length ? `<div class="suave">Quieren jugar: ${j.votos.map(esc).join(", ")}</div>` : ""}
-        </div>
-        <div class="item-botones">
-          <button class="icono voto-juego" data-jue-votar="${esc(j.id)}" aria-pressed="${voto}"
-            aria-label="${voto ? "Quitar mi voto" : "Quiero jugar"}">👍 ${j.votos.length}</button>
-          ${j.nombre === yo ? `
-            <button class="icono" data-jue-editar="${esc(j.id)}" aria-label="Editar ${esc(j.juego)}">✏️</button>
-            <button class="icono" data-jue-borrar="${esc(j.id)}" aria-label="Borrar ${esc(j.juego)}">🗑️</button>` : ""}
-        </div>
-      </div>`;
-  }).join("");
-  $("juegos-lista").innerHTML = `
-    <div class="tarjeta">
-      <h3>🎲 Juegos (${juegos.length})</h3>
-      ${lista || `<p class="suave" style="margin:0">Todavía no hay juegos. ¿Traes uno?</p>`}
-    </div>`;
-}
-
-function limpiarFormJuego() {
-  editandoJuego = null;
-  $("jue-juego").value = "";
-  $("jue-jugadores").value = "";
-  $("jue-error").textContent = "";
-  $("jue-form-titulo").textContent = "🎲 ¿Traes un juego?";
-  $("jue-form").open = false;
-  $("jue-guardar").textContent = "Apuntar juego";
-  $("jue-cancelar").hidden = true;
-}
-
-function pulsarGuardarJuego() {
-  const juego = $("jue-juego").value.trim();
-  const jugadores = $("jue-jugadores").value.trim();
-  if (!juego) { $("jue-error").textContent = "Escribe el nombre del juego."; return; }
-  if (editandoJuego) {
-    const id = editandoJuego;
-    guardar(`${yo} cambia su juego: ${juego}`, (d) => editarJuego(d, id, yo, { juego, jugadores }));
-  } else {
-    const nuevo = { id: nuevoId(), nombre: yo, juego, jugadores, votos: [] };
-    guardar(`${yo} trae ${juego}`, (d) => anadirJuego(d, nuevo));
-  }
-  limpiarFormJuego();
 }
 
 /* =====================================================================
@@ -2935,7 +2837,6 @@ function pintarPrediccionesTele() {
    JUEGOS EN VIVO: pintar y vistas
    ===================================================================== */
 let vistaFiesta = leerLocal("nb_vista") || "charlas";
-let segmentoJuegos = leerLocal("nb_seg") || "mesa";
 
 function pintarVivo() {
   $("vivo-tele-aviso").hidden = !esTele();
@@ -2943,14 +2844,6 @@ function pintarVivo() {
   pintarQuizMovil();
   pintarPremiosMovil();
   pintarPrediccionesMovil();
-}
-
-function ponerSegmento(seg) {
-  segmentoJuegos = seg;
-  guardarLocal("nb_seg", seg);
-  $("jue-mesa").hidden = seg !== "mesa";
-  $("jue-vivo").hidden = seg !== "vivo";
-  document.querySelectorAll("[data-seg]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.seg === seg));
 }
 
 function ponerVista(v) {
@@ -3538,11 +3431,18 @@ $("fechas-lista").addEventListener("click", (e) => {
 // Releer al volver a la pestaña y cada 30 s mientras está visible
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refrescar(); });
 // Durante una ronda de juego se relee cada 10 s (GitHub deja ~5.000 lecturas por hora entre todos)
+let temporizadorRelectura = null, retrasoRelectura = 0;
 function programarRelectura() {
-  setTimeout(async () => {
+  clearTimeout(temporizadorRelectura);
+  retrasoRelectura = hayJuegoEnVivo() ? RELEER_JUEGO_MS : RELEER_CADA_MS;
+  temporizadorRelectura = setTimeout(async () => {
     if (!document.hidden) await refrescar();
     programarRelectura();
-  }, hayJuegoEnVivo() ? RELEER_JUEGO_MS : RELEER_CADA_MS);
+  }, retrasoRelectura);
+}
+// Si empieza o acaba una ronda de juego, se cambia de ritmo enseguida (sin esperar la vuelta de 30 s)
+function ajustarRelectura() {
+  if ((hayJuegoEnVivo() ? RELEER_JUEGO_MS : RELEER_CADA_MS) !== retrasoRelectura) programarRelectura();
 }
 programarRelectura();
 
@@ -3600,10 +3500,6 @@ $("fie-anterior").addEventListener("click", () => moverCharla(-1));
 $("fie-sortear").addEventListener("click", pulsarSortear);
 
 // --- Juegos en vivo ---
-document.querySelector("#t-juegos .segmentos").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-seg]");
-  if (b) ponerSegmento(b.dataset.seg);
-});
 document.querySelector(".vistas").addEventListener("click", (e) => {
   const b = e.target.closest("[data-vista]");
   if (b) ponerVista(b.dataset.vista);
@@ -3848,42 +3744,6 @@ $("charlas-lista").addEventListener("click", (e) => {
   }
 });
 
-// --- Juegos ---
-$("jue-guardar").addEventListener("click", pulsarGuardarJuego);
-$("jue-cancelar").addEventListener("click", limpiarFormJuego);
-$("juegos-lista").addEventListener("click", (e) => {
-  const vo = e.target.closest("[data-jue-votar]");
-  if (vo) {
-    const id = vo.dataset.jueVotar;
-    const j = datos.juegos.find((x) => x.id === id);
-    if (!j) return;
-    const poner = !j.votos.includes(yo);
-    guardar(`${yo} ${poner ? "vota" : "quita su voto a"} ${j.juego}`, (d) => votarJuego(d, id, yo, poner));
-    return;
-  }
-  const ed = e.target.closest("[data-jue-editar]");
-  if (ed) {
-    const j = datos.juegos.find((x) => x.id === ed.dataset.jueEditar);
-    if (!j) return;
-    editandoJuego = j.id;
-    $("jue-juego").value = j.juego;
-    $("jue-jugadores").value = j.jugadores;
-    $("jue-form-titulo").textContent = "✏️ Cambia tu juego";
-    $("jue-form").open = true;
-    $("jue-guardar").textContent = "Guardar cambios";
-    $("jue-cancelar").hidden = false;
-    $("jue-form").scrollIntoView({ behavior: "smooth", block: "start" });
-    return;
-  }
-  const bo = e.target.closest("[data-jue-borrar]");
-  if (bo) {
-    const j = datos.juegos.find((x) => x.id === bo.dataset.jueBorrar);
-    if (!j || !confirm(`¿Borrar "${j.juego}"?`)) return;
-    if (editandoJuego === j.id) limpiarFormJuego();
-    guardar(`${yo} borra ${j.juego}`, (d) => borrarJuego(d, j.id, yo));
-  }
-});
-
 $("btn-reintentar").addEventListener("click", arrancar);
 
 /* =====================================================================
@@ -3920,7 +3780,6 @@ async function arrancar() {
   irA(leerLocal("nb_tab") || "fechas");
   yo = leerLocal("nb_nombre");
   document.body.classList.toggle("es-tele", esTele());
-  ponerSegmento(segmentoJuegos);
   ponerVista(vistaFiesta);
   if (yo) { mostrar("p-app"); pintar(); }
   else { mostrar("p-nombre"); pintarSelectorNombre(); }

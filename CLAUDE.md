@@ -71,12 +71,12 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 1. **Fechas** (lo más importante): añadir fecha candidata, votar cada fecha con Sí / Si hace falta / No, ranking ordenado por votos con su posición (sí = 2 puntos, si hace falta = 1; la que más puntos tiene lleva corona 👑, y si hay empate, todas las empatadas); un selector "🏆 Votos / 📅 Fecha" permite verlo en orden cronológico (se recuerda en cada móvil, `nb_orden`), lista de quién falta por votar (sin los nombres de NO_CUENTAN_EN_FALTAN: Ammar, que es una broma del grupo) y botón para marcar la fecha oficial (solo Pablo, y pide confirmación), que se muestra en la cabecera de todas las pestañas. Calendario seguido del lunes 16 de noviembre al 31 de diciembre de 2026 (CAL_INICIO / CAL_FIN), sin flechas, con "DIC" en el día 1 de diciembre: al tocar un día se abre una ventana para votarlo (Sí / Si hace falta / No / Veto) o dejarlo en blanco; si no era candidata, se añade al votar. Cada fecha lleva puntos con la inicial de quien vota (o 2+ letras si se repite la inicial): verde = sí, amarillo = si hace falta, rojo = veto. Iniciales fijas: Pablo = PP, Patri = PF. (Desactivado por ahora con USAR_AROS = false:) si varias iniciales empiezan por la misma letra (PP/PF, Ed/Es), cada una de esas bolas lleva un aro interior de un color distinto (por orden alfabético: dorado, azul, rosa, blanco, naranja, morado) por dentro, para que todas las bolas midan lo mismo. Las iniciales van como bolas de Navidad (degradado, reflejo y gancho dorado), todas del mismo tamaño y con la letra de los títulos. Las fechas se proponen tocando el calendario. Gráfica de barras por fecha (sí, si hace falta, no, veto). Una fecha sin votos no se muestra, y al quitar el último voto se borra de datos.json (salvo la oficial).
 2. **Comida**: quién trae qué, agrupado por categoría, con aviso de categorías vacías y etiqueta de alergias/notas. Cada uno puede editar o borrar lo suyo.
 3. **Charlas**: apuntarse con tema, enlace opcional y casilla "por videollamada". Botón "Copiar prompt" con el contenido de prompt.md incrustado en la app y botón "Ver la guía" con el contenido de guia.md.
-4. **Juegos**: quién trae qué juego, número de jugadores y votos (un voto por persona y juego, se puede quitar).
+4. **Juegos**: solo los juegos en vivo (ver abajo). La parte de juegos de mesa se quitó; el campo `juegos` de datos.json se conserva pero no se usa.
 5. **Fiesta** (para la tele, pantalla completa): sorteo del orden de las charlas, quién presenta y su tema, cronómetro de minutosCharla con pausar y siguiente, y botón "Empezar las campanadas" (12 toques, uno cada 3 segundos, con sonido generado con Web Audio y destello en pantalla). El orden sorteado y la charla actual se guardan en `fiesta` de datos.json; solo Pablo sortea. Las charlas apuntadas después del sorteo van al final. El cronómetro es local: se pone rojo en los últimos 30 s y al llegar a 0 suena un gong y parpadea. Botón "Modo tele": pantalla completa, solo la pestaña Fiesta a lo grande, y la pantalla no se apaga. Tras la campanada 12: "¡Feliz 2027!" con confeti.
 
 ## Juegos en vivo, usuario Tele y presentaciones
 
-- Pestaña Juegos con dos secciones: "🎲 De mesa" (lo de antes) y "🎉 En vivo", donde cada uno participa desde el móvil.
+- Pestaña Juegos: los juegos en vivo, donde cada uno participa desde el móvil.
 - Juegos en vivo (cualquiera propone preguntas o categorías y cada uno borra lo suyo):
   - **¿Quién lo dijo?**: cada uno contesta en secreto; la tele saca una respuesta al azar, el resto adivina de quién es; 1 punto por acierto.
   - **Quiz familiar**: preguntas con 4 opciones; la tele lanza una al azar y hay 20 s para contestar; el autor no contesta la suya; 1 punto por acierto.
@@ -105,7 +105,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 ## Diseño
 
 - Cabecera: "NocheBuenFindeaño" con "2026-2027" al lado y el subtítulo "Familia de Adoce". El nombre de la persona va en el botón "Cambiar".
-- Todo compacto: los formularios de Comida, Charlas y Juegos van plegados hasta que se pulsan.
+- Todo compacto: los formularios de Comida, Charlas y los juegos van plegados hasta que se pulsan.
 - Icono de Fechas: hoja de calendario dibujada con "DIC 24" (en vez del emoji 📅).
 - Modo tele: en el móvil se ve en una columna y siempre hay un botón flotante "✕ Salir del modo tele".
 - Decoración navideña: guirnalda de bombillas de colores bajo la cabecera, nieve dorada suave de fondo, botones con relieve (filo dorado, se hunden al pulsar), tarjetas-botón grandes ("hero") para las acciones importantes (Modo tele, Campanadas con marco de bombillas, Copiar prompt, Ver la guía) y en la barra inferior la pestaña activa lleva el icono en una bola de Navidad dorada.
