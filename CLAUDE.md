@@ -52,6 +52,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
   "charlas": [ { "id": "h1", "nombre": "Ammar", "tema": "…", "enlace": "", "remoto": true } ],
   "juegos": [ { "id": "j1", "nombre": "Pablo", "juego": "Dixit", "jugadores": "3-8", "votos": ["Pablo"] } ],
   "sugerencias": [ { "id": "s1", "nombre": "Pablo", "texto": "…", "fecha": "2026-11-05T16:00:00Z" } ],
+  "fiesta": { "orden": ["h1"], "actual": 0 },
   "ajustes": { "minutosCharla": 3 }
 }
 ```
@@ -67,7 +68,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 2. **Comida**: quién trae qué, agrupado por categoría, con aviso de categorías vacías y etiqueta de alergias/notas. Cada uno puede editar o borrar lo suyo.
 3. **Charlas**: apuntarse con tema, enlace opcional y casilla "por videollamada". Botón "Copiar prompt" con el contenido de prompt.md incrustado en la app y botón "Ver la guía" con el contenido de guia.md.
 4. **Juegos**: quién trae qué juego, número de jugadores y votos (un voto por persona y juego, se puede quitar).
-5. **Fiesta** (para la tele, pantalla completa): sorteo del orden de las charlas, quién presenta y su tema, cronómetro de minutosCharla con pausar y siguiente, y botón "Empezar las campanadas" (12 toques, uno cada 3 segundos, con sonido generado con Web Audio y destello en pantalla).
+5. **Fiesta** (para la tele, pantalla completa): sorteo del orden de las charlas, quién presenta y su tema, cronómetro de minutosCharla con pausar y siguiente, y botón "Empezar las campanadas" (12 toques, uno cada 3 segundos, con sonido generado con Web Audio y destello en pantalla). El orden sorteado y la charla actual se guardan en `fiesta` de datos.json; solo Pablo sortea. Las charlas apuntadas después del sorteo van al final. El cronómetro es local: se pone rojo en los últimos 30 s y al llegar a 0 suena un gong y parpadea. Botón "Modo tele": pantalla completa, solo la pestaña Fiesta a lo grande, y la pantalla no se apaga. Tras la campanada 12: "¡Feliz 2027!" con confeti.
 
 ## Sugerencias
 
