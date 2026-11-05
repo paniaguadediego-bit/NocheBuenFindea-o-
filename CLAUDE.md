@@ -53,6 +53,10 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
   "juegos": [ { "id": "j1", "nombre": "Pablo", "juego": "Dixit", "jugadores": "3-8", "votos": ["Pablo"] } ],
   "sugerencias": [ { "id": "s1", "nombre": "Pablo", "texto": "…", "fecha": "2026-11-05T16:00:00Z" } ],
   "fiesta": { "orden": ["h1"], "actual": 0 },
+  "quienlo": { "preguntas": [ { "id": "q1", "texto": "¿Peor regalo?", "autor": "Pablo" } ], "respuestas": { "q1": { "Ammar": "Calcetines" } }, "ronda": { "pid": "q1", "de": "Ammar", "votos": { "Pablo": "Ammar" }, "revelada": false }, "hechas": [] },
+  "quiz": { "preguntas": [ { "id": "z1", "texto": "…", "opciones": ["A", "B", "C", "D"], "correcta": 1, "autor": "Ammar" } ], "ronda": { "pid": "z1", "inicio": "ISO", "votos": { "Pablo": 1 }, "revelada": false }, "hechas": [] },
+  "premios": { "categorias": [ { "id": "p1", "texto": "El más tardón", "autor": "Pablo" } ], "votos": { "p1": { "Ammar": "Pablo" } }, "reveladas": [] },
+  "predicciones": { "lista": [ { "id": "r1", "nombre": "Ammar", "texto": "…", "fecha": "ISO" } ], "reveladas": false },
   "ajustes": { "minutosCharla": 3 }
 }
 ```
@@ -69,6 +73,19 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 3. **Charlas**: apuntarse con tema, enlace opcional y casilla "por videollamada". Botón "Copiar prompt" con el contenido de prompt.md incrustado en la app y botón "Ver la guía" con el contenido de guia.md.
 4. **Juegos**: quién trae qué juego, número de jugadores y votos (un voto por persona y juego, se puede quitar).
 5. **Fiesta** (para la tele, pantalla completa): sorteo del orden de las charlas, quién presenta y su tema, cronómetro de minutosCharla con pausar y siguiente, y botón "Empezar las campanadas" (12 toques, uno cada 3 segundos, con sonido generado con Web Audio y destello en pantalla). El orden sorteado y la charla actual se guardan en `fiesta` de datos.json; solo Pablo sortea. Las charlas apuntadas después del sorteo van al final. El cronómetro es local: se pone rojo en los últimos 30 s y al llegar a 0 suena un gong y parpadea. Botón "Modo tele": pantalla completa, solo la pestaña Fiesta a lo grande, y la pantalla no se apaga. Tras la campanada 12: "¡Feliz 2027!" con confeti.
+
+## Juegos en vivo, usuario Tele y presentaciones
+
+- Pestaña Juegos con dos secciones: "🎲 De mesa" (lo de antes) y "🎉 En vivo", donde cada uno participa desde el móvil.
+- Juegos en vivo (cualquiera propone preguntas o categorías y cada uno borra lo suyo):
+  - **¿Quién lo dijo?**: cada uno contesta en secreto; la tele saca una respuesta al azar, el resto adivina de quién es; 1 punto por acierto.
+  - **Quiz familiar**: preguntas con 4 opciones; la tele lanza una al azar y hay 20 s para contestar; el autor no contesta la suya; 1 punto por acierto.
+  - **Premios Adoce**: cada uno vota un nombre por categoría; la tele revela el ganador con redoble.
+  - **Predicciones 2027**: se guardan en secreto (cada uno ve solo las suyas) hasta que se revelan en la tele.
+- En Fiesta, un selector elige qué se enseña en la tele (Charlas, ¿Quién lo dijo?, Quiz, Premios, Predicciones). Revelar, siguiente, lanzar y sortear: solo Pablo o la Tele.
+- Usuario "📺 Tele" (última opción del desplegable): para el PC de la fiesta. No es participante, no vota y entra en Fiesta.
+- Mientras hay una ronda de juego abierta, se relee cada 10 s (GitHub permite ~5.000 lecturas por hora con la misma clave, entre todos).
+- Presentaciones: en Charlas → "📎 Mi presentación" cada uno sube su archivo .html o pega el código (máx. 900 KB). Se guarda en `nochebuen-datos/presentaciones/<idCharla>.html` y la charla guarda la ruta en `presentacion`. En Fiesta, "▶ Lanzar presentación" la abre a pantalla completa en un iframe con sandbox="allow-scripts" (sin allow-same-origin, para que no pueda leer la clave).
 
 ## Sugerencias
 
