@@ -159,18 +159,29 @@
   /* ===== Puntos con iniciales (verde = sí, amarillo = si hace falta, rojo = veto) ===== */
   .fecha-pie { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
   .fecha-pie .btn-peque { flex: none; min-height: 32px; }
-  .puntos-fila { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+  /* ===== Bolas de Navidad con la inicial de quien vota (todas del mismo tamaño) ===== */
+  .puntos-fila { display: flex; flex-wrap: wrap; gap: 6px 5px; margin-top: 8px; }
   .punto {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 22px; height: 22px; padding: 0 4px; border-radius: 999px;
-    font-size: 12px; font-weight: 700; line-height: 1;
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%; flex: none;
+    font: 800 11px/1 var(--titulos); letter-spacing: -.03em; color: #fff;
+    text-shadow: 0 1px 1px rgba(0,0,0,.35);
+    /* brillo arriba a la izquierda y sombra abajo, como una bola de cristal */
+    box-shadow: inset 0 -3px 4px rgba(0,0,0,.22), inset 0 2px 3px rgba(255,255,255,.25), 0 2px 3px rgba(42,30,23,.25);
   }
-  .punto.si { background: var(--verde); color: #fff; }
-  .punto.quizas { background: var(--dorado-texto); color: var(--texto); }
-  .punto.veto { background: var(--rojo); color: #fff; }
-  /* Iniciales que empiezan igual: aro de color por dentro (la bola mide lo mismo) y letra algo más pequeña */
-  .punto.aro { font-size: 10px; letter-spacing: -.02em; box-shadow: inset 0 0 0 2.5px var(--color-aro); }
-  .cal-puntos .punto.aro { font-size: 7px; box-shadow: inset 0 0 0 1.5px var(--color-aro); }
+  .punto::before { /* gancho dorado de la bola */
+    content: ""; position: absolute; top: -4px; left: 50%; width: 7px; height: 4px; margin-left: -3.5px;
+    border-radius: 2px 2px 0 0; background: linear-gradient(180deg, #F2D27A, #A8861B);
+  }
+  .punto::after { /* reflejo */
+    content: ""; position: absolute; top: 4px; left: 6px; width: 6px; height: 4px; border-radius: 50%;
+    background: rgba(255,255,255,.45); transform: rotate(-30deg); pointer-events: none;
+  }
+  .punto.si { background: radial-gradient(circle at 35% 28%, #4E9A72 0%, #1F4D3A 60%, #133122 100%); }
+  .punto.quizas { background: radial-gradient(circle at 35% 28%, #FFF1B0 0%, #F2C94C 55%, #B8921F 100%); color: #3A2A10; text-shadow: 0 1px 0 rgba(255,255,255,.45); }
+  .punto.veto { background: radial-gradient(circle at 35% 28%, #F07A6E 0%, #B3261E 60%, #7A140E 100%); }
+  /* Iniciales que empiezan igual: aro de color por dentro (la bola mide lo mismo) */
+  .punto.aro { box-shadow: inset 0 0 0 2.5px var(--color-aro), inset 0 -3px 4px rgba(0,0,0,.22), 0 2px 3px rgba(42,30,23,.25); }
   .aro1 { --color-aro: #F2C94C; } /* dorado */
   .aro2 { --color-aro: #6EC1FF; } /* azul */
   .aro3 { --color-aro: #FF8FC7; } /* rosa */
@@ -198,8 +209,11 @@
   .cal-dia.oficial { border-color: var(--verde); background: var(--verde); color: var(--dorado-texto); }
   .cal-dia.hoy .num { text-decoration: underline; text-decoration-thickness: 2px; }
   /* En el calendario los puntos son más pequeños para que quepan los 11 */
-  .cal-puntos { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; }
-  .cal-puntos .punto { min-width: 14px; height: 14px; padding: 0 2px; font-size: 8px; }
+  .cal-puntos { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 1px; margin-top: 2px; }
+  .cal-puntos .punto { width: 15px; height: 15px; font-size: 7px; letter-spacing: -.04em; box-shadow: inset 0 -2px 2px rgba(0,0,0,.22), 0 1px 1px rgba(42,30,23,.25); }
+  .cal-puntos .punto.aro { box-shadow: inset 0 0 0 1.5px var(--color-aro), inset 0 -2px 2px rgba(0,0,0,.2); }
+  .cal-puntos .punto::before { top: -2px; width: 4px; height: 2px; margin-left: -2px; }
+  .cal-puntos .punto::after { top: 2px; left: 3px; width: 3px; height: 2px; }
   .tarjeta.resaltada { box-shadow: 0 0 0 4px var(--dorado); transition: box-shadow .3s; }
 
   /* ===== Logo (logo.jpg: el cartel de la fiesta) ===== */
