@@ -3538,7 +3538,12 @@ $("fechas-lista").addEventListener("click", (e) => {
   const o = e.target.closest("[data-oficial]");
   if (o && soyOrganizador()) {
     const fechaId = o.dataset.oficial || null;
+    // Doble comprobación para no marcarla sin querer
     if (!fechaId && !confirm("¿Quitar la fecha oficial?")) return;
+    if (fechaId) {
+      const f = datos.fechas.find((x) => x.id === fechaId);
+      if (!confirm(`¿Hacer oficial el ${f ? f.etiqueta : fechaId}?\n\nSe verá en la cabecera de todos como la fecha de la fiesta.`)) return;
+    }
     guardar(fechaId ? `Fecha oficial: ${fechaId}` : "Se quita la fecha oficial", (d) => marcarOficial(d, fechaId));
   }
 });
