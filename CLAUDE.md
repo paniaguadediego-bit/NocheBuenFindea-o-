@@ -6,7 +6,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 
 ## Arquitectura (no cambiar sin consultar)
 
-- Un único `index.html` con HTML, CSS y JS inline, sin frameworks, sin build y sin dependencias externas, salvo Google Fonts (Shrikhand y Work Sans, con fuentes de respaldo). Se sirve con GitHub Pages desde este repo.
+- Un único `index.html` con HTML, CSS y JS inline, sin frameworks, sin build y sin dependencias externas, salvo Google Fonts (Shrikhand y Work Sans, con fuentes de respaldo). Se sirve con GitHub Pages desde este repo. Única excepción: `logo.jpg` (el cartel de la fiesta), que sale en grande en la pantalla de elegir nombre, como franja al final de cada pestaña y en miniatura arriba a la izquierda (botón para volver a Fechas).
 - Los datos viven en otro repo privado, `nochebuen-datos`, en el archivo `datos.json`.
 - Lectura y escritura con la API de contenidos de GitHub:
   - GET https://api.github.com/repos/paniaguadediego-bit/nochebuen-datos/contents/datos.json
@@ -51,29 +51,38 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
   "comida": [ { "id": "c1", "nombre": "Pablo", "plato": "Tortilla", "categoria": "entrante", "notas": "" } ],
   "charlas": [ { "id": "h1", "nombre": "Ammar", "tema": "…", "enlace": "", "remoto": true } ],
   "juegos": [ { "id": "j1", "nombre": "Pablo", "juego": "Dixit", "jugadores": "3-8", "votos": ["Pablo"] } ],
+  "sugerencias": [ { "id": "s1", "nombre": "Pablo", "texto": "…", "fecha": "2026-11-05T16:00:00Z" } ],
   "ajustes": { "minutosCharla": 3 }
 }
 ```
 
-- Respuestas de voto: "si", "quizas" (se muestra como "Si hace falta"), "no" y "veto". El veto solo informa (0 puntos, no cambia el ranking), pero se muestra quién veta.
+- Respuestas de voto: "si", "quizas" (se muestra como "Si hace falta"), "no" y "veto". El veto solo informa (0 puntos, no cambia el ranking), pero se muestra quién veta. Tocar otra vez el voto que ya tienes lo quita.
 - Categorías de comida: entrante, principal, postre, bebida, otros.
 - Ids nuevos: Date.now().toString(36) más un sufijo aleatorio corto.
 - Si falta algún campo (archivo antiguo o editado a mano), la app lo rellena con un valor vacío en vez de romperse.
 
 ## Módulos (pestañas inferiores)
 
-1. **Fechas** (lo más importante): añadir fecha candidata, votar cada fecha con Sí / Si hace falta / No, ranking (sí = 2 puntos, si hace falta = 1), tarjeta "Va ganando", lista de quién falta por votar y botón para marcar la fecha oficial (solo Pablo), que se muestra en la cabecera de todas las pestañas. Calendario mensual: al tocar un día se añade como candidata, y al tocar una candidata se va a votarla. Cada fecha lleva puntos con la inicial de quien vota (o 2+ letras si se repite la inicial): verde = sí, amarillo = si hace falta, rojo = veto. No se pueden borrar fechas.
+1. **Fechas** (lo más importante): añadir fecha candidata, votar cada fecha con Sí / Si hace falta / No, ranking (sí = 2 puntos, si hace falta = 1), tarjeta "Va ganando", lista de quién falta por votar y botón para marcar la fecha oficial (solo Pablo), que se muestra en la cabecera de todas las pestañas. Calendario mensual: al tocar un día se añade como candidata, y al tocar una candidata se va a votarla. Cada fecha lleva puntos con la inicial de quien vota (o 2+ letras si se repite la inicial): verde = sí, amarillo = si hace falta, rojo = veto. Iniciales fijas: Pablo = PP, Patri = PF. Las fechas se proponen tocando el calendario. Gráfica de barras por fecha (sí, si hace falta, no, veto). No se pueden borrar fechas.
 2. **Comida**: quién trae qué, agrupado por categoría, con aviso de categorías vacías y etiqueta de alergias/notas. Cada uno puede editar o borrar lo suyo.
 3. **Charlas**: apuntarse con tema, enlace opcional y casilla "por videollamada". Botón "Copiar prompt" con el contenido de prompt.md incrustado en la app y botón "Ver la guía" con el contenido de guia.md.
 4. **Juegos**: quién trae qué juego, número de jugadores y votos (un voto por persona y juego, se puede quitar).
 5. **Fiesta** (para la tele, pantalla completa): sorteo del orden de las charlas, quién presenta y su tema, cronómetro de minutosCharla con pausar y siguiente, y botón "Empezar las campanadas" (12 toques, uno cada 3 segundos, con sonido generado con Web Audio y destello en pantalla).
 
+## Sugerencias
+
+- Botón flotante 💡 en todas las pestañas. Abre un muro que ve todo el grupo: cualquiera escribe una sugerencia (máx. 280 caracteres) y cada uno puede borrar las suyas (con confirmación).
+
 ## Diseño
+
+- Cabecera: "NocheBuenFindeaño" con "2026-2027" al lado y el subtítulo "Familia de Adoce". El nombre de la persona va en el botón "Cambiar".
+- Todo compacto: los formularios de Comida, Charlas y Juegos van plegados hasta que se pulsan.
+- Animaciones básicas (aparecer al cambiar de pestaña, barras que crecen, botones que se hunden al pulsar, guirnalda que parpadea) y se desactivan si el móvil pide menos movimiento.
 
 - Estilo retro navideño. Colores: rojo #B3261E, verde bosque #1F4D3A, crema #F6EEDC, dorado #C9A227 (decoración) y #F2C94C (texto sobre verde), texto #2A1E17, tarjetas #FFFDF7 con borde #E2D3B5.
 - Títulos en Shrikhand y texto en Work Sans.
 - Cabecera roja con el nombre de la fiesta y borde punteado dorado. Pestañas inferiores verdes, con la activa en dorado.
-- Primero para móvil: botones de al menos 44 px, texto mínimo 14 px y buen contraste.
+- Primero para móvil y compacto: botones de unos 36-40 px, texto normal de 15 px (mínimo 12 px en etiquetas pequeñas) y buen contraste. Los campos de texto se quedan en 16 px para que el iPhone no haga zoom.
 - Confirmar antes de borrar cualquier cosa.
 - Respetar la zona segura del móvil (env(safe-area-inset-*)).
 
@@ -84,3 +93,4 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Al terminar, explicar cómo probarlo desde el móvil.
 - No añadir funciones que no estén aquí sin preguntar.
 - Nunca escribir la clave ni ningún token en ningún archivo.
+- Pablo autoriza a hacer commit, push y fusionar PRs en este repo sin pedir permiso, salvo que diga lo contrario.
