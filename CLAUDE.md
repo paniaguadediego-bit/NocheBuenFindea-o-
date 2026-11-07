@@ -7,6 +7,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 ## Arquitectura (no cambiar sin consultar)
 
 - Un único `index.html` con HTML, CSS y JS inline, sin frameworks, sin build y sin dependencias externas, salvo Google Fonts (Fraunces, Shrikhand y Work Sans, con fuentes de respaldo). Se sirve con GitHub Pages desde este repo. Excepciones: `compartir.jpg` (1200×630, la imagen de la vista previa al compartir el enlace en WhatsApp, puesta con las etiquetas og: del `<head>`) y `logo.jpg` (el cartel de la fiesta), que sale en grande en la pantalla de elegir nombre, como franja al final de cada pestaña y en miniatura arriba a la izquierda (botón para volver a Fechas).
+- Otra excepción, aprobada por Pablo: el reproductor de YouTube (youtube-nocookie.com, solo se carga al pulsar un vídeo), las miniaturas de i.ytimg.com y el título automático con el oEmbed de youtube.com.
 - Los datos viven en otro repo privado, `nochebuen-datos`, en el archivo `datos.json`.
 - Lectura y escritura con la API de contenidos de GitHub:
   - GET https://api.github.com/repos/paniaguadediego-bit/nochebuen-datos/contents/datos.json
@@ -86,6 +87,12 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Usuario "📺 Tele" (última opción del desplegable): para el PC de la fiesta. No es participante, no vota y entra en Fiesta.
 - Mientras hay una ronda de juego abierta, se relee cada 10 s (GitHub permite ~5.000 lecturas por hora con la misma clave, entre todos).
 - Presentaciones: en Charlas → "📎 Mi presentación" cada uno sube su archivo .html o pega el código (máx. 900 KB). Se guarda en `nochebuen-datos/presentaciones/<idCharla>.html` y la charla guarda la ruta en `presentacion`. En Fiesta, "▶ Lanzar presentación" la abre a pantalla completa en un iframe con sandbox="allow-scripts" (sin allow-same-origin, para que no pueda leer la clave).
+
+## Música y vídeos (YouTube)
+
+- Botón 📻 en la cabecera: lista compartida de vídeos de YouTube (los especiales de Manolo Vieira, villancicos…). Cualquiera pega un enlace (youtu.be, watch?v=, shorts, live) con título opcional (si no, se intenta sacar de YouTube); no se repiten; cada uno quita los suyos.
+- `videos` = [ { id, yt, titulo, autor, fecha } ] (`yt` es el código de 11 letras).
+- Al pulsar uno sale un mini-reproductor flotante abajo a la derecha (⤢ agrandar, ☰ lista, ✕ cerrar) que sigue sonando al cambiar de pestaña y en el modo tele; detrás suenan el resto de vídeos de la lista. Con el móvil bloqueado o la app cerrada no sigue (YouTube no lo permite fuera de su app).
 
 ## Calendario de Adviento
 
