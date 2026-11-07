@@ -842,6 +842,36 @@
   .puerta-foto:not([src]) { min-height: 120px; }
   .puerta-texto { font-size: 17px; font-style: italic; white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0; }
   .leyenda-adv { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; margin-top: 10px; color: #E9DFC6; }
+
+  /* =====================================================================
+     MÚSICA Y VÍDEOS (YouTube): lista compartida y mini-reproductor
+     ===================================================================== */
+  .cab-derecha { display: flex; align-items: center; gap: 6px; flex: none; }
+  .btn-musica {
+    width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(246,238,220,.85); background: rgba(0,0,0,.12);
+    font-size: 18px; display: grid; place-items: center; padding: 0;
+  }
+  .btn-musica.sonando { animation: latido 1.2s ease-in-out infinite; border-color: var(--dorado-texto); }
+  .video-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px dashed var(--borde); }
+  .video-item:first-child { border-top: 0; }
+  .video-mini { flex: none; width: 96px; height: 54px; border-radius: 8px; object-fit: cover; background: #222; border: 0; padding: 0; position: relative; overflow: hidden; }
+  .video-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .video-mini::after { content: "▶"; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 18px; text-shadow: 0 1px 4px rgba(0,0,0,.7); }
+  .video-item.actual .video-mini { outline: 3px solid var(--dorado); }
+  .video-texto { flex: 1; min-width: 0; }
+  .video-texto b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+  .reproductor {
+    position: fixed; z-index: 16; right: calc(8px + env(safe-area-inset-right)); bottom: calc(64px + env(safe-area-inset-bottom));
+    width: 220px; background: #111; border: 2px solid var(--dorado); border-radius: 12px; overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,.4); animation: aparecer .25s ease-out;
+  }
+  .reproductor.grande { width: min(560px, calc(100vw - 16px)); }
+  .reproductor iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; }
+  .reproductor-barra { display: flex; align-items: center; gap: 4px; padding: 3px 4px 3px 8px; background: var(--verde); color: var(--dorado-texto); }
+  .reproductor-barra span { flex: 1; min-width: 0; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .reproductor-barra button { flex: none; width: 30px; height: 28px; border-radius: 8px; border: 0; background: rgba(255,255,255,.12); color: var(--crema); font-size: 14px; padding: 0; }
+  body.modo-tele .reproductor { bottom: calc(12px + env(safe-area-inset-bottom)); }
 </style>
 </head>
 <body>
@@ -905,7 +935,10 @@
           <div class="subtitulo" id="cab-subtitulo"></div>
         </div>
       </div>
-      <button id="btn-cambiar" class="btn-cambiar" aria-label="Cambiar de nombre"><span id="cab-yo"></span><small>Cambiar</small></button>
+      <div class="cab-derecha">
+        <button id="btn-musica" class="btn-musica" aria-label="Música y vídeos">📻</button>
+        <button id="btn-cambiar" class="btn-cambiar" aria-label="Cambiar de nombre"><span id="cab-yo"></span><small>Cambiar</small></button>
+      </div>
     </div>
     <div id="cab-oficial" class="cab-oficial" hidden></div>
     <div class="guirnalda"></div>
@@ -1212,6 +1245,33 @@
 
 <button id="salir-tele" class="salir-tele">✕ Salir del modo tele</button>
 
+<!-- Música y vídeos: lista compartida de YouTube -->
+<div id="modal-musica" class="modal-fondo" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="musica-titulo">
+    <h2 id="musica-titulo">📻 Música y vídeos</h2>
+    <p class="suave" style="margin:0 0 6px">Los especiales de Manolo Vieira, villancicos… Pega un enlace de YouTube y lo verá todo el grupo. Sigue sonando aunque cambies de pestaña.</p>
+    <div class="resp-fila">
+      <input id="video-enlace" class="campo" type="url" inputmode="url" placeholder="https://youtu.be/…" aria-label="Enlace de YouTube">
+      <button id="video-anadir" class="btn btn-rojo">Añadir</button>
+    </div>
+    <input id="video-titulo" class="campo" maxlength="80" placeholder="Título (opcional, ej.: Manolo Vieira – Fin de año 1998)" style="margin-top:4px" aria-label="Título">
+    <div id="video-error" class="error-texto"></div>
+    <div id="video-lista"></div>
+    <div class="acciones"><button id="musica-cerrar" class="btn btn-borde ancho">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- Mini-reproductor (se queda abierto al cambiar de pestaña) -->
+<div id="reproductor" class="reproductor" hidden>
+  <iframe id="reproductor-marco" title="Reproductor de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <div class="reproductor-barra">
+    <span id="reproductor-titulo"></span>
+    <button id="reproductor-tamano" aria-label="Agrandar o achicar">⤢</button>
+    <button id="reproductor-lista" aria-label="Ver la lista">☰</button>
+    <button id="reproductor-cerrar" aria-label="Cerrar reproductor">✕</button>
+  </div>
+</div>
+
 <!-- Ventana para votar un día desde el calendario -->
 <div id="modal-dia" class="modal-fondo" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dia-titulo">
@@ -1502,6 +1562,13 @@ function completar(d) {
   }
   // Reyes Magos: rey favorito de cada uno, carbón y roscón
   if (!esObjeto(d.reyes)) d.reyes = {};
+  // Vídeos de YouTube: [ { id, yt, titulo, autor, fecha } ]
+  d.videos = (Array.isArray(d.videos) ? d.videos : []).filter((v) => esObjeto(v) && typeof v.yt === "string" && /^[\w-]{11}$/.test(v.yt));
+  for (const v of d.videos) {
+    if (typeof v.id !== "string" || !v.id) v.id = nuevoId();
+    if (typeof v.titulo !== "string" || !v.titulo) v.titulo = "Vídeo de YouTube";
+    if (typeof v.autor !== "string") v.autor = "";
+  }
   // Calendario de Adviento: { puertas: { "5": { autor, texto, fecha } } }
   if (!esObjeto(d.adviento)) d.adviento = {};
   if (!esObjeto(d.adviento.puertas)) d.adviento.puertas = {};
@@ -1758,6 +1825,7 @@ function pintar() {
   pintarCharlas();
   pintarSugerencias();
   pintarAdviento();
+  pintarMusica();
   pintarFiesta();
   pintarVivo();
   pintarPresentacionMia();
@@ -3343,6 +3411,94 @@ function cerrarPuerta() {
 }
 
 /* =====================================================================
+   MÚSICA Y VÍDEOS (YouTube)
+   Lista compartida en datos.json (`videos`) y mini-reproductor flotante.
+   El reproductor de YouTube (versión sin cookies) solo se carga al pulsar un vídeo.
+   ===================================================================== */
+let videoSonando = null; // id (de la lista) del vídeo que está puesto
+
+// Saca el código de 11 letras de un enlace de YouTube (youtu.be, watch?v=, shorts, live, embed…)
+function idDeYoutube(enlace) {
+  const t = String(enlace || "").trim();
+  if (/^[\w-]{11}$/.test(t)) return t;
+  const m = t.match(/(?:youtu\.be\/|[?&]v=|\/(?:shorts|live|embed)\/)([\w-]{11})/);
+  return m ? m[1] : null;
+}
+
+function anadirVideo(d, v) {
+  if (d.videos.some((x) => x.yt === v.yt)) return false; // ya está
+  d.videos.push(v);
+}
+function borrarVideo(d, id, nombre) {
+  const antes = d.videos.length;
+  d.videos = d.videos.filter((x) => !(x.id === id && x.autor === nombre));
+  if (d.videos.length === antes) return false;
+}
+
+function pintarMusica() {
+  $("btn-musica").classList.toggle("sonando", !!videoSonando);
+  if ($("modal-musica").hidden) return;
+  ponerHtml($("video-lista"), datos.videos.length ? datos.videos.map((v) => `
+    <div class="video-item ${v.id === videoSonando ? "actual" : ""}">
+      <button class="video-mini" data-video-play="${esc(v.id)}" aria-label="Poner ${esc(v.titulo)}">
+        <img src="https://i.ytimg.com/vi/${esc(v.yt)}/mqdefault.jpg" alt="" loading="lazy"></button>
+      <div class="video-texto"><b>${esc(v.titulo)}</b><span class="suave">Lo puso ${esc(v.autor)}</span></div>
+      ${v.autor === yo ? `<button class="icono" data-video-borrar="${esc(v.id)}" aria-label="Quitar ${esc(v.titulo)}">🗑️</button>` : ""}
+    </div>`).join("") : `<p class="suave">Todavía no hay vídeos. ¡Pega el primero!</p>`);
+}
+
+async function pulsarAnadirVideo() {
+  const err = $("video-error");
+  err.textContent = "";
+  const yt = idDeYoutube($("video-enlace").value);
+  if (!yt) { err.textContent = "Eso no parece un enlace de YouTube."; return; }
+  if (datos.videos.some((x) => x.yt === yt)) { err.textContent = "Ese vídeo ya está en la lista."; return; }
+  let titulo = $("video-titulo").value.trim();
+  if (!titulo) {
+    // Intentamos sacar el título de YouTube; si no se puede, uno genérico
+    try {
+      const r = await fetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent("https://www.youtube.com/watch?v=" + yt)}`);
+      if (r.ok) titulo = String((await r.json()).title || "").slice(0, 80);
+    } catch (e) {}
+  }
+  if (!titulo) titulo = "Vídeo de YouTube";
+  $("video-enlace").value = "";
+  $("video-titulo").value = "";
+  const v = { id: nuevoId(), yt, titulo, autor: yo, fecha: new Date().toISOString() };
+  guardar(`${yo} añade un vídeo`, (d) => anadirVideo(d, v));
+}
+
+// Pone un vídeo y, detrás, el resto de la lista en orden
+function ponerVideo(id) {
+  const i = datos.videos.findIndex((v) => v.id === id);
+  if (i < 0) return;
+  const v = datos.videos[i];
+  const siguientes = [...datos.videos.slice(i + 1), ...datos.videos.slice(0, i)].map((x) => x.yt).join(",");
+  const params = new URLSearchParams({ autoplay: "1", playsinline: "1", rel: "0", modestbranding: "1" });
+  if (siguientes) params.set("playlist", siguientes);
+  $("reproductor-marco").src = `https://www.youtube-nocookie.com/embed/${v.yt}?${params}`;
+  $("reproductor-titulo").textContent = `📻 ${v.titulo}`;
+  $("reproductor").hidden = false;
+  videoSonando = id;
+  pintarMusica();
+}
+
+function cerrarReproductor() {
+  $("reproductor-marco").src = "about:blank"; // así deja de sonar
+  $("reproductor").hidden = true;
+  $("reproductor").classList.remove("grande");
+  videoSonando = null;
+  pintarMusica();
+}
+
+function abrirMusica() {
+  $("modal-musica").hidden = false;
+  $("video-lista")._html = null;
+  pintarMusica();
+  abrirCapa("musica", () => { $("modal-musica").hidden = true; });
+}
+
+/* =====================================================================
    PESTAÑAS
    ===================================================================== */
 function irA(tab) {
@@ -3448,6 +3604,25 @@ programarRelectura();
 
 // Botón del logo (arriba a la izquierda): volver a Fechas, arriba del todo
 $("btn-inicio").addEventListener("click", () => irA("fechas"));
+
+// --- Música y vídeos ---
+$("btn-musica").addEventListener("click", abrirMusica);
+$("reproductor-lista").addEventListener("click", abrirMusica);
+$("musica-cerrar").addEventListener("click", () => cerrarCapa("musica"));
+$("modal-musica").addEventListener("click", (e) => {
+  if (e.target.id === "modal-musica") { cerrarCapa("musica"); return; }
+  const p = e.target.closest("[data-video-play]");
+  if (p) { ponerVideo(p.dataset.videoPlay); cerrarCapa("musica"); return; }
+  const b = e.target.closest("[data-video-borrar]");
+  if (b && confirm("¿Quitar este vídeo de la lista?")) {
+    const id = b.dataset.videoBorrar;
+    guardar(`${yo} quita un vídeo`, (d) => borrarVideo(d, id, yo));
+  }
+});
+$("video-anadir").addEventListener("click", pulsarAnadirVideo);
+$("video-enlace").addEventListener("keydown", (e) => { if (e.key === "Enter") pulsarAnadirVideo(); });
+$("reproductor-cerrar").addEventListener("click", cerrarReproductor);
+$("reproductor-tamano").addEventListener("click", () => $("reproductor").classList.toggle("grande"));
 
 // --- Calendario de Adviento ---
 $("btn-adviento").addEventListener("click", () => {
