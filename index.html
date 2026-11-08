@@ -257,6 +257,7 @@
   .anos { font-family: var(--cuerpo); font-weight: 700; font-size: 13px; color: var(--dorado-texto); white-space: nowrap; }
   .subtitulo { font-size: 13px; font-style: italic; color: #FFE9A8; }
   /* Franja del cartel al final de cada pestaña */
+  .version { text-align: center; font-size: 12px; color: #9A8A78; margin: 0 0 8px; letter-spacing: .02em; }
   .banner { display: block; width: 100%; height: 110px; object-fit: cover; object-position: 50% 46%; border-radius: 16px; border: 2px solid var(--borde); margin: 4px 0 8px; }
 
   /* ===== Comida, charlas y juegos ===== */
@@ -1207,6 +1208,7 @@
     </section>
 
     <img src="logo.jpg" alt="" class="banner" loading="lazy">
+    <p class="version" id="version"></p>
   </main>
 
   <nav aria-label="Secciones">
@@ -1358,6 +1360,10 @@ PASO 3 – AL FINAL ofréceme: (a) ajustar el tono o el contenido, (b) exportarl
 const USUARIO = "paniaguadediego-bit";
 const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
+
+// Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
+const VERSION = "1.27";
+const VERSION_FECHA = "8 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
 // Solo esta persona puede marcar la fecha oficial
@@ -4030,6 +4036,7 @@ function nevar() {
 }
 
 nevar();
+$("version").textContent = `Versión ${VERSION} · ${VERSION_FECHA}`;
 window.addEventListener("resize", colgarBombillas);
 
 arrancar();
