@@ -184,6 +184,19 @@
   .punto.falta::after { display: none; }      /* sin reflejo */
   .punto.falta::before { opacity: .45; }      /* gancho apagado */
   .cal-puntos .punto.falta { border-width: 1px; box-shadow: none; }
+  .punto.no { background: radial-gradient(circle at 35% 28%, #A99A8E 0%, #6B5A4E 60%, #463A32 100%); }
+  /* Días anulados (2 o más No/Veto) */
+  .tarjeta.anulada { opacity: .72; background: repeating-linear-gradient(135deg, #FFFDF7 0 10px, #F8EFE0 10px 20px); }
+  .tachado { text-decoration: line-through; text-decoration-color: var(--rojo); text-decoration-thickness: 2px; }
+  .etiqueta-anulada { display: inline-block; background: #FBE3DF; color: #7A1A14; font: 700 12px/1 var(--cuerpo); border-radius: 999px; padding: 3px 8px; vertical-align: 2px; }
+  .graf-fila.anulada .graf-et { text-decoration: line-through; text-decoration-color: var(--rojo); color: #9A8A78; }
+  .graf-fila.anulada .graf-barra { opacity: .35; }
+  .cal-dia.anulada { background: #F4ECE0 !important; border-color: #D8C7A8 !important; }
+  .cal-dia.anulada .num { color: #9A8A78; text-decoration: line-through; text-decoration-color: var(--rojo); text-decoration-thickness: 2px; }
+  .cal-dia.anulada::after { /* raya roja en diagonal */
+    content: ""; position: absolute; left: 4px; right: 4px; top: 50%; height: 2px; background: rgba(179,38,30,.75);
+    transform: rotate(-35deg); border-radius: 2px; pointer-events: none;
+  }
   .punto.veto { background: radial-gradient(circle at 35% 28%, #F07A6E 0%, #B3261E 60%, #7A140E 100%); }
   /* Iniciales que empiezan igual: aro de color por dentro (la bola mide lo mismo) */
   .punto.aro { box-shadow: inset 0 0 0 2.5px var(--color-aro), inset 0 -3px 4px rgba(0,0,0,.22), 0 2px 3px rgba(42,30,23,.25); }
@@ -1354,6 +1367,10 @@ const ORGANIZADOR = "Pablo";
 const ANOS = "2026-2027";
 const SUBTITULO = "Familia de Adoce";
 
+// Un día queda anulado (tachado, fuera del ranking) si suma estos "No" + "Veto" entre todos
+const NOS_PARA_ANULAR = 2;
+function estaAnulada(r) { return r.no.length + r.veto.length >= NOS_PARA_ANULAR; }
+
 // Nombres que no salen en "Faltan por votar" (en minúsculas y sin tildes). Ammar es una broma del grupo.
 const NO_CUENTAN_EN_FALTAN = ["ammar"];
 
@@ -1470,7 +1487,7 @@ function aroInicial(nombre, ini) {
 // detrás van "en negativo" (huecas) las personas que aún no han votado.
 function puntosHtml(r, ini, fechaId) {
   const uno = (nombre, tipo) => `<span class="punto ${tipo}${aroInicial(nombre, ini) ? " aro aro" + aroInicial(nombre, ini) : ""}" title="${esc(nombre)}: ${TEXTO_VOTO[tipo]}">${esc(ini[nombre] || nombre.charAt(0))}</span>`;
-  const votos = [...r.si.map((n) => uno(n, "si")), ...r.quizas.map((n) => uno(n, "quizas")), ...r.veto.map((n) => uno(n, "veto"))];
+  const votos = [...r.si.map((n) => uno(n, "si")), ...r.quizas.map((n) => uno(n, "quizas")), ...r.no.map((n) => uno(n, "no")), ...r.veto.map((n) => uno(n, "veto"))];
   const pendientes = fechaId ? faltanEnFecha(fechaId) : [];
   return votos.join("") + pendientes.map((n) =>
     `<span class="punto falta" title="${esc(n)}: aún no ha votado">${esc(ini[n] || n.charAt(0))}</span>`).join("");
@@ -1479,7 +1496,7 @@ function puntosHtml(r, ini, fechaId) {
 // Quién no ha votado todavía una fecha (solo si ya tiene algún voto; sin los de NO_CUENTAN_EN_FALTAN)
 function faltanEnFecha(fechaId) {
   const v = datos.votos[fechaId] || {};
-  if (!Object.keys(v).length) return [];
+  if (!Object.keys(v).length || estaAnulada(recuento(fechaId))) return []; // en un día anulado ya da igual
   return datos.participantes.filter((p) => !v[p] && !NO_CUENTAN_EN_FALTAN.includes(normalizar(p)));
 }
 
@@ -1881,11 +1898,14 @@ function pintarFechas() {
   pintarCalendario(fechas, ini);
   pintarGrafica(fechas);
   pintarDia();
-  // Ranking: más puntos primero; si empatan, la más temprana
   // Ranking por puntos (si empatan, la más temprana). La posición y la corona salen de aquí.
-  const ranking = [...fechas].sort((a, b) => b.r.puntos - a.r.puntos || a.id.localeCompare(b.id));
-  const posicion = Object.fromEntries(ranking.map((f, i) => [f.id, i + 1]));
-  const maxPuntos = Math.max(0, ...fechas.map((f) => f.r.puntos));
+  // Los días anulados (2 o más "No"/"Veto") no tienen posición ni corona y van al final.
+  for (const f of fechas) f.anulada = estaAnulada(f.r);
+  const validas = fechas.filter((f) => !f.anulada);
+  const porPuntos = (a, b) => b.r.puntos - a.r.puntos || a.id.localeCompare(b.id);
+  const ranking = [...validas.sort(porPuntos), ...fechas.filter((f) => f.anulada).sort(porPuntos)];
+  const posicion = Object.fromEntries(validas.map((f, i) => [f.id, i + 1]));
+  const maxPuntos = Math.max(0, ...validas.map((f) => f.r.puntos));
   // Orden de la lista: por votos (normal) o por fecha (si la persona lo elige; se recuerda en su móvil)
   const lista = ordenRanking === "fecha" ? [...fechas].sort((a, b) => a.id.localeCompare(b.id)) : ranking;
 
@@ -1905,17 +1925,20 @@ function pintarFechas() {
         `<button class="voto ${resp}" data-votar="${esc(f.id)}" data-resp="${resp}" aria-pressed="${mio === resp}">${icono}<br>${TEXTO_VOTO[resp]}</button>`;
       const esOficial = oficial === f.id;
       let botonOficial = "";
-      if (soyOrganizador()) {
+      if (soyOrganizador() && (!f.anulada || esOficial)) {
         botonOficial = esOficial
           ? `<button class="btn btn-borde btn-peque" data-oficial="">Quitar como oficial</button>`
           : `<button class="btn btn-verde btn-peque" data-oficial="${esc(f.id)}">⭐ Hacer oficial</button>`;
       }
       return `
-        <div class="tarjeta ${esOficial ? "oficial" : ""}" data-tarjeta-fecha="${esc(f.id)}">
+        <div class="tarjeta ${esOficial ? "oficial" : ""} ${f.anulada ? "anulada" : ""}" data-tarjeta-fecha="${esc(f.id)}">
           <div class="fecha-cab">
-            <h3>${maxPuntos > 0 && f.r.puntos === maxPuntos ? "👑 " : ""}${posicion[f.id]}. ${esc(f.etiqueta)} ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>
-            <span class="puntos">${f.r.puntos} pts</span>
+            ${f.anulada
+              ? `<h3><span class="tachado">${esc(f.etiqueta)}</span> <span class="etiqueta-anulada">❌ Anulado</span> ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>`
+              : `<h3>${maxPuntos > 0 && f.r.puntos === maxPuntos ? "👑 " : ""}${posicion[f.id]}. ${esc(f.etiqueta)} ${esOficial ? `<span class="etiqueta-oficial">🎉 Oficial</span>` : ""}</h3>`}
+            <span class="puntos">${f.anulada ? "—" : f.r.puntos + " pts"}</span>
           </div>
+          ${f.anulada ? `<p class="resumen-votos veto-texto" style="margin:0 0 2px">Tiene ${f.r.no.length + f.r.veto.length} "No"/"Veto": ya no cuenta como posible día. Si alguien cambia su voto, vuelve a contar.</p>` : ""}
           <div class="votos" role="group" aria-label="Tu voto para ${esc(f.etiqueta)}">
             ${botonVoto("si", "✅")}${botonVoto("quizas", "🤷")}${botonVoto("no", "❌")}${botonVoto("veto", "⛔")}
           </div>
@@ -1932,13 +1955,13 @@ function pintarFechas() {
   // --- Quién falta por votar ---
   if (!fechas.length) { $("fechas-faltan").innerHTML = ""; return; }
   const faltan = datos.participantes.filter((p) => !NO_CUENTAN_EN_FALTAN.includes(normalizar(p)))
-    .map((p) => ({ p, n: fechas.filter((f) => !(datos.votos[f.id] || {})[p]).length }))
+    .map((p) => ({ p, n: validas.filter((f) => !(datos.votos[f.id] || {})[p]).length }))
     .filter((x) => x.n > 0);
   $("fechas-faltan").innerHTML = `
     <div class="tarjeta">
       <h3>⏳ Faltan por votar</h3>
       ${faltan.length
-        ? `<p style="margin:0">${faltan.map((x) => esc(x.p) + (x.n < fechas.length ? ` <span class="suave">(${x.n})</span>` : "")).join(", ")}</p>`
+        ? `<p style="margin:0">${faltan.map((x) => esc(x.p) + (x.n < validas.length ? ` <span class="suave">(${x.n})</span>` : "")).join(", ")}</p>`
         : `<p style="margin:0">¡Ya ha votado todo el mundo! 🎉</p>`}
     </div>`;
 }
@@ -1954,11 +1977,12 @@ function pintarGrafica(fechas) {
       return n ? `<span class="graf-tramo ${tipo}" style="width:${(n / total) * 100}%" title="${TEXTO_VOTO[tipo]}: ${n}">${n}</span>` : "";
     };
     const [, , d] = f.id.split("-");
+    const anulada = estaAnulada(f.r);
     return `
-      <div class="graf-fila">
+      <div class="graf-fila ${anulada ? "anulada" : ""}">
         <span class="graf-et">${esc(f.etiqueta.split(" ")[0])} ${Number(d)}</span>
         <div class="graf-barra ${anima}" style="animation-delay:${i * 80}ms">${tramo("si")}${tramo("quizas")}${tramo("no")}${tramo("veto")}</div>
-        <span class="graf-pts">${f.r.puntos}</span>
+        <span class="graf-pts">${anulada ? "❌" : f.r.puntos}</span>
       </div>`;
   }).join("");
   $("fechas-grafica").innerHTML = `
@@ -1970,7 +1994,7 @@ function pintarGrafica(fechas) {
         <span><i style="background:var(--dorado-texto)"></i>Si hace falta</span>
         <span><i style="background:#8A7A6E"></i>No</span>
         <span><i style="background:var(--rojo)"></i>Veto</span>
-        <span class="suave">· número = puntos</span>
+        <span class="suave">· número = puntos · ❌ anulado</span>
       </div>
     </div>`;
   graficaAnimada = true;
@@ -2002,6 +2026,7 @@ function pintarCalendario(fechas, ini) {
     const f = porId[id];
     const clases = ["cal-dia", dia.getMonth() === 11 ? "mes-dic" : "mes-nov"];
     if (f) clases.push("candidata");
+    if (f && estaAnulada(f.r)) clases.push("anulada");
     if (id === oficial) clases.push("oficial");
     if (id === idHoy) clases.push("hoy");
     const pasado = id < idHoy && !f;
@@ -2220,7 +2245,7 @@ function pintarDia() {
   if (esCandidata) {
     const r = recuento(id);
     const ini = calcularIniciales([...datos.participantes, ...Object.keys(datos.votos[id] || {})]);
-    $("dia-info").innerHTML = `${r.puntos} pts${r.si.length + r.quizas.length + r.veto.length ? "" : " · aún sin votos"}
+    $("dia-info").innerHTML = `${estaAnulada(r) ? `<b class="veto-texto">❌ Anulado</b> (${r.no.length + r.veto.length} "No"/"Veto")` : `${r.puntos} pts`}${r.si.length + r.quizas.length + r.no.length + r.veto.length ? "" : " · aún sin votos"}
       <div class="puntos-fila">${puntosHtml(r, ini, id)}</div>`;
   } else {
     $("dia-info").textContent = "Aún no es fecha candidata. Si votas, se añade para todos.";
