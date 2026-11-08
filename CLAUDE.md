@@ -134,4 +134,5 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Nunca escribir la clave ni ningún token en ningún archivo.
 - El botón "atrás" del móvil cierra la ventana abierta (Adviento, puerta, día del calendario, guía, presentación) como la ✕: cada ventana se apunta en el historial con abrirCapa/cerrarCapa.
 - En cada cambio, subir VERSION (y VERSION_FECHA) al principio del script: es la versión que se ve debajo del banner de Papá Noel (1.27 = cambio fusionado n.º 27).
+- Al terminar cada cambio, acabar la respuesta a Pablo con una línea breve de la versión, por ejemplo: "📌 Versión 1.30 — bolas en horizontal por parejas". Si solo cambian documentos y no la app, decir que la versión sigue igual.
 - Pablo autoriza a hacer commit, push y fusionar PRs en este repo sin pedir permiso, salvo que diga lo contrario.
