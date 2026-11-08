@@ -184,8 +184,8 @@
   .punto.falta::after { display: none; }      /* sin reflejo */
   .punto.falta::before { opacity: .45; }      /* gancho apagado */
   .cal-puntos .punto.falta { border-width: 1px; box-shadow: none; }
-  /* Rejilla de parejas: 2 columnas (chicas | chicos) × 5 filas */
-  .rejilla-parejas { display: grid; grid-template-columns: repeat(2, 26px); gap: 7px 6px; margin-top: 8px; }
+  /* Rejilla de parejas: 5 columnas (una por pareja) × 2 filas (chicos arriba, chicas abajo) */
+  .rejilla-parejas { display: grid; grid-template-rows: repeat(2, 26px); grid-auto-columns: 26px; grid-auto-flow: column; gap: 7px 6px; margin-top: 8px; }
   .resto-parejas { margin-top: 6px; }
   .punto.hueco-vacio { background: none; box-shadow: none; }
   .punto.hueco-vacio::before, .punto.hueco-vacio::after { display: none; }
@@ -1370,7 +1370,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.28";
+const VERSION = "1.29";
 const VERSION_FECHA = "8 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
@@ -1508,7 +1508,7 @@ function puntosHtml(r, ini, fechaId) {
 }
 
 // Parejas para colocar las bolas en el ranking y en la ventana del día: [chica, chico].
-// Columna izquierda = chicas, derecha = chicos; cada fila, una pareja.
+// En horizontal: 5 columnas, una por pareja, con el chico arriba y la chica abajo.
 // Se emparejan por el principio del nombre ("Sofi" vale para "Sofía"), sin tildes ni mayúsculas.
 const PAREJAS = [["Cris", "Pablo"], ["Sofi", "Fran"], ["Ari", "Edu"], ["Estefi", "Gabri"], ["Patri", "Kike"]];
 
@@ -1523,7 +1523,7 @@ function buscarParticipante(alias, nombres) {
   return parecidos.length === 1 ? parecidos[0] : null;
 }
 
-// Bolas en rejilla de parejas (2 columnas × 5 filas). Cada hueco: el voto de esa persona,
+// Bolas en rejilla de parejas (2 filas × 5 columnas). Cada hueco: el voto de esa persona,
 // hueca si aún no ha votado, o vacía si el día está anulado. Debajo, los que no están en las parejas.
 function puntosParejasHtml(r, ini, fechaId) {
   const voto = {};
@@ -1541,7 +1541,7 @@ function puntosParejasHtml(r, ini, fechaId) {
   const usados = new Set();
   let rejilla = "";
   for (const [chica, chico] of PAREJAS) {
-    for (const alias of [chica, chico]) {
+    for (const alias of [chico, chica]) { // la rejilla se rellena por columnas: arriba el chico, abajo la chica
       const n = buscarParticipante(alias, nombres.filter((x) => !usados.has(x)));
       if (n) usados.add(n);
       rejilla += bola(n);
