@@ -179,6 +179,11 @@
   }
   .punto.si { background: radial-gradient(circle at 35% 28%, #4E9A72 0%, #1F4D3A 60%, #133122 100%); }
   .punto.quizas { background: radial-gradient(circle at 35% 28%, #FFF1B0 0%, #F2C94C 55%, #B8921F 100%); color: #3A2A10; text-shadow: 0 1px 0 rgba(255,255,255,.45); }
+  /* "En negativo": quien aún no ha votado esa fecha (bola hueca con borde discontinuo) */
+  .punto.falta { background: #FFFDF7; color: #9A8A78; text-shadow: none; border: 1.5px dashed #B9A88C; box-shadow: none; }
+  .punto.falta::after { display: none; }      /* sin reflejo */
+  .punto.falta::before { opacity: .45; }      /* gancho apagado */
+  .cal-puntos .punto.falta { border-width: 1px; box-shadow: none; }
   .punto.veto { background: radial-gradient(circle at 35% 28%, #F07A6E 0%, #B3261E 60%, #7A140E 100%); }
   /* Iniciales que empiezan igual: aro de color por dentro (la bola mide lo mismo) */
   .punto.aro { box-shadow: inset 0 0 0 2.5px var(--color-aro), inset 0 -3px 4px rgba(0,0,0,.22), 0 2px 3px rgba(42,30,23,.25); }
@@ -1446,8 +1451,6 @@ function calcularIniciales(nombres) {
   return res;
 }
 
-// Fila de puntos de colores de una fecha (sí, si hace falta, veto)
-// (los puntos "no" no se pintan)
 // Si varias iniciales empiezan por la misma letra (PP y PF, Ed y Es), cada una de esas
 // bolas lleva un aro de un color distinto (por orden alfabético de los nombres) para distinguirlas.
 // Devuelve 0 si la inicial no se repite, o 1, 2, 3… (el color del aro).
@@ -1463,9 +1466,21 @@ function aroInicial(nombre, ini) {
   return i < 0 ? 0 : (i % 6) + 1;
 }
 
-function puntosHtml(r, ini) {
+// Fila de bolas de una fecha: primero los votos (sí, si hace falta, veto) y, si la fecha ya tiene votos,
+// detrás van "en negativo" (huecas) las personas que aún no han votado.
+function puntosHtml(r, ini, fechaId) {
   const uno = (nombre, tipo) => `<span class="punto ${tipo}${aroInicial(nombre, ini) ? " aro aro" + aroInicial(nombre, ini) : ""}" title="${esc(nombre)}: ${TEXTO_VOTO[tipo]}">${esc(ini[nombre] || nombre.charAt(0))}</span>`;
-  return [...r.si.map((n) => uno(n, "si")), ...r.quizas.map((n) => uno(n, "quizas")), ...r.veto.map((n) => uno(n, "veto"))].join("");
+  const votos = [...r.si.map((n) => uno(n, "si")), ...r.quizas.map((n) => uno(n, "quizas")), ...r.veto.map((n) => uno(n, "veto"))];
+  const pendientes = fechaId ? faltanEnFecha(fechaId) : [];
+  return votos.join("") + pendientes.map((n) =>
+    `<span class="punto falta" title="${esc(n)}: aún no ha votado">${esc(ini[n] || n.charAt(0))}</span>`).join("");
+}
+
+// Quién no ha votado todavía una fecha (solo si ya tiene algún voto; sin los de NO_CUENTAN_EN_FALTAN)
+function faltanEnFecha(fechaId) {
+  const v = datos.votos[fechaId] || {};
+  if (!Object.keys(v).length) return [];
+  return datos.participantes.filter((p) => !v[p] && !NO_CUENTAN_EN_FALTAN.includes(normalizar(p)));
 }
 
 function soyOrganizador() { return normalizar(yo) === normalizar(ORGANIZADOR); }
@@ -1905,7 +1920,7 @@ function pintarFechas() {
             ${botonVoto("si", "✅")}${botonVoto("quizas", "🤷")}${botonVoto("no", "❌")}${botonVoto("veto", "⛔")}
           </div>
           <div class="fecha-pie">
-            <div class="puntos-fila">${puntosHtml(f.r, ini)}</div>
+            <div class="puntos-fila">${puntosHtml(f.r, ini, f.id)}</div>
             ${botonOficial}
           </div>
           ${f.r.veto.length ? `<p class="resumen-votos veto-texto"><b>⛔ Vetan:</b> ${f.r.veto.map(esc).join(", ")}</p>` : ""}
@@ -1995,7 +2010,7 @@ function pintarCalendario(fechas, ini) {
               aria-label="${etiquetaFecha(id)}${f ? ", fecha candidata" : ""}">
               ${d === 1 ? `<span class="cal-mes">${MESES[dia.getMonth()].toUpperCase()}</span>` : ""}
               <span class="num">${d}</span>
-              ${f ? `<span class="cal-puntos">${puntosHtml(f.r, ini)}</span>` : ""}
+              ${f ? `<span class="cal-puntos">${puntosHtml(f.r, ini, f.id)}</span>` : ""}
             </button>`;
   }
   $("cal-rejilla").innerHTML = html;
@@ -2206,7 +2221,7 @@ function pintarDia() {
     const r = recuento(id);
     const ini = calcularIniciales([...datos.participantes, ...Object.keys(datos.votos[id] || {})]);
     $("dia-info").innerHTML = `${r.puntos} pts${r.si.length + r.quizas.length + r.veto.length ? "" : " · aún sin votos"}
-      <div class="puntos-fila">${puntosHtml(r, ini)}</div>`;
+      <div class="puntos-fila">${puntosHtml(r, ini, id)}</div>`;
   } else {
     $("dia-info").textContent = "Aún no es fecha candidata. Si votas, se añade para todos.";
   }
