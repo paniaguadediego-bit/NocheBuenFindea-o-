@@ -184,6 +184,14 @@
   .punto.falta::after { display: none; }      /* sin reflejo */
   .punto.falta::before { opacity: .45; }      /* gancho apagado */
   .cal-puntos .punto.falta { border-width: 1px; box-shadow: none; }
+  /* Rejilla de parejas: 2 columnas (chicas | chicos) × 5 filas */
+  .rejilla-parejas { display: grid; grid-template-columns: repeat(2, 26px); gap: 7px 6px; margin-top: 8px; }
+  .resto-parejas { margin-top: 6px; }
+  .punto.hueco-vacio { background: none; box-shadow: none; }
+  .punto.hueco-vacio::before, .punto.hueco-vacio::after { display: none; }
+  .punto.apagado { background: #F4ECE0; color: #C2B4A0; text-shadow: none; box-shadow: none; }
+  .punto.apagado::after { display: none; }
+  .punto.apagado::before { opacity: .3; }
   .punto.no { background: radial-gradient(circle at 35% 28%, #A99A8E 0%, #6B5A4E 60%, #463A32 100%); }
   /* Días anulados (2 o más No/Veto) */
   .tarjeta.anulada { opacity: .72; background: repeating-linear-gradient(135deg, #FFFDF7 0 10px, #F8EFE0 10px 20px); }
@@ -1362,7 +1370,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.27";
+const VERSION = "1.28";
 const VERSION_FECHA = "8 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
@@ -1497,6 +1505,52 @@ function puntosHtml(r, ini, fechaId) {
   const pendientes = fechaId ? faltanEnFecha(fechaId) : [];
   return votos.join("") + pendientes.map((n) =>
     `<span class="punto falta" title="${esc(n)}: aún no ha votado">${esc(ini[n] || n.charAt(0))}</span>`).join("");
+}
+
+// Parejas para colocar las bolas en el ranking y en la ventana del día: [chica, chico].
+// Columna izquierda = chicas, derecha = chicos; cada fila, una pareja.
+// Se emparejan por el principio del nombre ("Sofi" vale para "Sofía"), sin tildes ni mayúsculas.
+const PAREJAS = [["Cris", "Pablo"], ["Sofi", "Fran"], ["Ari", "Edu"], ["Estefi", "Gabri"], ["Patri", "Kike"]];
+
+function buscarParticipante(alias, nombres) {
+  const a = normalizar(alias);
+  const exacto = nombres.find((n) => normalizar(n) === a);
+  if (exacto) return exacto;
+  const empieza = nombres.find((n) => normalizar(n).startsWith(a) || a.startsWith(normalizar(n)));
+  if (empieza) return empieza;
+  // Diminutivos ("Estefi" → "Estefanía"): vale si coinciden las 4 primeras letras y solo hay un nombre así
+  const parecidos = nombres.filter((n) => a.length >= 4 && normalizar(n).slice(0, 4) === a.slice(0, 4));
+  return parecidos.length === 1 ? parecidos[0] : null;
+}
+
+// Bolas en rejilla de parejas (2 columnas × 5 filas). Cada hueco: el voto de esa persona,
+// hueca si aún no ha votado, o vacía si el día está anulado. Debajo, los que no están en las parejas.
+function puntosParejasHtml(r, ini, fechaId) {
+  const voto = {};
+  for (const t of ["si", "quizas", "no", "veto"]) for (const n of r[t]) voto[n] = t;
+  const pendientes = new Set(faltanEnFecha(fechaId));
+  const bola = (n) => {
+    if (!n) return `<span class="punto hueco-vacio" aria-hidden="true"></span>`;
+    const t = voto[n];
+    const letras = esc(ini[n] || n.charAt(0));
+    if (t) return `<span class="punto ${t}${aroInicial(n, ini) ? " aro aro" + aroInicial(n, ini) : ""}" title="${esc(n)}: ${TEXTO_VOTO[t]}">${letras}</span>`;
+    if (pendientes.has(n)) return `<span class="punto falta" title="${esc(n)}: aún no ha votado">${letras}</span>`;
+    return `<span class="punto apagado" title="${esc(n)}">${letras}</span>`;
+  };
+  const nombres = [...datos.participantes];
+  const usados = new Set();
+  let rejilla = "";
+  for (const [chica, chico] of PAREJAS) {
+    for (const alias of [chica, chico]) {
+      const n = buscarParticipante(alias, nombres.filter((x) => !usados.has(x)));
+      if (n) usados.add(n);
+      rejilla += bola(n);
+    }
+  }
+  // El resto: participantes fuera de las parejas (menos los que no cuentan) y quien votó sin estar en la lista
+  const resto = [...nombres, ...Object.keys(voto)].filter((n, i, a) => a.indexOf(n) === i && !usados.has(n) && n !== TELE &&
+    (voto[n] || !NO_CUENTAN_EN_FALTAN.includes(normalizar(n))));
+  return `<div class="rejilla-parejas">${rejilla}</div>` + (resto.length ? `<div class="puntos-fila resto-parejas">${resto.map(bola).join("")}</div>` : "");
 }
 
 // Quién no ha votado todavía una fecha (solo si ya tiene algún voto; sin los de NO_CUENTAN_EN_FALTAN)
@@ -1949,7 +2003,7 @@ function pintarFechas() {
             ${botonVoto("si", "✅")}${botonVoto("quizas", "🤷")}${botonVoto("no", "❌")}${botonVoto("veto", "⛔")}
           </div>
           <div class="fecha-pie">
-            <div class="puntos-fila">${puntosHtml(f.r, ini, f.id)}</div>
+            <div>${puntosParejasHtml(f.r, ini, f.id)}</div>
             ${botonOficial}
           </div>
           ${f.r.veto.length ? `<p class="resumen-votos veto-texto"><b>⛔ Vetan:</b> ${f.r.veto.map(esc).join(", ")}</p>` : ""}
@@ -2252,7 +2306,7 @@ function pintarDia() {
     const r = recuento(id);
     const ini = calcularIniciales([...datos.participantes, ...Object.keys(datos.votos[id] || {})]);
     $("dia-info").innerHTML = `${estaAnulada(r) ? `<b class="veto-texto">❌ Anulado</b> (${r.no.length + r.veto.length} "No"/"Veto")` : `${r.puntos} pts`}${r.si.length + r.quizas.length + r.no.length + r.veto.length ? "" : " · aún sin votos"}
-      <div class="puntos-fila">${puntosHtml(r, ini, id)}</div>`;
+      <div style="margin-top:6px">${puntosParejasHtml(r, ini, id)}</div>`;
   } else {
     $("dia-info").textContent = "Aún no es fecha candidata. Si votas, se añade para todos.";
   }
