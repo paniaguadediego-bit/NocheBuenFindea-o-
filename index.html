@@ -192,6 +192,45 @@
   .punto.apagado { background: #F4ECE0; color: #C2B4A0; text-shadow: none; box-shadow: none; }
   .punto.apagado::after { display: none; }
   .punto.apagado::before { opacity: .3; }
+  /* ===== Banner de la fecha de la fiesta ===== */
+  .banner-fecha {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px; padding: 10px 12px; border-radius: 16px;
+    background: linear-gradient(135deg, #2C664C 0%, #163828 100%); color: var(--crema);
+    box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.55), 0 3px 0 #0F271D;
+  }
+  .banner-fecha.confirmada { background: linear-gradient(135deg, #CF3D31 0%, #8E1C15 100%); box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.65), 0 3px 0 #741510; }
+  .bf-hoja {
+    flex: none; width: 58px; border-radius: 10px; overflow: hidden; background: #FFFDF7; text-align: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,.3); color: var(--texto);
+  }
+  .bf-mes-corto { display: block; background: var(--rojo); color: #fff; font: 800 11px/18px var(--cuerpo); letter-spacing: .08em; }
+  .banner-fecha.confirmada .bf-mes-corto { background: var(--verde); color: var(--dorado-texto); }
+  .bf-num { display: block; font: 800 30px/40px var(--titulos); }
+  .bf-texto { display: flex; flex-direction: column; min-width: 0; }
+  .bf-rotulo { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--dorado-texto); }
+  .bf-grande { font: 800 19px/1.15 var(--titulos); }
+  .bf-lugar { font-size: 13px; opacity: .9; margin-top: 2px; }
+
+  /* ===== Charlas: ánimo para apuntarse y programa ===== */
+  .anima-charla { display: flex; align-items: center; gap: 12px; margin: 2px 0 6px; }
+  .anima-charla p { margin: 0; font-size: 14px; }
+  .foco {
+    flex: none; width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 50% 35%, #FFF6C8 0%, #F2C94C 45%, rgba(242,201,76,0) 72%);
+    animation: foco 2.4s ease-in-out infinite;
+  }
+  .micro { font-size: 32px; display: inline-block; animation: balanceo 2.5s ease-in-out infinite; }
+  @keyframes foco { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.08); opacity: 1; } }
+  .programa { background: linear-gradient(180deg, #FFFDF7, #FBF3E0); }
+  .programa-lista { list-style: none; margin: 0; padding: 0; }
+  .charla-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 6px; margin-bottom: 6px; border-radius: 12px;
+    background: #fff; border: 1px solid #E8DABA; border-left: 4px solid var(--dorado); box-shadow: 0 2px 0 #EADFC8;
+  }
+  .charla-item:last-child { margin-bottom: 0; }
+  .charla-num { flex: none; width: 22px; text-align: center; font: 800 18px/1 var(--titulos); color: var(--rojo); }
+  .charla-texto { flex: 1; min-width: 0; }
+  .charla-tema { font: 800 16px/1.2 var(--titulos); color: var(--verde); overflow-wrap: anywhere; }
   .punto.no { background: radial-gradient(circle at 35% 28%, #A99A8E 0%, #6B5A4E 60%, #463A32 100%); }
   /* Días anulados (2 o más No/Veto) */
   .tarjeta.anulada { opacity: .72; background: repeating-linear-gradient(135deg, #FFFDF7 0 10px, #F8EFE0 10px 20px); }
@@ -981,6 +1020,9 @@
         <span><b>Calendario de Adviento</b><small id="adviento-sub">24 puertas con sorpresas del grupo</small></span>
       </button>
 
+      <!-- Banner con la fecha de la fiesta (la oficial, o la que va ganando) -->
+      <div id="banner-fecha"></div>
+
       <div class="tarjeta">
         <div class="cal-cab">
           <h3 id="cal-titulo">Noviembre – Diciembre 2026</h3>
@@ -1017,29 +1059,28 @@
 
     <!-- Pestaña CHARLAS -->
     <section id="t-charlas" data-tab hidden>
-      <div class="tarjeta">
-        <h3>📺 Charlas de <span id="cha-minutos">3</span> minutos</h3>
-        <p class="suave">Cuenta tu hobby o lo que te apasione. Con el prompt, una IA te prepara la presentación en un momento.</p>
-        <div class="acciones">
-        </div>
-        <div class="heroes" style="margin-top:8px">
-          <button id="cha-copiar" class="hero hero-verde">
-            <span class="hero-ico">📋</span>
-            <span><b>Copiar prompt</b><small>Pégalo en tu IA</small></span>
-          </button>
-          <button id="cha-guia" class="hero hero-crema">
-            <span class="hero-ico">📖</span>
-            <span><b>Ver la guía</b><small>Menos de 5 min</small></span>
-          </button>
-        </div>
+      <div class="heroes" style="margin-bottom:8px">
+        <button id="cha-copiar" class="hero hero-verde">
+          <span class="hero-ico">📋</span>
+          <span><b>Copiar prompt</b><small>Pégalo en tu IA</small></span>
+        </button>
+        <button id="cha-guia" class="hero hero-crema">
+          <span class="hero-ico">📖</span>
+          <span><b>Ver la guía</b><small>Menos de 5 min</small></span>
+        </button>
       </div>
-      <details class="tarjeta plegable" id="cha-form">
-        <summary id="cha-form-titulo">📺 Apúntate a dar una charla</summary>
+      <details class="tarjeta plegable" id="cha-form" open>
+        <summary id="cha-form-titulo">🎤 Apúntate a dar una charla</summary>
+        <!-- Motivo para animarse: micrófono bajo un foco -->
+        <div class="anima-charla">
+          <div class="foco" aria-hidden="true"><span class="micro">🎤</span></div>
+          <p><b>¡Sube al escenario!</b> Solo 3 minutos, tu tema favorito y todo el salón aplaudiendo 👏<br>
+            <span class="suave">Vale todo: tu hobby, una manía, un viaje, una receta…</span></p>
+        </div>
         <label for="cha-tema">Tema</label>
         <input id="cha-tema" class="campo" maxlength="80" placeholder="Ej.: El mundo secreto del café">
         <label for="cha-enlace">Enlace a la presentación (opcional)</label>
         <input id="cha-enlace" class="campo" type="url" maxlength="300" placeholder="https://…">
-        <label class="casilla"><input id="cha-remoto" type="checkbox"> Por videollamada</label>
         <div id="cha-error" class="error-texto"></div>
         <div class="acciones">
           <button id="cha-guardar" class="btn btn-rojo">Apuntarme</button>
@@ -1370,8 +1411,8 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.32";
-const VERSION_FECHA = "8 nov 2026";
+const VERSION = "1.33";
+const VERSION_FECHA = "9 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
 // Solo esta persona puede marcar la fecha oficial
@@ -2001,6 +2042,8 @@ function pintarFechas() {
   // Orden de la lista: por votos (normal) o por fecha (si la persona lo elige; se recuerda en su móvil)
   const lista = ordenRanking === "fecha" ? [...fechas].sort((a, b) => a.id.localeCompare(b.id)) : ranking;
 
+  pintarBannerFecha(validas.length ? [...validas].sort(porPuntos)[0] : null);
+
   // --- Lista de fechas ---
   if (!fechas.length) {
     $("fechas-lista").innerHTML = `<div class="tarjeta"><p>Todavía no hay fechas. Toca un día del calendario para proponer la primera 👆</p></div>`;
@@ -2056,6 +2099,44 @@ function pintarFechas() {
         ? `<p style="margin:0">${faltan.map((x) => esc(x.p) + (x.n < validas.length ? ` <span class="suave">(${x.n})</span>` : "")).join(", ")}</p>`
         : `<p style="margin:0">¡Ya ha votado todo el mundo! 🎉</p>`}
     </div>`;
+}
+
+// "2026-12-12" → { dia: "Sábado", num: 12, mes: "diciembre" }
+const DIAS_LARGOS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+function partesFecha(id) {
+  const [a, m, d] = id.split("-").map(Number);
+  const f = new Date(a, m - 1, d);
+  const dia = DIAS_LARGOS[f.getDay()];
+  return { dia: dia.charAt(0).toUpperCase() + dia.slice(1), num: d, mes: MESES_LARGOS[m - 1] };
+}
+
+// Banner grande encima del calendario: la fecha oficial; si no hay, "por decidir" y la que va ganando
+function pintarBannerFecha(ganando) {
+  const oficial = datos.evento.fechaOficial;
+  const lugar = datos.evento.lugar ? `<span class="bf-lugar">📍 ${esc(datos.evento.lugar)}</span>` : "";
+  if (oficial) {
+    const p = partesFecha(oficial);
+    $("banner-fecha").innerHTML = `
+      <div class="banner-fecha confirmada">
+        <div class="bf-hoja"><span class="bf-mes-corto">${p.mes.slice(0, 3).toUpperCase()}</span><span class="bf-num">${p.num}</span></div>
+        <div class="bf-texto">
+          <span class="bf-rotulo">🎉 ¡Fecha confirmada!</span>
+          <span class="bf-grande">${p.dia} ${p.num} de ${p.mes}</span>
+          ${lugar}
+        </div>
+      </div>`;
+  } else {
+    const p = ganando && ganando.r.puntos > 0 ? partesFecha(ganando.id) : null;
+    $("banner-fecha").innerHTML = `
+      <div class="banner-fecha">
+        <div class="bf-hoja"><span class="bf-mes-corto">${p ? p.mes.slice(0, 3).toUpperCase() : "¿?"}</span><span class="bf-num">${p ? p.num : "?"}</span></div>
+        <div class="bf-texto">
+          <span class="bf-rotulo">⏳ Fecha por decidir</span>
+          <span class="bf-grande">${p ? `Va ganando el ${p.dia.toLowerCase()} ${p.num} de ${p.mes}` : "¡Vota en el calendario!"}</span>
+          ${p ? `<span class="bf-lugar">👑 ${ganando.r.puntos} puntos</span>` : ""}
+        </div>
+      </div>`;
+  }
 }
 
 // Gráfica de barras: una barra por fecha, en orden de calendario
@@ -2230,32 +2311,35 @@ function borrarCharla(d, nombre) {
 function enlaceSeguro(u) { return /^https?:\/\//i.test(u || "") ? u : ""; }
 
 function pintarCharlas() {
-  $("cha-minutos").textContent = datos.ajustes.minutosCharla;
   const mia = datos.charlas.find((c) => c.nombre === yo);
   // Si ya tienes charla, el formulario solo aparece al pulsar "Editar"
   $("cha-form").hidden = !!mia && !editandoCharla;
 
-  const lista = datos.charlas.map((c) => {
+  const ini = calcularIniciales(datos.participantes);
+  const colores = ["si", "veto", "quizas"]; // bolas alternando verde, rojo y dorado
+  const lista = datos.charlas.map((c, n) => {
     const url = enlaceSeguro(c.enlace);
     return `
-      <div class="item">
-        <div class="item-texto">
-          <div class="item-titulo">${esc(c.tema)}</div>
-          <div class="suave">Presenta ${esc(c.nombre)}</div>
-          ${c.remoto ? `<span class="etiqueta verde">💻 Por videollamada</span>` : ""}
+      <li class="charla-item">
+        <span class="charla-num">${n + 1}</span>
+        <span class="punto ${colores[n % 3]}" aria-hidden="true">${esc(ini[c.nombre] || c.nombre.charAt(0))}</span>
+        <div class="charla-texto">
+          <div class="charla-tema">${esc(c.tema)}</div>
+          <div class="suave">por <b>${esc(c.nombre)}</b> ${reyDe(c.nombre)}</div>
           ${c.presentacion ? `<span class="etiqueta verde">📎 Presentación lista</span>` : ""}
-          ${url ? ` <a href="${esc(url)}" target="_blank" rel="noopener">🔗 Ver presentación</a>` : ""}
+          ${url ? ` <a href="${esc(url)}" target="_blank" rel="noopener">🔗 Ver</a>` : ""}
         </div>
         ${c.nombre === yo ? `<div class="item-botones">
           <button class="icono" data-cha-editar aria-label="Editar mi charla">✏️</button>
           <button class="icono" data-cha-borrar aria-label="Borrar mi charla">🗑️</button>
         </div>` : ""}
-      </div>`;
+      </li>`;
   }).join("");
   $("charlas-lista").innerHTML = `
-    <div class="tarjeta">
-      <h3>📺 Apuntadas (${datos.charlas.length})</h3>
-      ${lista || `<p class="suave" style="margin:0">Todavía no hay charlas. ¡Anímate a ser la primera persona!</p>`}
+    <div class="tarjeta programa">
+      <h3>🎭 Programa de charlas</h3>
+      <p class="suave" style="margin:-4px 0 8px">${datos.charlas.length ? `${datos.charlas.length} ${datos.charlas.length === 1 ? "charla" : "charlas"} · ${datos.ajustes.minutosCharla} minutos cada una` : "El escenario está libre…"}</p>
+      ${lista ? `<ol class="programa-lista">${lista}</ol>` : `<p style="margin:0">🎤 Todavía no hay charlas. ¡Anímate a ser la primera persona!</p>`}
     </div>`;
 }
 
@@ -2264,7 +2348,6 @@ function abrirEdicionCharla() {
   editandoCharla = true;
   $("cha-tema").value = mia ? mia.tema : "";
   $("cha-enlace").value = mia ? mia.enlace : "";
-  $("cha-remoto").checked = mia ? !!mia.remoto : false;
   $("cha-form-titulo").textContent = "✏️ Cambia tu charla";
   $("cha-form").open = true;
   $("cha-guardar").textContent = "Guardar cambios";
@@ -2277,10 +2360,9 @@ function limpiarFormCharla() {
   editandoCharla = false;
   $("cha-tema").value = "";
   $("cha-enlace").value = "";
-  $("cha-remoto").checked = false;
   $("cha-error").textContent = "";
-  $("cha-form-titulo").textContent = "📺 Apúntate a dar una charla";
-  $("cha-form").open = false;
+  $("cha-form-titulo").textContent = "🎤 Apúntate a dar una charla";
+  $("cha-form").open = true; // abierto por defecto, para animar a apuntarse
   $("cha-guardar").textContent = "Apuntarme";
   $("cha-cancelar").hidden = true;
 }
@@ -2288,11 +2370,10 @@ function limpiarFormCharla() {
 function pulsarGuardarCharla() {
   const tema = $("cha-tema").value.trim();
   const enlace = $("cha-enlace").value.trim();
-  const remoto = $("cha-remoto").checked;
   if (!tema) { $("cha-error").textContent = "Escribe el tema de tu charla."; return; }
   if (enlace && !enlaceSeguro(enlace)) { $("cha-error").textContent = "El enlace tiene que empezar por https://"; return; }
   limpiarFormCharla();
-  guardar(`${yo} se apunta a charla: ${tema}`, (d) => guardarCharla(d, yo, { tema, enlace, remoto }));
+  guardar(`${yo} se apunta a charla: ${tema}`, (d) => guardarCharla(d, yo, { tema, enlace }));
 }
 
 // Copiar el prompt (con plan B para navegadores antiguos)
@@ -2402,7 +2483,6 @@ function pintarFiesta() {
     <div class="turno">Charla ${i + 1} de ${orden.length}</div>
     <div class="quien">${esc(actual.nombre)}</div>
     <div class="tema">${esc(actual.tema)}</div>
-    ${actual.remoto ? `<span class="etiqueta verde">💻 Por videollamada</span>` : ""}
     ${actual.presentacion ? `<div class="acciones" style="justify-content:center"><button class="btn btn-rojo" data-lanzar="${esc(actual.presentacion)}">▶ Lanzar presentación</button></div>` : ""}` :
     `<p>Todavía no hay charlas apuntadas. Se apuntan en la pestaña 📺 Charlas.</p>`;
   for (const id of ["fie-anterior", "fie-play", "fie-reiniciar", "fie-siguiente"]) $(id).disabled = !actual;
@@ -2417,7 +2497,7 @@ function pintarFiesta() {
   $("fie-orden").innerHTML = orden.length ? `
     ${sorteado ? "" : `<p class="suave" style="margin:0 0 4px">Aún sin sortear (orden de inscripción).</p>`}
     <ol class="orden-lista">${orden.map((c, n) =>
-      `<li class="${n === i ? "actual" : n < i ? "hecha" : ""}">${esc(c.nombre)} <span class="suave">· ${esc(c.tema)}</span>${c.remoto ? " 💻" : ""}</li>`).join("")}</ol>` :
+      `<li class="${n === i ? "actual" : n < i ? "hecha" : ""}">${esc(c.nombre)} <span class="suave">· ${esc(c.tema)}</span></li>`).join("")}</ol>` :
     `<p class="suave" style="margin:0">Sin charlas todavía.</p>`;
 
   // Solo Pablo sortea
