@@ -1449,7 +1449,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.35";
+const VERSION = "1.36";
 const VERSION_FECHA = "9 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
@@ -1486,6 +1486,26 @@ function hayVotosQuePasar(d) {
   return Object.values(d.votos).some((v) => Object.keys(v || {}).some((n) => destinoVotos(n, d)));
 }
 // Cambio: los votos de Ammar pasan a Edu (si Edu ya votó ese día, se respeta su voto)
+// Limpieza de una sola vez: quitar los votos de Edu de lunes a jueves (solo vale para viernes-domingo).
+// Queda apuntada en ajustes.limpiezaEdu para no repetirla nunca más.
+function esLunesAJueves(id) {
+  const [a, m, dia] = id.split("-").map(Number);
+  const semana = new Date(a, m - 1, dia).getDay(); // 0 = domingo … 6 = sábado
+  return semana >= 1 && semana <= 4;
+}
+function limpiarVotosEdu(d) {
+  if (d.ajustes.limpiezaEdu) return false; // ya se hizo
+  const edu = buscarParticipante("Edu", d.participantes) || "Edu";
+  for (const id of Object.keys(d.votos)) {
+    if (!esLunesAJueves(id) || !d.votos[id] || d.votos[id][edu] === undefined) continue;
+    delete d.votos[id][edu];
+    if (!Object.keys(d.votos[id]).length) delete d.votos[id];
+  }
+  // Las fechas que se quedan sin votos desaparecen (menos la oficial)
+  d.fechas = d.fechas.filter((f) => d.votos[f.id] || f.id === d.evento.fechaOficial);
+  d.ajustes.limpiezaEdu = true;
+}
+
 function pasarVotos(d) {
   let cambiado = false;
   for (const v of Object.values(d.votos)) {
@@ -4213,6 +4233,7 @@ async function arrancar() {
   if (yo && destinoVotos(yo, datos)) { yo = destinoVotos(yo, datos); guardarLocal("nb_nombre", yo); }
   // Pasar los votos puestos con el nombre equivocado (lo hace el primero que abra la app)
   if (hayVotosQuePasar(datos)) guardar("Los votos de Ammar pasan a Edu", pasarVotos);
+  if (!datos.ajustes.limpiezaEdu) guardar("Se quitan los votos de Edu de lunes a jueves", limpiarVotosEdu);
   document.body.classList.toggle("es-tele", esTele());
   ponerVista(vistaFiesta);
   if (yo) { mostrar("p-app"); pintar(); }
