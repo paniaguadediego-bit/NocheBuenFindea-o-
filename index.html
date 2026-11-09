@@ -1370,7 +1370,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.31";
+const VERSION = "1.32";
 const VERSION_FECHA = "8 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
@@ -1387,6 +1387,36 @@ function estaAnulada(r) { return r.no.length + r.veto.length >= NOS_PARA_ANULAR;
 
 // Nombres que no salen en "Faltan por votar" (en minúsculas y sin tildes). Ammar es una broma del grupo.
 const NO_CUENTAN_EN_FALTAN = ["ammar"];
+
+// Nombres que nunca salen en las bolas ni en el desplegable de "¿Quién eres?"
+const OCULTOS = ["ammar"];
+// Votos puestos con un nombre equivocado que pasan a otra persona (Edu se puso Ammar por error)
+const PASAR_VOTOS = { ammar: "Edu" };
+
+function nombreOculto(n) { return OCULTOS.includes(normalizar(n)); }
+
+// A quién pasan los votos de este nombre (o null si no hay que pasarlos)
+function destinoVotos(nombre, d) {
+  const alias = PASAR_VOTOS[normalizar(nombre)];
+  return alias ? (buscarParticipante(alias, d.participantes) || alias) : null;
+}
+function hayVotosQuePasar(d) {
+  return Object.values(d.votos).some((v) => Object.keys(v || {}).some((n) => destinoVotos(n, d)));
+}
+// Cambio: los votos de Ammar pasan a Edu (si Edu ya votó ese día, se respeta su voto)
+function pasarVotos(d) {
+  let cambiado = false;
+  for (const v of Object.values(d.votos)) {
+    for (const n of Object.keys(v || {})) {
+      const destino = destinoVotos(n, d);
+      if (!destino) continue;
+      if (!v[destino]) v[destino] = v[n];
+      delete v[n];
+      cambiado = true;
+    }
+  }
+  if (!cambiado) return false;
+}
 
 // Iniciales fijas para algunos nombres (en minúsculas y sin tildes)
 const INICIALES_FIJAS = { pablo: "PP", patri: "PF" };
@@ -1856,7 +1886,7 @@ function pintarSelectorNombre() {
   const elegido = sel.value;
   sel.innerHTML =
     `<option value="">Elige tu nombre…</option>` +
-    datos.participantes.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join("") +
+    datos.participantes.filter((p) => !nombreOculto(p)).map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join("") +
     `<option value="__nuevo__">➕ Añadirme</option>` +
     `<option value="__tele__">📺 Tele (el PC de la fiesta)</option>`;
   // conservar lo que estaba elegido si sigue existiendo
@@ -1948,6 +1978,7 @@ function recuento(fechaId) {
   const v = datos.votos[fechaId] || {};
   const r = { si: [], quizas: [], no: [], veto: [], puntos: 0 };
   for (const [nombre, resp] of Object.entries(v)) {
+    if (nombreOculto(nombre)) continue; // Ammar no sale en las bolas ni suma
     if (r[resp]) { r[resp].push(nombre); r.puntos += PUNTOS[resp]; }
   }
   return r;
@@ -4055,6 +4086,10 @@ async function arrancar() {
   // 3. ¿Sabemos quién eres?
   irA(leerLocal("nb_tab") || "fechas");
   yo = leerLocal("nb_nombre");
+  // Si este móvil entró con un nombre equivocado (Ammar), pasa a ser el bueno (Edu)
+  if (yo && destinoVotos(yo, datos)) { yo = destinoVotos(yo, datos); guardarLocal("nb_nombre", yo); }
+  // Pasar los votos puestos con el nombre equivocado (lo hace el primero que abra la app)
+  if (hayVotosQuePasar(datos)) guardar("Los votos de Ammar pasan a Edu", pasarVotos);
   document.body.classList.toggle("es-tele", esTele());
   ponerVista(vistaFiesta);
   if (yo) { mostrar("p-app"); pintar(); }
