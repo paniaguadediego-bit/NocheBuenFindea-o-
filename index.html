@@ -1463,7 +1463,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.39";
+const VERSION = "1.40";
 const VERSION_FECHA = "9 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
@@ -1734,7 +1734,7 @@ function puntosParejasHtml(r, ini, fechaId) {
 // Quién no ha votado todavía una fecha (solo si ya tiene algún voto; sin los de NO_CUENTAN_EN_FALTAN)
 function faltanEnFecha(fechaId) {
   const v = datos.votos[fechaId] || {};
-  if (!Object.keys(v).length || estaAnulada(recuento(fechaId))) return []; // en un día anulado ya da igual
+  if (!Object.keys(v).length) return []; // también en los días anulados se ve quién no ha votado
   return datos.participantes.filter((p) => (!v[p] || v[p] === "nsnc") && !NO_CUENTAN_EN_FALTAN.includes(normalizar(p)));
 }
 
