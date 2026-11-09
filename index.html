@@ -251,6 +251,7 @@
   .leyenda-bolas > div { display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .leyenda-bolas .punto { font-size: 10px; margin-top: 4px; }
   .leyenda-bolas b { font: 800 15px/1 var(--titulos); color: var(--dorado-texto); }
+  .leyenda-bolas b.anula { color: #FF8A80; } /* el No no suma: anula el día */
   .leyenda-bolas small { font-size: 10px; line-height: 1.1; opacity: .85; }
   .leyenda-bolas .punto.falta { background: transparent; color: #E9DFC6; border-color: #E9DFC6; }
   .leyenda-nota { margin: 6px 0 0; text-align: center; font-size: 12px; opacity: .9; }
@@ -1076,7 +1077,7 @@
         <div class="leyenda-bolas">
           <div><span class="punto si">Sí</span><b>+2</b></div>
           <div><span class="punto quizas">🤷</span><b>+1</b><small>Si hace falta</small></div>
-          <div><span class="punto no">No</span><b>0</b></div>
+          <div><span class="punto no">No</span><b class="anula">✕</b><small>Anula</small></div>
           <div><span class="punto nsnc">?</span><b>0</b><small>NS/NC</small></div>
           <div><span class="punto falta">·</span><b>—</b><small>Falta</small></div>
         </div>
@@ -1462,7 +1463,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.38";
+const VERSION = "1.39";
 const VERSION_FECHA = "9 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
