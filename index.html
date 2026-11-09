@@ -296,7 +296,20 @@
   .cal-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
   .cal-cab h3 { margin: 0; text-transform: capitalize; }
   .cal-flecha { min-width: 40px; min-height: 36px; border-radius: 10px; border: 2px solid var(--borde); background: #fff; color: var(--verde); font-size: 20px; font-weight: 700; }
-  .cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; position: relative; }
+  /* Sello de broma sobre lunes-jueves: "AQUÍ NO SE VOTA, EDU" */
+  .sello-edu { /* flota encima de las 4 primeras columnas, sin ocupar huecos de la rejilla */
+    position: absolute; z-index: 2; pointer-events: none; top: 24px; bottom: 0; left: 0;
+    width: calc((100% - 18px) * 4 / 7 + 9px);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .cal-dia.laborable { background: #F4ECE0 !important; color: #B9A88C; box-shadow: none; cursor: default; }
+  .sello-edu span {
+    white-space: nowrap; /* el giro y el tamaño los pone ajustarSello() */
+    font: 400 clamp(30px, 10vw, 46px)/1 var(--logo); letter-spacing: .06em; color: rgba(179,38,30,.4);
+    border: 4px solid rgba(179,38,30,.32); border-radius: 10px; padding: 6px 14px;
+    text-shadow: 0 0 1px rgba(255,255,255,.6);
+  }
   .cal-dia-semana { text-align: center; font-size: 13px; font-weight: 700; color: #5A4A3E; padding: 2px 0; }
   .cal-dia {
     min-height: 38px; border-radius: 8px; border: 2px solid transparent; background: #fff;
@@ -1054,7 +1067,7 @@
           <h3 id="cal-titulo">Noviembre – Diciembre 2026</h3>
         </div>
         <div id="cal-rejilla" class="cal-rejilla"></div>
-        <p class="suave" style="margin:6px 0 0">Toca un día para votarlo. Si aún no es candidato, se añade al votar.</p>
+        <p class="suave" style="margin:6px 0 0">Toca un día de viernes a domingo para votarlo. Si aún no es candidato, se añade al votar.</p>
       </div>
 
       <!-- Leyenda: cómo puntúa cada bola -->
@@ -1067,7 +1080,7 @@
           <div><span class="punto nsnc">?</span><b>0</b><small>NS/NC</small></div>
           <div><span class="punto falta">·</span><b>—</b><small>Falta</small></div>
         </div>
-        <p class="leyenda-nota">❌ 2 "No" anulan el día · 👑 gana el que más suma</p>
+        <p class="leyenda-nota">❌ Un solo "No" anula el día · 👑 gana el que más suma</p>
       </div>
       <div id="fechas-grafica"></div>
 
@@ -1449,7 +1462,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.37";
+const VERSION = "1.38";
 const VERSION_FECHA = "9 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
@@ -1461,7 +1474,7 @@ const ANOS = "2026-2027";
 const SUBTITULO = "Familia de Adoce";
 
 // Un día queda anulado (tachado, fuera del ranking) si suma estos "No" entre todos
-const NOS_PARA_ANULAR = 2;
+const NOS_PARA_ANULAR = 1; // un solo "No" anula el día
 function tipoVoto(v) { return v === "veto" ? "no" : v; }
 // Mi voto (o el de otro) en una fecha, ya con el veto convertido en No
 function votoDe(fechaId, nombre) { return tipoVoto((datos.votos[fechaId] || {})[nombre]); }
@@ -1488,6 +1501,22 @@ function hayVotosQuePasar(d) {
 // Cambio: los votos de Ammar pasan a Edu (si Edu ya votó ese día, se respeta su voto)
 // Limpieza de una sola vez: quitar los votos de Edu de lunes a jueves (solo vale para viernes-domingo).
 // Queda apuntada en ajustes.limpiezaEdu para no repetirla nunca más.
+// Ajusta el sello de Edu al hueco de lunes a jueves: lo inclina en la diagonal y elige el tamaño de letra
+function ajustarSello() {
+  const caja = document.querySelector(".sello-edu");
+  const texto = caja && caja.querySelector("span");
+  if (!caja || !texto || !caja.offsetWidth) return;
+  const w = caja.offsetWidth, h = caja.offsetHeight;
+  const angulo = Math.atan2(h, w);                    // la diagonal del hueco
+  const largo = Math.hypot(w, h) * 0.82;              // lo que puede medir el sello
+  texto.style.transform = "none";
+  texto.style.fontSize = "40px";
+  const escala = largo / texto.offsetWidth;
+  texto.style.fontSize = Math.max(14, Math.min(60, 40 * escala)) + "px";
+  texto.style.transform = `rotate(${-angulo}rad)`;
+}
+window.addEventListener("resize", ajustarSello);
+
 function esLunesAJueves(id) {
   const [a, m, dia] = id.split("-").map(Number);
   const semana = new Date(a, m - 1, dia).getDay(); // 0 = domingo … 6 = sábado
@@ -1504,6 +1533,19 @@ function limpiarVotosEdu(d) {
   // Las fechas que se quedan sin votos desaparecen (menos la oficial)
   d.fechas = d.fechas.filter((f) => d.votos[f.id] || f.id === d.evento.fechaOficial);
   d.ajustes.limpiezaEdu = true;
+}
+
+// Otra limpieza de una sola vez: quitar el voto de Edu del 31 de diciembre (marcada con ajustes.limpiezaEdu31)
+function quitarVotoEdu31(d) {
+  if (d.ajustes.limpiezaEdu31) return false;
+  const edu = buscarParticipante("Edu", d.participantes) || "Edu";
+  const id = "2026-12-31";
+  if (d.votos[id]) {
+    delete d.votos[id][edu];
+    if (!Object.keys(d.votos[id]).length) delete d.votos[id];
+  }
+  d.fechas = d.fechas.filter((f) => d.votos[f.id] || f.id === d.evento.fechaOficial);
+  d.ajustes.limpiezaEdu31 = true;
 }
 
 function pasarVotos(d) {
@@ -2090,7 +2132,7 @@ function recuento(fechaId) {
 }
 
 function pintarFechas() {
-  const fechas = datos.fechas.filter((f) => fechaVisible(f.id) && (dentroDelCalendario(f.id) || f.id === datos.evento.fechaOficial))
+  const fechas = datos.fechas.filter((f) => fechaVisible(f.id) && ((dentroDelCalendario(f.id) && !esLunesAJueves(f.id)) || f.id === datos.evento.fechaOficial))
     .map((f) => ({ ...f, r: recuento(f.id) }));
   const ini = calcularIniciales([...datos.participantes, ...fechas.flatMap((f) => Object.keys(datos.votos[f.id] || {}))]);
   pintarCalendario(fechas, ini);
@@ -2276,14 +2318,20 @@ function pintarCalendario(fechas, ini) {
     if (id === idHoy) clases.push("hoy");
     const pasado = id < idHoy && !f;
     if (pasado) clases.push("pasado");
-    html += `<button class="${clases.join(" ")}" data-dia="${id}" ${pasado ? "disabled" : ""}
+    const laborable = esLunesAJueves(id) && id !== oficial; // de lunes a jueves no se vota
+    if (laborable) clases.push("laborable");
+    html += `<button class="${clases.join(" ")}" data-dia="${id}" ${pasado || laborable ? "disabled" : ""}
               aria-label="${etiquetaFecha(id)}${f ? ", fecha candidata" : ""}">
               ${d === 1 ? `<span class="cal-mes">${MESES[dia.getMonth()].toUpperCase()}</span>` : ""}
               <span class="num">${d}</span>
               ${f ? `<span class="cal-puntos">${puntosHtml(f.r, ini, f.id)}</span>` : ""}
             </button>`;
   }
+  // Broma para Edu: sello encima de los días laborables (lunes a jueves) de todas las semanas.
+  // Es solo un dibujo: no impide tocar los días.
+  html += `<div class="sello-edu" aria-hidden="true"><span>AQUÍ NO SE VOTA, EDU</span></div>`;
   $("cal-rejilla").innerHTML = html;
+  ajustarSello();
 }
 
 /* =====================================================================
@@ -4243,6 +4291,7 @@ async function arrancar() {
   // Pasar los votos puestos con el nombre equivocado (lo hace el primero que abra la app)
   if (hayVotosQuePasar(datos)) guardar("Los votos de Ammar pasan a Edu", pasarVotos);
   if (!datos.ajustes.limpiezaEdu) guardar("Se quitan los votos de Edu de lunes a jueves", limpiarVotosEdu);
+  if (!datos.ajustes.limpiezaEdu31) guardar("Se quita el voto de Edu del 31 de diciembre", quitarVotoEdu31);
   document.body.classList.toggle("es-tele", esTele());
   ponerVista(vistaFiesta);
   if (yo) { mostrar("p-app"); pintar(); }
