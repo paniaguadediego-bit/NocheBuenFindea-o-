@@ -296,7 +296,19 @@
   .cal-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
   .cal-cab h3 { margin: 0; text-transform: capitalize; }
   .cal-flecha { min-width: 40px; min-height: 36px; border-radius: 10px; border: 2px solid var(--borde); background: #fff; color: var(--verde); font-size: 20px; font-weight: 700; }
-  .cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; position: relative; }
+  /* Sello de broma sobre lunes-jueves: "AQUÍ NO SE VOTA, EDU" */
+  .sello-edu { /* flota encima de las 4 primeras columnas, sin ocupar huecos de la rejilla */
+    position: absolute; z-index: 2; pointer-events: none; top: 24px; bottom: 0; left: 0;
+    width: calc((100% - 18px) * 4 / 7 + 9px);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .sello-edu span {
+    transform: rotate(-80deg); white-space: nowrap;
+    font: 400 clamp(30px, 10vw, 46px)/1 var(--logo); letter-spacing: .06em; color: rgba(179,38,30,.4);
+    border: 4px solid rgba(179,38,30,.32); border-radius: 10px; padding: 6px 14px;
+    text-shadow: 0 0 1px rgba(255,255,255,.6);
+  }
   .cal-dia-semana { text-align: center; font-size: 13px; font-weight: 700; color: #5A4A3E; padding: 2px 0; }
   .cal-dia {
     min-height: 38px; border-radius: 8px; border: 2px solid transparent; background: #fff;
@@ -2283,6 +2295,9 @@ function pintarCalendario(fechas, ini) {
               ${f ? `<span class="cal-puntos">${puntosHtml(f.r, ini, f.id)}</span>` : ""}
             </button>`;
   }
+  // Broma para Edu: sello encima de los días laborables (lunes a jueves) de todas las semanas.
+  // Es solo un dibujo: no impide tocar los días.
+  html += `<div class="sello-edu" aria-hidden="true"><span>AQUÍ NO SE VOTA, EDU</span></div>`;
   $("cal-rejilla").innerHTML = html;
 }
 
