@@ -88,6 +88,14 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Mientras hay una ronda de juego abierta, se relee cada 10 s (GitHub permite ~5.000 lecturas por hora con la misma clave, entre todos).
 - Presentaciones: en Charlas → "📎 Mi presentación" cada uno sube su archivo .html o pega el código (máx. 900 KB). Se guarda en `nochebuen-datos/presentaciones/<idCharla>.html` y la charla guarda la ruta en `presentacion`. En Fiesta, "▶ Lanzar presentación" la abre a pantalla completa en un iframe con sandbox="allow-scripts" (sin allow-same-origin, para que no pueda leer la clave).
 
+## Furor (chicos contra chicas)
+
+- Como el programa de la tele. Equipos sacados de PAREJAS: chicos (los de arriba) contra chicas (las de abajo); quien no está en las parejas no tiene equipo.
+- En la tele: Fiesta → 🎶 Furor, con un marcador grande (+1 / −1 con bocina) y 4 pruebas: 🔤 la palabra Furor (sale una palabra y los equipos se turnan cantando, cuenta atrás de 10 s), 🎵 tararea si puedes (a alguien al azar del equipo elegido le llega la canción en secreto al móvil; 30 s), 📜 sigue la letra (sale el principio y se revela cómo sigue) y ❓ pregunta musical (4 opciones; en el móvil sale un botón "¡PULSA!" y vale el primer equipo que pulsa; "✅ Acierto" da +1). Solo Pablo o la Tele dirigen.
+- En el móvil: Juegos → 🎶 Furor (marcador, tu equipo, el pulsador y la canción secreta si te toca) y "➕ Añadir al Furor" (palabras, canciones, letras o preguntas; cada uno borra lo suyo).
+- Contenido de partida en el código (FUROR_PALABRAS, FUROR_CANCIONES, FUROR_LETRAS, FUROR_PREGUNTAS) más lo que añada el grupo. No se repite nada hasta que salen todos.
+- `furor` = { puntos: { chicos, chicas }, ronda: { prueba, item, equipo, quien, revelada, pulsado }, usados: [], extra: { palabras, canciones, letras, preguntas } }. Con una pregunta o un tarareo en marcha, se relee cada 10 s.
+
 ## Música y vídeos (YouTube)
 
 - Botón 📻 en la cabecera: lista compartida de vídeos de YouTube (los especiales de Manolo Vieira, villancicos…). Cualquiera pega un enlace (youtu.be, watch?v=, shorts, live) con título opcional (si no, se intenta sacar de YouTube); no se repiten; cada uno quita los suyos.
