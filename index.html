@@ -255,6 +255,41 @@
   .leyenda-bolas small { font-size: 10px; line-height: 1.1; opacity: .85; }
   .leyenda-bolas .punto.falta { background: transparent; color: #E9DFC6; border-color: #E9DFC6; }
   .leyenda-nota { margin: 6px 0 0; text-align: center; font-size: 12px; opacity: .9; }
+  /* ===== Portada: cuenta atrás, plan de la noche y votación plegable ===== */
+  .bf-cuenta { font-size: 14px; font-weight: 800; color: #FFE9A8; margin-top: 2px; }
+  .plan-noche {
+    position: relative; margin: 18px 0 12px; padding: 20px 10px 8px; border-radius: 16px;
+    background: linear-gradient(180deg, #FFFDF7, #FBF0D8); border: 1.5px solid var(--dorado);
+    box-shadow: 0 0 0 3px rgba(201,162,39,.15), 0 10px 22px -14px rgba(42,30,23,.35);
+  }
+  .plan-noche .cinta {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+    padding: 4px 18px; font: 800 15px/1.2 var(--titulos); color: #fff;
+    background: linear-gradient(180deg, #CF3D31, #A3221A); box-shadow: 0 2px 4px rgba(0,0,0,.25);
+    clip-path: polygon(0 0, 100% 0, 94% 50%, 100% 100%, 0 100%, 6% 50%);
+  }
+  .plan-gancho { text-align: center; margin: 0 0 6px; font-weight: 700; color: var(--verde); font-size: 14px; }
+  .plan-item {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 7px 6px; margin: 0;
+    background: none; border: 0; border-top: 1px dashed #E2D3B5; color: var(--texto);
+  }
+  .plan-item:first-of-type { border-top: 0; }
+  .plan-item:active { background: rgba(201,162,39,.12); border-radius: 10px; }
+  .plan-ico { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 19px; background: radial-gradient(circle at 35% 30%, #FFF6D9, #F2DFA8); box-shadow: inset 0 0 0 1.5px var(--dorado); }
+  .plan-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .plan-texto b { font: 800 15px/1.2 var(--titulos); color: var(--verde); }
+  .plan-texto small { font-size: 13px; color: #5A4A3E; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .plan-flecha { flex: none; font-size: 22px; color: var(--dorado); }
+  /* Votación: sin fecha oficial se ve siempre abierta y sin el título plegable */
+  .votacion > summary { display: none; }
+  .votacion.con-oficial > summary {
+    display: flex; list-style: none; cursor: pointer; justify-content: center; align-items: center; gap: 6px;
+    margin: 4px 0 10px; padding: 10px; border-radius: 12px; font-weight: 700; color: var(--verde);
+    background: #EADFC8; box-shadow: inset 0 1px 3px rgba(42,30,23,.15);
+  }
+  .votacion.con-oficial > summary::-webkit-details-marker { display: none; }
+  .votacion.con-oficial > summary::after { content: "＋"; font-weight: 800; }
+  .votacion.con-oficial[open] > summary::after { content: "−"; }
   .punto.nsnc { background: radial-gradient(circle at 35% 28%, #B39DDB 0%, #7E57C2 60%, #4A2C8A 100%); }
   .punto.no { background: radial-gradient(circle at 35% 28%, #F07A6E 0%, #B3261E 60%, #7A140E 100%); } /* el No es rojo (incluye los antiguos vetos) */
   /* Días anulados (2 o más No/Veto) */
@@ -1088,14 +1123,20 @@
   <main>
     <!-- Pestaña FECHAS -->
     <section id="t-fechas" data-tab>
+      <!-- Banner con la fecha de la fiesta (la oficial, o la que va ganando) -->
+      <div id="banner-fecha"></div>
+
       <button id="btn-adviento" class="hero hero-rojo hero-marquesina ancho" style="margin-bottom:10px">
         <span class="hero-ico">🚪</span>
         <span><b>Calendario de Adviento</b><small id="adviento-sub">24 puertas con sorpresas del grupo</small></span>
       </button>
 
-      <!-- Banner con la fecha de la fiesta (la oficial, o la que va ganando) -->
-      <div id="banner-fecha"></div>
+      <!-- Gancho: el plan de la noche (lo que se va a hacer y los juegos) -->
+      <div id="plan-noche"></div>
 
+      <!-- La votación: con fecha oficial se pliega en "Ver cómo fue la votación" -->
+      <details id="votacion" class="votacion" open>
+      <summary>📅 Ver cómo fue la votación</summary>
       <div class="tarjeta">
         <div class="cal-cab">
           <h3 id="cal-titulo">Noviembre – Diciembre 2026</h3>
@@ -1120,6 +1161,7 @@
 
       <div id="fechas-lista"></div>
       <div id="fechas-faltan"></div>
+      </details>
     </section>
 
     <!-- Pestañas que llegan en otras sesiones -->
@@ -1245,27 +1287,6 @@
         </div>
 
         <div class="tarjeta">
-          <h3>🧠 Quiz familiar</h3>
-          <p class="suave" style="margin:0">Propón preguntas con 4 respuestas. En la fiesta, la tele las lanza y tenéis <span id="quiz-segundos">20</span> segundos para contestar.</p>
-          <div id="quiz-ronda"></div>
-          <div id="quiz-mias"></div>
-          <details class="plegable solo-jugador" id="quiz-form">
-            <summary>➕ Proponer pregunta de quiz</summary>
-            <input id="quiz-texto" class="campo" maxlength="140" placeholder="Pregunta (ej.: ¿En qué año se casaron los abuelos?)">
-            <div class="opciones">
-              <input id="quiz-op0" class="campo" maxlength="50" placeholder="A">
-              <input id="quiz-op1" class="campo" maxlength="50" placeholder="B">
-              <input id="quiz-op2" class="campo" maxlength="50" placeholder="C">
-              <input id="quiz-op3" class="campo" maxlength="50" placeholder="D">
-            </div>
-            <label for="quiz-correcta">¿Cuál es la buena?</label>
-            <select id="quiz-correcta" class="campo"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
-            <div id="quiz-error" class="error-texto"></div>
-            <button id="quiz-anadir" class="btn btn-rojo ancho">Añadir pregunta</button>
-          </details>
-        </div>
-
-        <div class="tarjeta">
           <h3>🏆 Premios Adoce</h3>
           <p class="suave" style="margin:0">Vota a quién se lleva cada premio. Los ganadores se revelan en la tele.</p>
           <div id="premios-lista"></div>
@@ -1306,7 +1327,6 @@
         <div class="vistas" role="group" aria-label="Qué enseñar en la tele">
           <button data-vista="charlas" aria-pressed="true">📺 Charlas</button>
           <button data-vista="quien" aria-pressed="false">🗣️ ¿Quién lo dijo?</button>
-          <button data-vista="quiz" aria-pressed="false">🧠 Quiz</button>
           <button data-vista="premios" aria-pressed="false">🏆 Premios</button>
           <button data-vista="predic" aria-pressed="false">🔮 Predicciones</button>
           <button data-vista="roscon" aria-pressed="false">👑 Roscón</button>
@@ -1532,8 +1552,8 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.41";
-const VERSION_FECHA = "19 nov 2026";
+const VERSION = "1.42";
+const VERSION_FECHA = "20 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
 // Solo esta persona puede marcar la fecha oficial
@@ -2230,6 +2250,8 @@ function pintarFechas() {
   // Orden de la lista: por votos (normal) o por fecha (si la persona lo elige; se recuerda en su móvil)
   const lista = ordenRanking === "fecha" ? [...fechas].sort((a, b) => a.id.localeCompare(b.id)) : ranking;
 
+  pintarPlanNoche();
+  plegarVotacion();
   pintarBannerFecha(validas.length ? [...validas].sort(porPuntos)[0] : null);
 
   // --- Lista de fechas ---
@@ -2297,6 +2319,55 @@ function partesFecha(id) {
   return { dia: dia.charAt(0).toUpperCase() + dia.slice(1), num: d, mes: MESES_LARGOS[m - 1] };
 }
 
+// "Faltan 22 días", "¡Es mañana!", "¡ES HOY! 🎉"…
+// Con fecha oficial, la votación se pliega (una vez; luego cada uno la abre o cierra)
+let oficialAnterior;
+function plegarVotacion() {
+  const oficial = datos.evento.fechaOficial || null;
+  $("votacion").classList.toggle("con-oficial", !!oficial);
+  if (oficial !== oficialAnterior) $("votacion").open = !oficial;
+  oficialAnterior = oficial;
+}
+
+function cuentaAtras(id) {
+  const [a, m, d] = id.split("-").map(Number);
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const dias = Math.round((new Date(a, m - 1, d) - hoy) / 864e5);
+  if (dias > 1) return `⏳ Faltan ${dias} días`;
+  if (dias === 1) return "⏳ ¡Es mañana!";
+  if (dias === 0) return "🥳 ¡ES HOY!";
+  return "🥂 ¡Qué noche aquella!";
+}
+
+// Gancho con el plan de la noche: cada línea lleva un dato vivo y lleva a su pestaña
+function pintarPlanNoche() {
+  const n = (x, uno, varios) => `${x} ${x === 1 ? uno : varios}`;
+  const charlas = datos.charlas;
+  const f = datos.furor.puntos;
+  const furorEmpezado = (f.chicos || 0) + (f.chicas || 0) > 0;
+  const plan = [
+    ["🍽️", "La cena", datos.comida.length ? `${n(datos.comida.length, "plato apuntado", "platos apuntados")} · ¿qué traes tú?` : "Aún nadie ha dicho qué trae… ¡apúntate!", "comida"],
+    ["🎤", "Charlas de 3 minutos", charlas.length ? `${n(charlas.length, "charla", "charlas")}: ${charlas.slice(0, 3).map((c) => esc(c.tema)).join(" · ")}${charlas.length > 3 ? "…" : ""}` : "El escenario está libre: ¿te animas?", "charlas"],
+    ["🎶", "Furor: chicos contra chicas", furorEmpezado ? `Van ${f.chicos} – ${f.chicas}` : "Palabras, tarareos, letras y pulsador", "juegos"],
+    ["🗣️", "¿Quién lo dijo?", datos.quienlo.preguntas.length ? `${n(datos.quienlo.preguntas.length, "pregunta", "preguntas")} esperando tus respuestas secretas` : "Propón preguntas y contesta en secreto", "juegos"],
+    ["🏆", "Premios Adoce", datos.premios.categorias.length ? `${n(datos.premios.categorias.length, "premio", "premios")} por votar` : "Propón categorías y vota", "juegos"],
+    ["🔮", "Predicciones 2027", `${n(datos.predicciones.lista.length, "predicción guardada", "predicciones guardadas")} en secreto`, "juegos"],
+    ["👑", "Roscón de Reyes", datos.roscon ? `Figurita: ${esc(datos.roscon.figurita)} · haba: ${esc(datos.roscon.haba)}` : "¿A quién le tocará el haba?", "fiesta"],
+    ["🔔", "Campanadas y uvas", "12 campanadas… ¡y a por 2027!", "fiesta"]
+  ];
+  $("plan-noche").innerHTML = `
+    <div class="plan-noche">
+      <div class="cinta">🎉 El plan de la noche</div>
+      <p class="plan-gancho">Cena, charlas, Furor, premios y uvas… ¡no te lo puedes perder!</p>
+      ${plan.map(([ico, titulo, dato, tab]) => `
+        <button class="plan-item" data-ir-plan="${tab}">
+          <span class="plan-ico">${ico}</span>
+          <span class="plan-texto"><b>${titulo}</b><small>${dato}</small></span>
+          <span class="plan-flecha">›</span>
+        </button>`).join("")}
+    </div>`;
+}
+
 // Banner grande encima del calendario: la fecha oficial; si no hay, "por decidir" y la que va ganando
 function pintarBannerFecha(ganando) {
   const oficial = datos.evento.fechaOficial;
@@ -2309,6 +2380,7 @@ function pintarBannerFecha(ganando) {
         <div class="bf-texto">
           <span class="bf-rotulo">🎉 ¡Fecha confirmada!</span>
           <span class="bf-grande">${p.dia} ${p.num} de ${p.mes}</span>
+          <span class="bf-cuenta">${cuentaAtras(oficial)}</span>
           ${lugar}
         </div>
       </div>`;
@@ -3049,131 +3121,8 @@ function pintarQuienTele() {
   return html;
 }
 
-/* =====================================================================
-   JUEGO: QUIZ FAMILIAR
-   ===================================================================== */
-const QUIZ_SEGUNDOS = 20;
-
-function anadirPreguntaQuiz(d, p) { d.quiz.preguntas.push(p); }
-function borrarPreguntaQuiz(d, id, nombre) {
-  const antes = d.quiz.preguntas.length;
-  d.quiz.preguntas = d.quiz.preguntas.filter((p) => !(p.id === id && p.autor === nombre));
-  if (d.quiz.preguntas.length === antes) return false;
-}
-function lanzarQuiz(d, pid, inicio) {
-  const z = d.quiz;
-  if (z.ronda && z.ronda.revelada) z.hechas.push(z.ronda);
-  z.ronda = { pid, inicio, votos: {}, revelada: false };
-}
-function responderQuiz(d, nombre, opcion) {
-  const r = d.quiz.ronda;
-  if (!r || r.revelada || r.votos[nombre] === opcion) return false;
-  r.votos[nombre] = opcion;
-}
-function revelarQuiz(d) {
-  if (!d.quiz.ronda || d.quiz.ronda.revelada) return false;
-  d.quiz.ronda.revelada = true;
-}
-function reiniciarQuiz(d) { d.quiz.ronda = null; d.quiz.hechas = []; }
-
-function preguntaQuiz(pid) { return datos.quiz.preguntas.find((p) => p.id === pid); }
-function pendientesQuiz() {
-  const z = datos.quiz;
-  const salidas = new Set([...z.hechas, ...(z.ronda ? [z.ronda] : [])].map((r) => r.pid));
-  return z.preguntas.filter((p) => !salidas.has(p.id));
-}
-function segundosQuiz(r) {
-  const pasados = (Date.now() - new Date(r.inicio).getTime()) / 1000;
-  return Math.max(0, Math.ceil(QUIZ_SEGUNDOS - (isNaN(pasados) ? QUIZ_SEGUNDOS : pasados)));
-}
-function puntosQuiz() {
-  const z = datos.quiz;
-  const puntos = {};
-  for (const r of [...z.hechas, ...(z.ronda && z.ronda.revelada ? [z.ronda] : [])]) {
-    const p = preguntaQuiz(r.pid);
-    if (!p) continue;
-    for (const [n, o] of Object.entries(r.votos)) if (o === p.correcta) puntos[n] = (puntos[n] || 0) + 1;
-  }
-  return puntos;
-}
+// Letras de las 4 respuestas (las usa la pregunta musical del Furor)
 const LETRAS = ["A", "B", "C", "D"];
-
-function opcionesQuizHtml(p, r, conVoto) {
-  return `<div class="opciones">${p.opciones.map((o, i) => {
-    let clase = "opcion";
-    if (r.revelada && i === p.correcta) clase += " correcta";
-    else if (r.revelada && conVoto && r.votos[yo] === i) clase += " fallo";
-    const n = Object.values(r.votos).filter((v) => v === i).length;
-    return `<button class="${clase}" ${conVoto ? `data-quiz-voto="${i}"` : ""} aria-pressed="${conVoto && r.votos[yo] === i}">
-      <span class="letra">${LETRAS[i]}</span>${esc(o)}${r.revelada ? ` <span class="suave">(${n})</span>` : ""}</button>`;
-  }).join("")}</div>`;
-}
-
-function pintarQuizMovil() {
-  $("quiz-segundos").textContent = QUIZ_SEGUNDOS;
-  const z = datos.quiz;
-  const r = z.ronda;
-  let html = "";
-  const p = r && preguntaQuiz(r.pid);
-  if (p) {
-    const quedan = segundosQuiz(r);
-    html = `<div class="caja-ronda"><div class="pregunta">${esc(p.texto)}</div>`;
-    if (p.autor === yo && !r.revelada) html += `<div>🤐 Es tu pregunta: esta no la contestas.</div>`;
-    else if (esTele()) html += opcionesQuizHtml(p, r, false);
-    else {
-      html += opcionesQuizHtml(p, r, !r.revelada && quedan > 0 && p.autor !== yo);
-      if (!r.revelada) html += `<div class="suave" data-quiz-quedan>${quedan > 0 ? `⏱️ ${quedan} s` : "⏱️ ¡Tiempo!"}</div>`;
-      else if (p.autor !== yo) html += `<div>${r.votos[yo] === p.correcta ? "✅ ¡Acertaste!" : r.votos[yo] === undefined ? "No contestaste" : "❌ Fallaste"}</div>`;
-    }
-    html += `</div>`;
-  }
-  ponerHtml($("quiz-ronda"), html);
-
-  const mias = z.preguntas.filter((x) => x.autor === yo);
-  ponerHtml($("quiz-mias"), `<p class="suave" style="margin:6px 0 0">Hay ${z.preguntas.length} ${z.preguntas.length === 1 ? "pregunta" : "preguntas"} (no se enseñan para no hacer trampa).</p>` +
-    mias.map((x) => `<div class="item"><div class="item-texto">${esc(x.texto)} <span class="suave">· buena: ${LETRAS[x.correcta]}</span></div>
-      <button class="icono" data-quiz-borrar="${esc(x.id)}" aria-label="Borrar pregunta">🗑️</button></div>`).join(""));
-}
-
-function pintarQuizTele() {
-  const z = datos.quiz;
-  const r = z.ronda;
-  const pend = pendientesQuiz().length;
-  let html = `<h2>🧠 Quiz familiar</h2>`;
-  const p = r && preguntaQuiz(r.pid);
-  if (p) {
-    const quedan = segundosQuiz(r);
-    html += `<div class="caja-ronda">
-      <div class="pregunta">${esc(p.texto)}</div>
-      ${opcionesQuizHtml(p, r, false)}
-      ${r.revelada ? `<div class="ganador">✅ ${LETRAS[p.correcta]}: ${esc(p.opciones[p.correcta])}</div>`
-        : `<div class="cuenta" data-quiz-quedan>${quedan > 0 ? quedan : "¡Tiempo!"}</div><div class="suave">🗳️ ${Object.keys(r.votos).length} han contestado</div>`}
-      <div class="suave">Pregunta de ${esc(p.autor)}</div>
-    </div>`;
-  } else {
-    html += `<p>${pend ? `Hay ${pend} preguntas listas. ¡Pulsa "Lanzar pregunta"!` : "Todavía no hay preguntas. Se proponen en el móvil: Juegos → 🎉 En vivo."}</p>`;
-  }
-  if (puedeDirigir()) {
-    html += `<div class="acciones">
-      ${r && !r.revelada ? `<button class="btn btn-verde" data-quiz-accion="revelar">👀 Revelar</button>` : ""}
-      ${pend ? `<button class="btn btn-rojo" data-quiz-accion="lanzar">🚀 Lanzar pregunta <span style="opacity:.8">(${pend})</span></button>` : ""}
-      ${z.hechas.length || r ? `<button class="btn btn-borde btn-peque" data-quiz-accion="reiniciar">↺ Reiniciar</button>` : ""}
-    </div>`;
-  }
-  const marcador = marcadorHtml(puntosQuiz());
-  if (marcador) html += `<h3 style="margin-top:10px">🏅 Marcador</h3>${marcador}`;
-  return html;
-}
-
-// Cuenta atrás del quiz (se actualiza cada segundo sin releer nada)
-setInterval(() => {
-  if (!datos || !datos.quiz.ronda || datos.quiz.ronda.revelada) return;
-  const quedan = segundosQuiz(datos.quiz.ronda);
-  document.querySelectorAll("[data-quiz-quedan]").forEach((el) => {
-    el.textContent = el.classList.contains("cuenta") ? (quedan > 0 ? quedan : "¡Tiempo!") : (quedan > 0 ? `⏱️ ${quedan} s` : "⏱️ ¡Tiempo!");
-  });
-  if (quedan === 0) document.querySelectorAll("[data-quiz-voto]").forEach((b) => { b.disabled = true; });
-}, 1000);
 
 /* =====================================================================
    JUEGO: PREMIOS ADOCE
@@ -3322,13 +3271,13 @@ let vistaFiesta = leerLocal("nb_vista") || "charlas";
 function pintarVivo() {
   $("vivo-tele-aviso").hidden = !esTele();
   pintarQuienMovil();
-  pintarQuizMovil();
   pintarPremiosMovil();
   pintarPrediccionesMovil();
   pintarFurorMovil();
 }
 
 function ponerVista(v) {
+  if (!document.querySelector(`[data-vista="${v}"]`)) v = "charlas"; // p. ej. el quiz, que ya no existe
   vistaFiesta = v;
   guardarLocal("nb_vista", v);
   document.querySelectorAll("[data-vista]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.vista === v));
@@ -3337,17 +3286,17 @@ function ponerVista(v) {
 }
 
 function pintarJuegoTele() {
-  const html = { quien: pintarQuienTele, quiz: pintarQuizTele, premios: pintarPremiosTele, predic: pintarPrediccionesTele, roscon: pintarRosconTele, carbon: pintarCarbonTele, furor: pintarFurorTele }[vistaFiesta];
+  const html = { quien: pintarQuienTele, premios: pintarPremiosTele, predic: pintarPrediccionesTele, roscon: pintarRosconTele, carbon: pintarCarbonTele, furor: pintarFurorTele }[vistaFiesta];
   if (html) ponerHtml($("fie-juego"), html());
 }
 
 // ¿Hay una ronda en marcha? Entonces se relee más a menudo
 function hayJuegoEnVivo() {
   if (!datos) return false;
-  const q = datos.quienlo.ronda, z = datos.quiz.ronda, f = datos.furor.ronda;
+  const q = datos.quienlo.ronda, f = datos.furor.ronda;
   // En el Furor, el pulsador y el tarareo secreto necesitan ir rápidos
   const furorVivo = f && !f.revelada && (f.prueba === "pregunta" || f.prueba === "tararea");
-  return !!((q && !q.revelada) || (z && !z.revelada) || furorVivo);
+  return !!((q && !q.revelada) || furorVivo);
 }
 
 /* =====================================================================
@@ -4360,6 +4309,12 @@ function controlesFuror(e) {
   return true;
 }
 
+// Plan de la noche: cada línea lleva a su pestaña
+$("plan-noche").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-ir-plan]");
+  if (b) irA(b.dataset.irPlan);
+});
+
 // --- Calendario de Adviento ---
 $("btn-adviento").addEventListener("click", () => {
   $("adviento").hidden = false;
@@ -4454,32 +4409,6 @@ $("quien-ronda").addEventListener("click", (e) => {
   guardar(`${yo} vota en ¿Quién lo dijo?`, (d) => votarQuien(d, yo, candidato));
 });
 
-// Quiz
-$("quiz-anadir").addEventListener("click", () => {
-  const texto = $("quiz-texto").value.trim();
-  const opciones = [0, 1, 2, 3].map((i) => $("quiz-op" + i).value.trim());
-  const correcta = Number($("quiz-correcta").value);
-  if (!texto || opciones.some((o) => !o)) { $("quiz-error").textContent = "Escribe la pregunta y las 4 respuestas."; return; }
-  $("quiz-error").textContent = "";
-  ["quiz-texto", "quiz-op0", "quiz-op1", "quiz-op2", "quiz-op3"].forEach((id) => { $(id).value = ""; });
-  $("quiz-form").open = false;
-  const p = { id: nuevoId(), texto, opciones, correcta, autor: yo };
-  guardar(`${yo} propone una pregunta de quiz`, (d) => anadirPreguntaQuiz(d, p));
-});
-$("quiz-ronda").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-quiz-voto]");
-  if (!b || b.disabled) return;
-  if (segundosQuiz(datos.quiz.ronda) <= 0) { aviso("⏱️ Se acabó el tiempo"); return; }
-  const op = Number(b.dataset.quizVoto);
-  guardar(`${yo} contesta el quiz`, (d) => responderQuiz(d, yo, op));
-});
-$("quiz-mias").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-quiz-borrar]");
-  if (!b || !confirm("¿Borrar tu pregunta?")) return;
-  const id = b.dataset.quizBorrar;
-  guardar(`${yo} borra una pregunta de quiz`, (d) => borrarPreguntaQuiz(d, id, yo));
-});
-
 // Premios
 $("premio-anadir").addEventListener("click", () => {
   const texto = $("premio-nuevo").value.trim();
@@ -4532,18 +4461,6 @@ $("fie-juego").addEventListener("click", (e) => {
       if (elegida) guardar("Siguiente respuesta", (d) => siguienteQuien(d, elegida));
     }
     if (acc === "reiniciar" && confirm("¿Reiniciar ¿Quién lo dijo? (se borra el marcador)")) guardar("Se reinicia ¿Quién lo dijo?", reiniciarQuien);
-    return;
-  }
-  const z = e.target.closest("[data-quiz-accion]");
-  if (z) {
-    const acc = z.dataset.quizAccion;
-    if (acc === "revelar") guardar("Se revela la respuesta del quiz", revelarQuiz);
-    if (acc === "lanzar") {
-      const p = alAzar(pendientesQuiz());
-      const inicio = new Date().toISOString();
-      if (p) guardar("Nueva pregunta de quiz", (d) => lanzarQuiz(d, p.id, inicio));
-    }
-    if (acc === "reiniciar" && confirm("¿Reiniciar el quiz (se borra el marcador)?")) guardar("Se reinicia el quiz", reiniciarQuiz);
     return;
   }
   const pr = e.target.closest("[data-premio-revelar]");
