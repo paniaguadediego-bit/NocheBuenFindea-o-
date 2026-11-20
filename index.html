@@ -209,6 +209,15 @@
       url("fondo-gatos.jpg") center 100% / cover no-repeat, #8E1C15;
     box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.65), 0 3px 0 #741510;
   }
+  .banner-fecha { cursor: zoom-in; }
+  /* Foto entera a pantalla completa */
+  .foto-entera {
+    position: fixed; inset: 0; z-index: 60; background: rgba(10,8,6,.92); display: grid; place-items: center; cursor: zoom-out;
+    padding: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+    animation: aparecer .25s ease-out;
+  }
+  .foto-entera img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,.6); border: 2px solid var(--dorado); }
+  .foto-entera .visor-cerrar { opacity: .85; }
   .banner-fecha .bf-texto { text-shadow: 0 1px 3px rgba(0,0,0,.45); }
   body.modo-tele .banner-fecha { min-height: 300px; }
   .bf-hoja {
@@ -1090,7 +1099,7 @@
     <!-- Pestaña FECHAS -->
     <section id="t-fechas" data-tab>
       <!-- Banner con la fecha de la fiesta (la oficial, o la que va ganando) -->
-      <div id="banner-fecha"></div>
+      <div id="banner-fecha" role="button" tabindex="0" aria-label="Ver la foto entera"></div>
 
       <!-- Gancho: el plan de la noche (lo que se va a hacer y los juegos) -->
       <div id="plan-noche"></div>
@@ -1390,6 +1399,12 @@
   <button id="camp-cerrar" class="btn btn-borde">Cerrar</button>
 </div>
 
+<!-- Foto entera de los gatos (se abre al tocar el banner del día) -->
+<div id="foto-gatos" class="foto-entera" hidden>
+  <button id="foto-gatos-cerrar" class="visor-cerrar" aria-label="Cerrar foto">✕</button>
+  <img src="gatos-completa.jpg" alt="Dos gatos junto al árbol de Navidad" loading="lazy">
+</div>
+
 <button id="salir-tele" class="salir-tele">✕ Salir del modo tele</button>
 
 <!-- Música y vídeos: lista compartida de YouTube -->
@@ -1489,7 +1504,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.44";
+const VERSION = "1.45";
 const VERSION_FECHA = "20 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
@@ -4056,6 +4071,15 @@ function controlesFuror(e) {
   if (acc === "reiniciar" && confirm("¿Poner el Furor a cero (marcador incluido)?")) guardar("Furor: a cero", reiniciarFuror);
   return true;
 }
+
+// Banner del día: al tocarlo se ve la foto entera de los gatos (se cierra tocándola, con ✕ o con atrás)
+function abrirFotoGatos() {
+  $("foto-gatos").hidden = false;
+  abrirCapa("foto", () => { $("foto-gatos").hidden = true; });
+}
+$("banner-fecha").addEventListener("click", abrirFotoGatos);
+$("banner-fecha").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrirFotoGatos(); } });
+$("foto-gatos").addEventListener("click", () => cerrarCapa("foto"));
 
 // Plan de la noche: cada línea lleva a su pestaña
 $("plan-noche").addEventListener("click", (e) => {
