@@ -193,12 +193,24 @@
   .punto.apagado::after { display: none; }
   .punto.apagado::before { opacity: .3; }
   /* ===== Banner de la fecha de la fiesta ===== */
+  /* Banner del día con la foto de los gatos y el árbol de fondo (fondo-gatos.jpg).
+     Un velo verde (o rojo con fecha confirmada) de abajo arriba deja leer el texto. */
   .banner-fecha {
-    display: flex; align-items: center; gap: 12px; margin-bottom: 10px; padding: 10px 12px; border-radius: 16px;
-    background: linear-gradient(135deg, #2C664C 0%, #163828 100%); color: var(--crema);
+    display: flex; align-items: flex-end; gap: 12px; margin-bottom: 10px; padding: 10px 12px; border-radius: 16px;
+    min-height: 270px; color: var(--crema);
+    background:
+      linear-gradient(180deg, rgba(22,56,40,0) 48%, rgba(22,56,40,.78) 72%, rgba(22,56,40,.96) 100%),
+      url("fondo-gatos.jpg") center 100% / cover no-repeat, #163828;
     box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.55), 0 3px 0 #0F271D;
   }
-  .banner-fecha.confirmada { background: linear-gradient(135deg, #CF3D31 0%, #8E1C15 100%); box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.65), 0 3px 0 #741510; }
+  .banner-fecha.confirmada {
+    background:
+      linear-gradient(180deg, rgba(142,28,21,0) 48%, rgba(142,28,21,.75) 72%, rgba(142,28,21,.96) 100%),
+      url("fondo-gatos.jpg") center 100% / cover no-repeat, #8E1C15;
+    box-shadow: inset 0 0 0 1.5px rgba(242,201,76,.65), 0 3px 0 #741510;
+  }
+  .banner-fecha .bf-texto { text-shadow: 0 1px 3px rgba(0,0,0,.45); }
+  body.modo-tele .banner-fecha { min-height: 300px; }
   .bf-hoja {
     flex: none; width: 58px; border-radius: 10px; overflow: hidden; background: #FFFDF7; text-align: center;
     box-shadow: 0 3px 6px rgba(0,0,0,.3); color: var(--texto);
@@ -1477,7 +1489,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.43";
+const VERSION = "1.44";
 const VERSION_FECHA = "20 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
