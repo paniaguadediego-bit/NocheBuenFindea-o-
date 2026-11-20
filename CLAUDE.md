@@ -117,7 +117,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 
 - Cabecera: "NocheBuenFindeaño" con "2026-2027" al lado y el subtítulo "Familia de Adoce". El nombre de la persona va en el botón "Cambiar".
 - Todo compacto: los formularios de Comida, Charlas y los juegos van plegados hasta que se pulsan.
-- Icono de Fechas: hoja de calendario dibujada con "DIC 24" (en vez del emoji 📅).
+- Icono de Fechas: hoja de calendario dibujada con "DIC 20" (el día de la cena) (en vez del emoji 📅).
 - Modo tele: en el móvil se ve en una columna y siempre hay un botón flotante "✕ Salir del modo tele".
 - Decoración navideña: guirnalda de bombillas de colores bajo la cabecera, nieve dorada suave de fondo, botones con relieve (filo dorado, se hunden al pulsar), tarjetas-botón grandes ("hero") para las acciones importantes (Modo tele, Campanadas con marco de bombillas, Copiar prompt, Ver la guía) y en la barra inferior la pestaña activa lleva el icono en una bola de Navidad dorada.
 - Animaciones básicas (aparecer al cambiar de pestaña, barras que crecen, botones que se hunden al pulsar, guirnalda que parpadea) y se desactivan si el móvil pide menos movimiento.
@@ -136,7 +136,7 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 - Al terminar, explicar cómo probarlo desde el móvil.
 - No añadir funciones que no estén aquí sin preguntar.
 - Nunca escribir la clave ni ningún token en ningún archivo.
-- El botón "atrás" del móvil cierra la ventana abierta (día del calendario, guía, música, presentación, foto de los gatos) como la ✕: cada ventana se apunta en el historial con abrirCapa/cerrarCapa.
+- El botón "atrás" del móvil cierra la ventana abierta (día del calendario, guía, música, presentación, foto de los gatos) como la ✕: cada ventana se apunta en el historial con abrirCapa/cerrarCapa. Sin ventanas abiertas, desde cualquier pestaña el botón "atrás" lleva a Fechas (la portada); desde Fechas, sale como siempre.
 - En cada cambio, subir VERSION (y VERSION_FECHA) al principio del script: es la versión que se ve debajo del banner de Papá Noel (1.27 = cambio fusionado n.º 27).
 - Al terminar cada cambio, acabar la respuesta a Pablo con una línea breve de la versión, por ejemplo: "📌 Versión 1.30 — bolas en horizontal por parejas". Si solo cambian documentos y no la app, decir que la versión sigue igual.
 - Pablo autoriza a hacer commit, push y fusionar PRs en este repo sin pedir permiso, salvo que diga lo contrario.
