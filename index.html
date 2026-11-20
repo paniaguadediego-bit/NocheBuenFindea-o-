@@ -1372,7 +1372,7 @@
   </main>
 
   <nav aria-label="Secciones">
-    <button data-ir="fechas"><span class="ico"><span class="ico-cal" aria-hidden="true"><b>DIC</b><span>24</span></span></span>Fechas</button>
+    <button data-ir="fechas"><span class="ico"><span class="ico-cal" aria-hidden="true"><b>DIC</b><span>20</span></span></span>Fechas</button>
     <button data-ir="comida"><span class="ico">🍗</span>Comida</button>
     <button data-ir="charlas"><span class="ico">📺</span>Charlas</button>
     <button data-ir="juegos"><span class="ico">🎲</span>Juegos</button>
@@ -1504,7 +1504,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.45";
+const VERSION = "1.46";
 const VERSION_FECHA = "20 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
@@ -1815,6 +1815,7 @@ function mostrar(id) {
    ===================================================================== */
 const capas = [];   // ventanas abiertas, la última encima
 let ignorarPop = 0; // "atrás" que provocamos nosotros al cerrar con la ✕
+let pestanaApuntada = false; // estar fuera de Fechas también se apunta: "atrás" vuelve a la portada
 
 function abrirCapa(id, ocultar) {
   if (capas.some((c) => c.id === id)) return;
@@ -1834,7 +1835,8 @@ function cerrarCapa(id) {
 window.addEventListener("popstate", () => {
   if (ignorarPop > 0) { ignorarPop--; return; }
   const c = capas.pop(); // botón atrás: se cierra la ventana de arriba
-  if (c) c.ocultar();
+  if (c) { c.ocultar(); return; }
+  if (pestanaApuntada) { pestanaApuntada = false; irA("fechas"); } // sin ventanas: vuelve a Fechas
 });
 
 function esObjeto(x) { return !!x && typeof x === "object" && !Array.isArray(x); }
@@ -3899,6 +3901,11 @@ function irA(tab) {
   });
   guardarLocal("nb_tab", tab);
   window.scrollTo(0, 0);
+  // Botón atrás del móvil: desde cualquier pestaña lleva a Fechas (la portada)
+  try {
+    if (tab !== "fechas" && !pestanaApuntada) { history.pushState({ pestana: 1 }, ""); pestanaApuntada = true; }
+    else if (tab === "fechas" && pestanaApuntada && !capas.length) { pestanaApuntada = false; ignorarPop++; history.back(); }
+  } catch (e) {}
 }
 
 /* =====================================================================
