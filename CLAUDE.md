@@ -90,10 +90,10 @@ El dueño del repo (Pablo) la mantiene desde Claude Code en el móvil. Mantén t
 ## Furor (chicos contra chicas)
 
 - Como el programa de la tele. Equipos sacados de PAREJAS: chicos (los de arriba) contra chicas (las de abajo); quien no está en las parejas no tiene equipo.
-- En la tele: Fiesta → 🎶 Furor, con un marcador grande (+1 / −1 con bocina) y 4 pruebas: 🔤 la palabra Furor (sale una palabra y los equipos se turnan cantando, cuenta atrás de 10 s), 🎵 tararea si puedes (a alguien al azar del equipo elegido le llega la canción en secreto al móvil; 30 s), 📜 sigue la letra (sale el principio y se revela cómo sigue) y ❓ pregunta musical (4 opciones; en el móvil sale un botón "¡PULSA!" y vale el primer equipo que pulsa; "✅ Acierto" da +1). Solo Pablo o la Tele dirigen.
-- En el móvil: Juegos → 🎶 Furor (marcador, tu equipo, el pulsador y la canción secreta si te toca) y "➕ Añadir al Furor" (palabras, canciones, letras o preguntas; cada uno borra lo suyo).
-- Contenido de partida en el código (FUROR_PALABRAS, FUROR_CANCIONES, FUROR_LETRAS, FUROR_PREGUNTAS) más lo que añada el grupo. No se repite nada hasta que salen todos.
-- `furor` = { puntos: { chicos, chicas }, ronda: { prueba, item, equipo, quien, revelada, pulsado }, usados: [], extra: { palabras, canciones, letras, preguntas } }. Con una pregunta o un tarareo en marcha, se relee cada 10 s.
+- En la tele: Fiesta → 🎶 Furor, con un marcador grande (+1 / −1 con bocina) y 4 pruebas: 🔤 la palabra Furor (sale una palabra y los equipos se turnan cantando, cuenta atrás de 10 s), 🎵 tararea si puedes (a alguien al azar del equipo elegido le llega la canción en secreto al móvil; 30 s), 🎤 canta el estribillo (sale el título de una canción, el equipo canta el estribillo y se revela artista y año; sin letras en el código) y ❓ pregunta musical (4 opciones; en el móvil sale un botón "¡PULSA!" y vale el primer equipo que pulsa; "✅ Acierto" da +1). Solo Pablo o la Tele dirigen.
+- En el móvil: Juegos → 🎶 Furor (marcador, tu equipo, el pulsador y la canción secreta si te toca). Se quitó "➕ Añadir al Furor": nadie del grupo añade contenido, para que nadie haga trampas.
+- Todo el contenido lo crea Claude (64 palabras, 42 canciones, 40 estribillos y 42 preguntas, sobre todo de mediados de los 90 en adelante) y va codificado en FUROR_CIFRADO (XOR con "nochebuen" + base64) para que no se lea a simple vista en el código; para cambiarlo, pedírselo a Claude, que lo regenera. Lo que el grupo añadió antes (`furor.extra`) se ignora, pero se conserva en datos.json. No se repite nada hasta que salen todos.
+- `furor` = { puntos: { chicos, chicas }, ronda: { prueba, item, equipo, quien, revelada, pulsado }, usados: [], extra: { … } } (extra ya no se usa; la prueba "letra" es el estribillo). Con una pregunta o un tarareo en marcha, se relee cada 10 s.
 
 ## Música y vídeos (YouTube)
 

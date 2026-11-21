@@ -1211,35 +1211,6 @@
           <h3>🎶 Furor · chicos contra chicas</h3>
           <div id="furor-juego"></div>
           <div id="furor-mios"></div>
-          <details class="plegable solo-jugador" id="furor-form">
-            <summary>➕ Añadir al Furor</summary>
-            <select id="furor-tipo" class="campo" aria-label="¿Qué añades?">
-              <option value="palabra">🔤 Palabra para cantar</option>
-              <option value="tararea">🎵 Canción para tararear</option>
-              <option value="letra">📜 Letra para seguir</option>
-              <option value="pregunta">❓ Pregunta musical</option>
-            </select>
-            <div data-furor-campos="palabra"><input id="fu-palabra" class="campo" maxlength="30" placeholder="Ej.: corazón"></div>
-            <div data-furor-campos="tararea" hidden>
-              <input id="fu-titulo" class="campo" maxlength="60" placeholder="Título (ej.: Mediterráneo)">
-              <input id="fu-artista" class="campo" maxlength="60" placeholder="Artista (opcional)">
-            </div>
-            <div data-furor-campos="letra" hidden>
-              <input id="fu-inicio" class="campo" maxlength="120" placeholder="Principio (lo que sale en la tele)">
-              <input id="fu-sigue" class="campo" maxlength="120" placeholder="Cómo sigue (la respuesta)">
-              <input id="fu-cancion" class="campo" maxlength="80" placeholder="Canción · artista (opcional)">
-            </div>
-            <div data-furor-campos="pregunta" hidden>
-              <input id="fu-pregunta" class="campo" maxlength="140" placeholder="Pregunta">
-              <div class="opciones">
-                <input id="fu-op0" class="campo" maxlength="50" placeholder="A"><input id="fu-op1" class="campo" maxlength="50" placeholder="B">
-                <input id="fu-op2" class="campo" maxlength="50" placeholder="C"><input id="fu-op3" class="campo" maxlength="50" placeholder="D">
-              </div>
-              <select id="fu-correcta" class="campo" aria-label="Respuesta buena"><option value="0">Buena: A</option><option value="1">Buena: B</option><option value="2">Buena: C</option><option value="3">Buena: D</option></select>
-            </div>
-            <div id="furor-error" class="error-texto"></div>
-            <button id="furor-anadir" class="btn btn-rojo ancho">Añadir</button>
-          </details>
         </div>
 
         <div class="tarjeta">
@@ -1504,8 +1475,8 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.46";
-const VERSION_FECHA = "20 nov 2026";
+const VERSION = "1.47";
+const VERSION_FECHA = "21 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
 // Solo esta persona puede marcar la fecha oficial
@@ -2301,7 +2272,7 @@ function pintarPlanNoche() {
   const plan = [
     ["🍽️", "La cena", datos.comida.length ? `${n(datos.comida.length, "plato apuntado", "platos apuntados")} · ¿qué traes tú?` : "Aún nadie ha dicho qué trae… ¡apúntate!", "comida"],
     ["🎤", "Charlas de 3 minutos", charlas.length ? `${n(charlas.length, "charla", "charlas")}: ${charlas.slice(0, 3).map((c) => esc(c.tema)).join(" · ")}${charlas.length > 3 ? "…" : ""}` : "El escenario está libre: ¿te animas?", "charlas"],
-    ["🎶", "Furor: chicos contra chicas", furorEmpezado ? `Van ${f.chicos} – ${f.chicas}` : "Palabras, tarareos, letras y pulsador", "juegos"],
+    ["🎶", "Furor: chicos contra chicas", furorEmpezado ? `Van ${f.chicos} – ${f.chicas}` : "Palabras, tarareos, estribillos y pulsador", "juegos"],
     ["🗣️", "¿Quién lo dijo?", datos.quienlo.preguntas.length ? `${n(datos.quienlo.preguntas.length, "pregunta", "preguntas")} esperando tus respuestas secretas` : "Propón preguntas y contesta en secreto", "juegos"],
     ["🏆", "Premios Adoce", datos.premios.categorias.length ? `${n(datos.premios.categorias.length, "premio", "premios")} por votar` : "Propón categorías y vota", "juegos"],
     ["🔮", "Predicciones 2027", `${n(datos.predicciones.lista.length, "predicción guardada", "predicciones guardadas")} en secreto`, "juegos"],
@@ -3630,60 +3601,23 @@ function abrirMusica() {
 
 /* =====================================================================
    FUROR: chicos contra chicas (como el programa de la tele)
-   Pruebas: la palabra Furor, tararea si puedes, sigue la letra y pregunta musical.
+   Pruebas: la palabra Furor, tararea si puedes, canta el estribillo y pregunta musical.
    Lo dirigen Pablo o la Tele desde Fiesta → 🎶 Furor; cada uno juega desde su móvil.
    ===================================================================== */
 const EQUIPOS = { chicos: "🙋‍♂️ Chicos", chicas: "🙋‍♀️ Chicas" };
 const SEG_PALABRA = 10, SEG_TARAREO = 30;
 
-// Contenido de partida (el grupo puede añadir más desde Juegos → Furor)
-const FUROR_PALABRAS = ["amor", "noche", "corazón", "fuego", "mar", "luna", "beso", "bailar", "sol", "loco", "verano",
-  "cielo", "lágrimas", "fiesta", "vida", "tiempo", "ojos", "mujer", "tren", "ciudad", "verdad", "sueño", "dinero",
-  "música", "playa", "Madrid", "coche", "flor", "lluvia", "estrellas", "guitarra", "libre", "chica", "niña", "rosa",
-  "Navidad", "volver", "sangre", "mentira", "calle"];
-const FUROR_CANCIONES = [
-  ["Macarena", "Los del Río"], ["Aserejé", "Las Ketchup"], ["Mediterráneo", "Joan Manuel Serrat"],
-  ["Hijo de la luna", "Mecano"], ["Mujer contra mujer", "Mecano"], ["La chica de ayer", "Nacha Pop"],
-  ["Devuélveme a mi chica", "Hombres G"], ["Resistiré", "Dúo Dinámico"], ["Libre", "Nino Bravo"],
-  ["Un beso y una flor", "Nino Bravo"], ["Bailar pegados", "Sergio Dalma"], ["Corazón contento", "Marisol"],
-  ["Black is black", "Los Bravos"], ["Salta", "Tequila"], ["Insurrección", "El Último de la Fila"],
-  ["Despacito", "Luis Fonsi"], ["La gasolina", "Daddy Yankee"], ["Livin' la vida loca", "Ricky Martin"],
-  ["Bulería", "David Bisbal"], ["Ave María", "David Bisbal"], ["Vivir así es morir de amor", "Camilo Sesto"],
-  ["Y cómo es él", "José Luis Perales"], ["Mi gran noche", "Raphael"], ["Paquito el chocolatero", "Popular"],
-  ["Sevilla tiene un color especial", "Los del Río"], ["Que viva España", "Manolo Escobar"],
-  ["El baile del gorila", "Melody"], ["La bamba", "Ritchie Valens"], ["Saturday Night", "Whigfield"],
-  ["Waka Waka", "Shakira"]];
-const FUROR_LETRAS = [
-  ["Resistiré, erguido frente a todo…", "…me volveré de hierro para endurecer la piel", "Resistiré · Dúo Dinámico"],
-  ["Dale a tu cuerpo alegría, Macarena…", "…que tu cuerpo es pa' darle alegría y cosa buena", "Macarena · Los del Río"],
-  ["Aserejé, ja, de je, de jebe…", "…tu de jebere sebiunouva majabi an de bugui an de buididipí", "Aserejé · Las Ketchup"],
-  ["Quizá porque mi niñez sigue jugando en tu playa…", "…y escondido tras las cañas duerme mi primer amor", "Mediterráneo · Serrat"],
-  ["Tonto el que no entienda, cuenta una leyenda…", "…que una hembra gitana conjuró a la luna hasta el amanecer", "Hijo de la luna · Mecano"],
-  ["Un día cualquiera no sabes qué hora es…", "…te acuestas a mi lado sin saber por qué", "La chica de ayer · Nacha Pop"],
-  ["Sufre mamón, devuélveme a mi chica…", "…o te retorcerás entre polvos pica-pica", "Devuélveme a mi chica · Hombres G"],
-  ["Bailar pegados es bailar…", "…igual que baila el mar con los delfines", "Bailar pegados · Sergio Dalma"],
-  ["Tiene casi veinte años y ya está cansado de soñar…", "…pero tras la frontera está su hogar, su mundo y su ciudad", "Libre · Nino Bravo"],
-  ["Dejaré mi tierra por ti…", "…dejaré mis campos y me iré lejos de aquí", "Un beso y una flor · Nino Bravo"],
-  ["Vivir así es morir de amor…", "…por amor tengo el alma herida", "Vivir así es morir de amor · Camilo Sesto"],
-  ["Tengo el corazón contento…", "…el corazón contento, lleno de alegría", "Corazón contento · Marisol"],
-  ["A ella le gusta la gasolina…", "…dame más gasolina", "La gasolina · Daddy Yankee"],
-  ["Despacito, quiero respirar tu cuello despacito…", "…deja que te diga cosas al oído", "Despacito · Luis Fonsi"]];
-const FUROR_PREGUNTAS = [
-  ["¿Quién cantaba «Hijo de la luna»?", ["Mecano", "Hombres G", "Nacha Pop", "Duncan Dhu"], 0],
-  ["¿Qué grupo cantó «Devuélveme a mi chica»?", ["Los Secretos", "Hombres G", "Tequila", "Radio Futura"], 1],
-  ["¿En qué año ganó Massiel Eurovisión con «La, la, la»?", ["1966", "1972", "1968", "1975"], 2],
-  ["¿Quién cantó la «Macarena»?", ["Los del Río", "Los Chunguitos", "Camela", "Azúcar Moreno"], 0],
-  ["¿Cómo se llama el grupo que cantó «Aserejé»?", ["Las Ketchup", "Azúcar Moreno", "Ella Baila Sola", "Sabrina"], 0],
-  ["¿Quién ganó la primera edición de Operación Triunfo (2001)?", ["David Bisbal", "Bustamante", "Rosa López", "Chenoa"], 2],
-  ["¿Quién cantaba «Libre»?", ["Camilo Sesto", "Nino Bravo", "Raphael", "Julio Iglesias"], 1],
-  ["¿Quién presentaba el programa Furor?", ["Ramón García", "Alonso Caparrós", "Jesús Vázquez", "Bertín Osborne"], 1],
-  ["¿Quién canta «La gasolina»?", ["Don Omar", "Daddy Yankee", "Wisin", "Nicky Jam"], 1],
-  ["¿Quién canta «Bulería» (2004)?", ["David Bisbal", "Alejandro Sanz", "David Bustamante", "Manuel Carrasco"], 0],
-  ["¿Cuál de estas NO es de Mecano?", ["Mujer contra mujer", "Hijo de la luna", "Me colé en una fiesta", "La chica de ayer"], 3],
-  ["¿Quién cantó «Resistiré» en 1988?", ["Los Brincos", "Dúo Dinámico", "Fórmula V", "Los Diablos"], 1],
-  ["¿Qué grupo cantaba «Salta»?", ["Tequila", "Burning", "Los Ronaldos", "Barón Rojo"], 0],
-  ["¿Quién compuso e interpretó «Mediterráneo»?", ["Joaquín Sabina", "Joan Manuel Serrat", "Luis Eduardo Aute", "Víctor Manuel"], 1],
-  ["¿Qué grupo cantaba «Insurrección»?", ["Héroes del Silencio", "El Último de la Fila", "Los Secretos", "Loquillo"], 1]];
+// Contenido del Furor: lo hizo Claude, nadie del grupo lo conoce (así nadie hace trampas).
+// Va codificado para que no se lea a simple vista en el código (no es una caja fuerte: es como
+// tener las cartas boca abajo). Para cambiarlo, pedírselo a Claude, que lo vuelve a generar.
+const FUROR_CIFRADO = "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";
+const FUROR = (() => {
+  try {
+    const clave = new TextEncoder().encode("nochebuen");
+    const bytes = Uint8Array.from(atob(FUROR_CIFRADO), (c, i) => c.charCodeAt(0) ^ clave[i % clave.length]);
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch (e) { return { p: [], c: [], e: [], q: [] }; }
+})();
 
 // En qué equipo está cada uno: sale de las parejas (chico arriba = chicos, chica abajo = chicas)
 function equipoDe(nombre) {
@@ -3695,13 +3629,13 @@ function equipoDe(nombre) {
 }
 function miembros(equipo) { return jugadores().filter((n) => !nombreOculto(n) && equipoDe(n) === equipo); }
 
-// Listas completas (las de partida + las que añade el grupo)
+// Listas del juego: solo el contenido de Claude (lo que añadió el grupo se ignora, aunque sigue en datos.json)
 function listaFuror(tipo) {
-  const ex = datos.furor.extra;
-  if (tipo === "palabra") return [...FUROR_PALABRAS.map((p, i) => ({ id: "p" + i, palabra: p })), ...ex.palabras];
-  if (tipo === "tararea") return [...FUROR_CANCIONES.map(([t, a], i) => ({ id: "c" + i, titulo: t, artista: a })), ...ex.canciones];
-  if (tipo === "letra") return [...FUROR_LETRAS.map(([i0, s, t], i) => ({ id: "l" + i, inicio: i0, sigue: s, titulo: t })), ...ex.letras];
-  return [...FUROR_PREGUNTAS.map(([t, o, c], i) => ({ id: "q" + i, texto: t, opciones: o, correcta: c })), ...ex.preguntas];
+  if (tipo === "palabra") return FUROR.p.map((p, i) => ({ id: "vp" + i, palabra: p }));
+  if (tipo === "tararea") return FUROR.c.map(([t, a], i) => ({ id: "vc" + i, titulo: t, artista: a }));
+  // "letra" es ahora "Canta el estribillo": sale el título y se revela artista y año
+  if (tipo === "letra") return FUROR.e.map(([t, a, y], i) => ({ id: "ve" + i, titulo: t, artista: a, anio: y }));
+  return FUROR.q.map(([t, o, c], i) => ({ id: "vq" + i, texto: t, opciones: o, correcta: c }));
 }
 // Uno al azar que no haya salido todavía (si ya salieron todos, se empieza otra vez)
 function siguienteFuror(tipo) {
@@ -3729,12 +3663,6 @@ function pulsarFuror(d, nombre, equipo) {
   const r = d.furor.ronda;
   if (!r || r.prueba !== "pregunta" || r.pulsado || r.revelada) return false;
   r.pulsado = { nombre, equipo, cuando: new Date().toISOString() };
-}
-function anadirFuror(d, tipo, item) { d.furor.extra[tipo].push(item); }
-function borrarFuror(d, tipo, id, nombre) {
-  const antes = d.furor.extra[tipo].length;
-  d.furor.extra[tipo] = d.furor.extra[tipo].filter((x) => !(x.id === id && x.autor === nombre));
-  if (d.furor.extra[tipo].length === antes) return false;
 }
 
 // --- Sonidos y cuenta atrás (en el aparato que lo pulsa) ---
@@ -3772,7 +3700,7 @@ function pintarCuentaFuror() {
 
 // --- Tele: Fiesta → 🎶 Furor ---
 let pruebaFuror = leerLocal("nb_prueba_furor") || "palabra";
-const PRUEBAS_FUROR = { palabra: "🔤 Palabra", tararea: "🎵 Tararea", letra: "📜 Sigue la letra", pregunta: "❓ Pregunta" };
+const PRUEBAS_FUROR = { palabra: "🔤 Palabra", tararea: "🎵 Tararea", letra: "🎤 Estribillo", pregunta: "❓ Pregunta" };
 
 function marcadorFurorHtml(conBotones) {
   const p = datos.furor.puntos;
@@ -3815,14 +3743,15 @@ function pintarFurorTele() {
       ${ronda && !ronda.revelada ? `<button class="btn btn-borde" data-furor-accion="revelar">👀 Revelar</button>` : ""}</div>`;
   } else if (pruebaFuror === "letra") {
     if (ronda) {
-      html += `<div class="pregunta">¿Cómo sigue?</div><div class="furor-grande furor-letra">${esc(ronda.item.inicio)}</div>
-        ${ronda.revelada ? `<div class="ganador" style="text-align:center">${esc(ronda.item.sigue)}</div><div class="suave" style="text-align:center">🎵 ${esc(ronda.item.titulo)}</div>` : ""}
+      const it = ronda.item;
+      html += `<div class="pregunta">🎤 ¡Cantad el estribillo!</div><div class="furor-grande furor-letra">«${esc(it.titulo || it.inicio || "")}»</div>
+        ${ronda.revelada ? `<div class="ganador" style="text-align:center">🎵 ${esc(it.artista || it.sigue || "")}${it.anio ? " · " + esc(String(it.anio)) : ""}</div>` : ""}
         <div class="cuenta" data-furor-cuenta></div>`;
-    } else html += `<p>Sale el principio de una canción y el equipo tiene que seguir cantándola.</p>`;
+    } else html += `<p>Sale el título de una canción y el equipo tiene que cantar el estribillo.</p>`;
     if (dirige) html += `<div class="acciones" style="justify-content:center">
       <button class="btn btn-rojo" data-furor-accion="nueva">🎲 Nueva canción</button>
       ${ronda ? `<button class="btn btn-verde" data-furor-cuenta-btn="${SEG_PALABRA}">⏱ ${SEG_PALABRA} s</button>` : ""}
-      ${ronda && !ronda.revelada ? `<button class="btn btn-borde" data-furor-accion="revelar">👀 Ver la letra</button>` : ""}</div>`;
+      ${ronda && !ronda.revelada ? `<button class="btn btn-borde" data-furor-accion="revelar">👀 Ver artista</button>` : ""}</div>`;
   } else {
     if (ronda) {
       const q = ronda.item;
@@ -3857,37 +3786,7 @@ function pintarFurorMovil() {
       : `<button class="furor-pulsador" data-furor-pulsar>🔔 ¡PULSA!</button>`;
   }
   ponerHtml($("furor-juego"), html);
-  // Lo que ha añadido cada uno
-  const ex = datos.furor.extra, mios = [];
-  for (const [tipo, lista] of Object.entries(ex)) for (const x of lista) if (x.autor === yo) mios.push({ tipo, x });
-  const nombreTipo = { palabras: "🔤", canciones: "🎵", letras: "📜", preguntas: "❓" };
-  ponerHtml($("furor-mios"), `<p class="suave" style="margin:6px 0 0">${listaFuror("palabra").length} palabras · ${listaFuror("tararea").length} canciones · ${listaFuror("letra").length} letras · ${listaFuror("pregunta").length} preguntas</p>` +
-    mios.map(({ tipo, x }) => `<div class="item"><div class="item-texto">${nombreTipo[tipo]} ${esc(x.palabra || x.titulo || x.inicio || x.texto)}</div>
-      <button class="icono" data-furor-borrar="${tipo}" data-id="${esc(x.id)}" aria-label="Borrar">🗑️</button></div>`).join(""));
-}
-
-function cambiarTipoFuror() {
-  const t = $("furor-tipo").value;
-  document.querySelectorAll("[data-furor-campos]").forEach((el) => { el.hidden = el.dataset.furorCampos !== t; });
-}
-
-function pulsarAnadirFuror() {
-  const t = $("furor-tipo").value, err = $("furor-error");
-  const v = (id) => $(id).value.trim();
-  let item, tipo;
-  if (t === "palabra") { if (!v("fu-palabra")) return (err.textContent = "Escribe la palabra."); tipo = "palabras"; item = { palabra: v("fu-palabra") }; }
-  if (t === "tararea") { if (!v("fu-titulo")) return (err.textContent = "Escribe el título."); tipo = "canciones"; item = { titulo: v("fu-titulo"), artista: v("fu-artista") }; }
-  if (t === "letra") { if (!v("fu-inicio") || !v("fu-sigue")) return (err.textContent = "Escribe el principio y cómo sigue."); tipo = "letras"; item = { inicio: v("fu-inicio"), sigue: v("fu-sigue"), titulo: v("fu-cancion") }; }
-  if (t === "pregunta") {
-    const ops = [0, 1, 2, 3].map((i) => v("fu-op" + i));
-    if (!v("fu-pregunta") || ops.some((o) => !o)) return (err.textContent = "Escribe la pregunta y las 4 respuestas.");
-    tipo = "preguntas"; item = { texto: v("fu-pregunta"), opciones: ops, correcta: Number($("fu-correcta").value) };
-  }
-  err.textContent = "";
-  document.querySelectorAll("#furor-form input").forEach((i) => { i.value = ""; });
-  const nuevo = { id: nuevoId(), autor: yo, ...item };
-  guardar(`${yo} añade algo al Furor`, (d) => anadirFuror(d, tipo, nuevo));
-  aviso("🎶 Añadido al Furor");
+  ponerHtml($("furor-mios"), `<p class="suave" style="margin:6px 0 0">🤫 Contenido sorpresa: ${listaFuror("palabra").length} palabras · ${listaFuror("tararea").length} canciones · ${listaFuror("letra").length} estribillos · ${listaFuror("pregunta").length} preguntas</p>`);
 }
 
 /* =====================================================================
@@ -4022,20 +3921,12 @@ $("reproductor-cerrar").addEventListener("click", cerrarReproductor);
 $("reproductor-tamano").addEventListener("click", () => $("reproductor").classList.toggle("grande"));
 
 // --- Furor ---
-$("furor-tipo").addEventListener("change", cambiarTipoFuror);
-$("furor-anadir").addEventListener("click", pulsarAnadirFuror);
 $("furor-juego").addEventListener("click", (e) => {
   if (!e.target.closest("[data-furor-pulsar]")) return;
   const eq = equipoDe(yo);
   if (!eq) return;
   sonarBocina();
   guardar(`${yo} pulsa en el Furor`, (d) => pulsarFuror(d, yo, eq));
-});
-$("furor-mios").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-furor-borrar]");
-  if (!b || !confirm("¿Borrar esto del Furor?")) return;
-  const tipo = b.dataset.furorBorrar, id = b.dataset.id;
-  guardar(`${yo} borra algo del Furor`, (d) => borrarFuror(d, tipo, id, yo));
 });
 // Controles del Furor en la tele (van dentro de #fie-juego)
 function controlesFuror(e) {
