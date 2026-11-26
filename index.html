@@ -494,7 +494,7 @@
   /* ===== Botón y muro de sugerencias ===== */
   .sug { border-top: 1px dashed var(--borde); padding: 6px 0; display: flex; gap: 8px; align-items: flex-start; }
   .sug p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .campo-texto { min-height: 70px; resize: vertical; }
+  .campo-texto { min-height: 70px; resize: vertical; font-family: var(--cuerpo); font-size: 16px; line-height: 1.35; }
 
   /* ===== Guirnalda de luces bajo la cabecera ===== */
   .guirnalda {
@@ -592,7 +592,9 @@
   .vistas button { flex: none; padding: 0 10px; font-size: 13px; }
   .caja-ronda { background: #FFF6D9; border: 2px solid var(--dorado); border-radius: 12px; padding: 8px 10px; margin: 6px 0; }
   .caja-ronda .pregunta { font-weight: 700; color: var(--verde); }
-  .caja-ronda .cita { font-family: var(--titulos); font-size: 20px; color: var(--rojo); margin: 4px 0; overflow-wrap: anywhere; }
+  .caja-ronda .cita { font-family: var(--titulos); font-size: 20px; color: var(--rojo); margin: 4px 0; overflow-wrap: anywhere; white-space: pre-line; }
+  .caja-ronda .cita.larga { font-size: 17px; }
+  .caja-ronda .pregunta { white-space: pre-line; overflow-wrap: anywhere; }
   .rejilla-nombres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 6px; }
   .rejilla-nombres button, .opcion {
     min-height: 38px; border-radius: 10px; border: 2px solid var(--borde); background: #fff; font-weight: 600; font-size: 14px; color: var(--texto); padding: 2px 4px;
@@ -603,7 +605,7 @@
   .opcion .letra { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--dorado-texto); color: var(--texto); text-align: center; line-height: 22px; font-weight: 700; margin-right: 4px; font-size: 12px; }
   .opcion.correcta { background: #DDEBE3; border-color: var(--verde); }
   .opcion.fallo { background: #FBE3DF; border-color: var(--rojo); }
-  .resp-fila { display: flex; gap: 4px; margin-top: 4px; }
+  .resp-fila { display: flex; gap: 4px; margin-top: 4px; align-items: flex-start; }
   .resp-fila .campo { flex: 1; min-width: 0; }
   .marcador { margin: 4px 0 0; padding-left: 22px; }
   .marcador li { padding: 1px 0; }
@@ -613,6 +615,7 @@
 
   /* Juegos en la tele */
   body.modo-tele #fie-juego .caja-ronda .cita { font-size: clamp(28px, 5vw, 64px); }
+  body.modo-tele #fie-juego .caja-ronda .cita.larga { font-size: clamp(22px, 3vw, 40px); }
   body.modo-tele #fie-juego .caja-ronda .pregunta { font-size: clamp(18px, 2.6vw, 32px); }
   body.modo-tele #fie-juego .opcion { font-size: clamp(16px, 2.4vw, 30px); min-height: 70px; }
   body.modo-tele #fie-juego .cuenta { font-size: clamp(40px, 8vw, 110px); }
@@ -1240,14 +1243,14 @@
         </div>
 
         <div class="tarjeta">
-          <h3>🗣️ ¿Quién lo dijo?</h3>
+          <h3>🗣️ Preguntas y respuestas de Familia de Adoce</h3>
           <p class="suave" style="margin:0">Contesta las preguntas. En la fiesta saldrán tus respuestas en la tele y el resto tendrá que adivinar de quién son.</p>
           <div id="quien-ronda"></div>
           <div id="quien-preguntas"></div>
           <details class="plegable solo-jugador" id="quien-form">
             <summary>➕ Proponer pregunta</summary>
             <div class="resp-fila">
-              <input id="quien-nueva" class="campo" maxlength="120" placeholder="Ej.: ¿Cuál fue tu peor regalo?">
+              <textarea id="quien-nueva" class="campo campo-texto" maxlength="250" placeholder="Ej.: ¿Cuál fue tu peor regalo?"></textarea>
               <button id="quien-anadir" class="btn btn-rojo">Añadir</button>
             </div>
           </details>
@@ -1293,7 +1296,7 @@
         </div>
         <div class="vistas" role="group" aria-label="Qué enseñar en la tele">
           <button data-vista="charlas" aria-pressed="true">📺 Charlas</button>
-          <button data-vista="quien" aria-pressed="false">🗣️ ¿Quién lo dijo?</button>
+          <button data-vista="quien" aria-pressed="false">🗣️ Preguntas</button>
           <button data-vista="premios" aria-pressed="false">🏆 Premios</button>
           <button data-vista="predic" aria-pressed="false">🔮 Predicciones</button>
           <button data-vista="roscon" aria-pressed="false">👑 Roscón</button>
@@ -1501,7 +1504,7 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.48";
+const VERSION = "1.49";
 const VERSION_FECHA = "26 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
@@ -2304,7 +2307,7 @@ function pintarPlanNoche() {
     ["🍽️", "La cena", datos.gastos.length ? `Bote: ${euros(datos.gastos.reduce((a, g) => a + g.importe, 0))} en ${n(datos.gastos.length, "gasto", "gastos")}` : "¿Has pagado algo? Apúntalo en el bote", "comida"],
     ["🎤", "Charlas de 3 minutos", charlas.length ? `${n(charlas.length, "charla", "charlas")}: ${charlas.slice(0, 3).map((c) => esc(c.tema)).join(" · ")}${charlas.length > 3 ? "…" : ""}` : "El escenario está libre: ¿te animas?", "charlas"],
     ["🎶", "Furor: chicos contra chicas", furorEmpezado ? `Van ${f.chicos} – ${f.chicas}` : "Palabras, tarareos, estribillos y pulsador", "juegos"],
-    ["🗣️", "¿Quién lo dijo?", datos.quienlo.preguntas.length ? `${n(datos.quienlo.preguntas.length, "pregunta", "preguntas")} esperando tus respuestas secretas` : "Propón preguntas y contesta en secreto", "juegos"],
+    ["🗣️", "Preguntas y respuestas", datos.quienlo.preguntas.length ? `${n(datos.quienlo.preguntas.length, "pregunta", "preguntas")} esperando tus respuestas secretas` : "Propón preguntas y contesta en secreto", "juegos"],
     ["🏆", "Premios Adoce", datos.premios.categorias.length ? `${n(datos.premios.categorias.length, "premio", "premios")} por votar` : "Propón categorías y vota", "juegos"],
     ["🔮", "Predicciones 2027", `${n(datos.predicciones.lista.length, "predicción guardada", "predicciones guardadas")} en secreto`, "juegos"],
     ["👑", "Roscón de Reyes", datos.roscon ? `Figurita: ${esc(datos.roscon.figurita)} · haba: ${esc(datos.roscon.haba)}` : "¿A quién le tocará el haba?", "fiesta"],
@@ -3107,7 +3110,7 @@ function pintarQuienMovil() {
     const cita = (q.respuestas[r.pid] || {})[r.de] || "";
     html = `<div class="caja-ronda">
       <div class="pregunta">${esc(textoPreguntaQuien(r.pid))}</div>
-      <div class="cita">«${esc(cita)}»</div>`;
+      <div class="cita${cita.length > 160 ? " larga" : ""}">«${esc(cita)}»</div>`;
     if (r.revelada) {
       const mio = r.votos[yo];
       html += `<div><b>Era de ${esc(r.de)}</b>${r.de === yo ? " (¡tuya!)" : mio ? (mio === r.de ? " · ✅ ¡Acertaste!" : ` · ❌ Dijiste ${esc(mio)}`) : ""}</div>`;
@@ -3116,7 +3119,7 @@ function pintarQuienMovil() {
     } else if (r.de === yo) {
       html += `<div>🤫 ¡Es tuya! Pon cara de póker.</div>`;
     } else {
-      html += `<div class="suave">¿Quién lo dijo?</div>
+      html += `<div class="suave">¿De quién es esta respuesta?</div>
         <div class="rejilla-nombres">${jugadores().filter((n) => n !== yo).map((n) =>
           `<button data-quien-voto="${esc(n)}" aria-pressed="${r.votos[yo] === n}">${esc(n)}</button>`).join("")}</div>`;
     }
@@ -3132,7 +3135,7 @@ function pintarQuienMovil() {
     return `<div class="item" style="display:block">
       <div><b>${esc(p.texto)}</b> <span class="suave">· ${n} ${n === 1 ? "respuesta" : "respuestas"}</span></div>
       <div class="resp-fila solo-jugador">
-        <input class="campo" maxlength="140" data-quien-resp="${esc(p.id)}" value="${esc(mia)}" placeholder="Tu respuesta (secreta)">
+        <textarea class="campo campo-texto" maxlength="500" data-quien-resp="${esc(p.id)}" placeholder="Tu respuesta (secreta)">${esc(mia)}</textarea>
         <button class="icono" data-quien-guardar="${esc(p.id)}" aria-label="Guardar respuesta">💾</button>
         ${p.autor === yo ? `<button class="icono" data-quien-borrar="${esc(p.id)}" aria-label="Borrar pregunta">🗑️</button>` : ""}
       </div>
@@ -3148,13 +3151,13 @@ function pintarQuienTele() {
   const q = datos.quienlo;
   const r = q.ronda;
   const pend = pendientesQuien().length;
-  let html = `<h2>🗣️ ¿Quién lo dijo?</h2>`;
+  let html = `<h2>🗣️ Preguntas y respuestas de Familia de Adoce</h2>`;
   if (r) {
     const cita = (q.respuestas[r.pid] || {})[r.de] || "";
     const votos = Object.keys(r.votos).length;
     html += `<div class="caja-ronda">
       <div class="pregunta">${esc(textoPreguntaQuien(r.pid))}</div>
-      <div class="cita">«${esc(cita)}»</div>
+      <div class="cita${cita.length > 160 ? " larga" : ""}">«${esc(cita)}»</div>
       ${r.revelada
         ? `<div class="ganador">¡Era de ${esc(r.de)}!</div>
            <div class="suave">Acertaron: ${esc(Object.entries(r.votos).filter(([, c]) => c === r.de).map(([n]) => n).join(", ") || "nadie 😅")}</div>`
@@ -4138,7 +4141,7 @@ document.querySelector(".vistas").addEventListener("click", (e) => {
   if (b) ponerVista(b.dataset.vista);
 });
 
-// ¿Quién lo dijo?
+// Preguntas y respuestas de Familia de Adoce (antes "¿Quién lo dijo?")
 $("quien-anadir").addEventListener("click", () => {
   const texto = $("quien-nueva").value.trim();
   if (!texto) return;
@@ -4159,14 +4162,6 @@ $("quien-preguntas").addEventListener("click", (e) => {
   if (b && confirm("¿Borrar tu pregunta (y sus respuestas)?")) {
     const pid = b.dataset.quienBorrar;
     guardar(`${yo} borra una pregunta`, (d) => borrarPreguntaQuien(d, pid, yo));
-  }
-});
-$("quien-preguntas").addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && e.target.dataset.quienResp) {
-    const pid = e.target.dataset.quienResp, texto = e.target.value.trim();
-    e.target.blur();
-    guardar(`${yo} contesta una pregunta`, (d) => responderQuien(d, pid, yo, texto));
-    aviso("Respuesta guardada 🤫");
   }
 });
 $("quien-ronda").addEventListener("click", (e) => {
