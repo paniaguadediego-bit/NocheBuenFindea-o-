@@ -401,6 +401,22 @@
   .version { text-align: center; font-size: 12px; color: #9A8A78; margin: 0 0 8px; letter-spacing: .02em; }
   .banner { display: block; width: 100%; height: 110px; object-fit: cover; object-position: 50% 46%; border-radius: 16px; border: 2px solid var(--borde); margin: 4px 0 8px; }
 
+  /* ===== Bote de la cena (tipo Tricount) ===== */
+  .bote-cabecera { text-align: center; }
+  .bote-total { font: 800 34px/1.1 var(--titulos, serif); color: var(--verde); margin: 2px 0; }
+  .bote-tu { margin: 8px auto 4px; padding: 6px 12px; border-radius: 999px; font-weight: 700; display: inline-block; }
+  .bote-tu.ok { background: #E6F2EA; color: var(--verde); }
+  .bote-tu.cobra { background: #E6F2EA; color: #17603A; }
+  .bote-tu.debe { background: #FBE7E4; color: #8E1F18; }
+  .bote-importe { font-weight: 700; white-space: nowrap; }
+  .bote-saldo { font-weight: 700; white-space: nowrap; }
+  .bote-saldo.cobra { color: #17603A; }
+  .bote-saldo.debe { color: #8E1F18; }
+  .bote-entre { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  .bote-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px solid var(--borde); border-radius: 999px; background: var(--tarjeta, #FFFDF7); font-size: 15px; cursor: pointer; }
+  .bote-chip input { width: 18px; height: 18px; margin: 0; accent-color: var(--verde); }
+  .bote-bizum .btn { flex: none; }
+
   /* ===== Comida, charlas y juegos ===== */
   .item { border-top: 1px dashed var(--borde); padding: 5px 0; display: flex; align-items: center; gap: 8px; }
   .item-texto { flex: 1; min-width: 0; }
@@ -1137,21 +1153,31 @@
     <!-- Pestañas que llegan en otras sesiones -->
     <!-- Pestaña COMIDA -->
     <section id="t-comida" data-tab hidden>
-      <details class="tarjeta plegable" id="com-form">
-        <summary id="com-form-titulo">🥘 ¿Qué traes?</summary>
-        <label for="com-plato">Plato o bebida</label>
-        <input id="com-plato" class="campo" maxlength="60" placeholder="Ej.: Tortilla de patatas">
-        <label for="com-cat">Categoría</label>
-        <select id="com-cat" class="campo"></select>
-        <label for="com-notas">Alergias o notas (opcional)</label>
-        <input id="com-notas" class="campo" maxlength="80" placeholder="Ej.: lleva frutos secos, sin gluten…">
-        <div id="com-error" class="error-texto"></div>
+      <!-- Bote de la cena (tipo Tricount): cada uno apunta lo que pagó y la app dice quién paga a quién -->
+      <div id="bote-resumen"></div>
+      <details class="tarjeta plegable solo-jugador" id="bote-form">
+        <summary id="bote-form-titulo">➕ Apuntar un gasto</summary>
+        <div id="bote-quien-caja" hidden>
+          <label for="bote-quien">¿Quién pagó?</label>
+          <select id="bote-quien" class="campo"></select>
+        </div>
+        <label for="bote-concepto">¿Qué es?</label>
+        <input id="bote-concepto" class="campo" maxlength="60" placeholder="Ej.: Cena, bebida, aperitivos…">
+        <label for="bote-importe">¿Cuánto? (€)</label>
+        <input id="bote-importe" class="campo" inputmode="decimal" maxlength="10" placeholder="Ej.: 45,90">
+        <label>¿Entre quiénes se reparte?</label>
+        <div class="acciones" style="margin:0 0 4px">
+          <button type="button" class="btn btn-borde btn-peque" id="bote-todos">Todos</button>
+          <button type="button" class="btn btn-borde btn-peque" id="bote-nadie">Nadie</button>
+        </div>
+        <div id="bote-entre" class="bote-entre"></div>
+        <div id="bote-error" class="error-texto"></div>
         <div class="acciones">
-          <button id="com-guardar" class="btn btn-rojo">Apuntar</button>
-          <button id="com-cancelar" class="btn btn-borde" hidden>Cancelar</button>
+          <button id="bote-guardar" class="btn btn-rojo">Apuntar</button>
+          <button id="bote-cancelar" class="btn btn-borde" hidden>Cancelar</button>
         </div>
       </details>
-      <div id="comida-lista"></div>
+      <div id="bote-lista"></div>
     </section>
 
     <!-- Pestaña CHARLAS -->
@@ -1475,8 +1501,8 @@ const REPO_DATOS = "nochebuen-datos";
 const ARCHIVO = "datos.json";
 
 // Versión de la app: súbela en cada cambio (se ve debajo del banner de Papá Noel)
-const VERSION = "1.47";
-const VERSION_FECHA = "21 nov 2026";
+const VERSION = "1.48";
+const VERSION_FECHA = "26 nov 2026";
 const URL_DATOS = `https://api.github.com/repos/${USUARIO}/${REPO_DATOS}/contents/${ARCHIVO}`;
 
 // Solo esta persona puede marcar la fecha oficial
@@ -1838,6 +1864,11 @@ function completar(d) {
     texto(c, "plato"); texto(c, "notas");
     if (!["entrante", "principal", "postre", "bebida", "otros"].includes(c.categoria)) c.categoria = "otros";
   }
+  // Bote: gastos { id, nombre (quién pagó), concepto, importe (céntimos), entre: [nombres], fecha } y pagos { id, de, para, importe, fecha }
+  const centimos = (x) => Number.isInteger(x.importe) && x.importe > 0;
+  d.gastos = (Array.isArray(d.gastos) ? d.gastos : []).filter((g) => esObjeto(g) && typeof g.id === "string" && typeof g.nombre === "string" && centimos(g));
+  for (const g of d.gastos) { texto(g, "concepto"); g.entre = (Array.isArray(g.entre) ? g.entre : []).filter((n) => typeof n === "string"); }
+  d.pagos = (Array.isArray(d.pagos) ? d.pagos : []).filter((p) => esObjeto(p) && typeof p.id === "string" && typeof p.de === "string" && typeof p.para === "string" && centimos(p));
   for (const c of d.charlas) { texto(c, "tema"); texto(c, "enlace"); texto(c, "presentacion"); texto(c, "presentacionFecha"); c.remoto = !!c.remoto; }
   for (const j of d.juegos) {
     texto(j, "juego"); texto(j, "jugadores");
@@ -2270,7 +2301,7 @@ function pintarPlanNoche() {
   const f = datos.furor.puntos;
   const furorEmpezado = (f.chicos || 0) + (f.chicas || 0) > 0;
   const plan = [
-    ["🍽️", "La cena", datos.comida.length ? `${n(datos.comida.length, "plato apuntado", "platos apuntados")} · ¿qué traes tú?` : "Aún nadie ha dicho qué trae… ¡apúntate!", "comida"],
+    ["🍽️", "La cena", datos.gastos.length ? `Bote: ${euros(datos.gastos.reduce((a, g) => a + g.importe, 0))} en ${n(datos.gastos.length, "gasto", "gastos")}` : "¿Has pagado algo? Apúntalo en el bote", "comida"],
     ["🎤", "Charlas de 3 minutos", charlas.length ? `${n(charlas.length, "charla", "charlas")}: ${charlas.slice(0, 3).map((c) => esc(c.tema)).join(" · ")}${charlas.length > 3 ? "…" : ""}` : "El escenario está libre: ¿te animas?", "charlas"],
     ["🎶", "Furor: chicos contra chicas", furorEmpezado ? `Van ${f.chicos} – ${f.chicas}` : "Palabras, tarareos, estribillos y pulsador", "juegos"],
     ["🗣️", "¿Quién lo dijo?", datos.quienlo.preguntas.length ? `${n(datos.quienlo.preguntas.length, "pregunta", "preguntas")} esperando tus respuestas secretas` : "Propón preguntas y contesta en secreto", "juegos"],
@@ -2412,80 +2443,179 @@ function pintarCalendario(fechas, ini) {
 }
 
 /* =====================================================================
-   COMIDA
+   BOTE DE LA CENA (como Tricount)
+   Cada uno apunta lo que ha pagado y entre quiénes se reparte (por persona).
+   La app calcula cuánto ha puesto cada uno, cuánto le toca y el mínimo de
+   Bizums para quedar en paz. Al marcar un Bizum como "Hecho" se guarda en `pagos`.
+   Importes en céntimos (números enteros) para que no haya errores de redondeo.
+   (La antigua lista de platos, `comida`, se conserva en datos.json pero ya no se ve.)
    ===================================================================== */
-const CATEGORIAS = [
-  { id: "entrante", texto: "Entrantes", emoji: "🥗" },
-  { id: "principal", texto: "Principales", emoji: "🍗" },
-  { id: "postre", texto: "Postres", emoji: "🍰" },
-  { id: "bebida", texto: "Bebidas", emoji: "🍷" },
-  { id: "otros", texto: "Otros", emoji: "🧺" }
-];
-let editandoComida = null; // id del plato que se está editando (o null)
+let editandoGasto = null; // id del gasto que se está editando (o null)
 
-// Cambios de comida (cada uno solo toca lo suyo)
-function anadirComida(d, plato) { d.comida.push(plato); }
-function editarComida(d, id, nombre, campos) {
-  const c = d.comida.find((x) => x.id === id && x.nombre === nombre);
-  if (!c) return false;
-  Object.assign(c, campos);
+const euros = (c) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
+// "12,50" o "12.5" → 1250 céntimos (o null si no vale)
+function leerImporte(txt) {
+  const t = String(txt).trim().replace(/\s|€/g, "").replace(",", ".");
+  if (!/^\d+(\.\d{1,2})?$/.test(t)) return null;
+  const c = Math.round(Number(t) * 100);
+  return c > 0 && c <= 1000000 ? c : null;
 }
-function borrarComida(d, id, nombre) {
-  const antes = d.comida.length;
-  d.comida = d.comida.filter((x) => !(x.id === id && x.nombre === nombre));
-  if (d.comida.length === antes) return false;
+// Quién puede entrar en el reparto: los participantes (sin los ocultos)
+function genteBote() { return jugadores().filter((n) => !nombreOculto(n)); }
+function puedoTocarGasto(g) { return g.nombre === yo || soyOrganizador(); }
+
+// Cambios del bote (cada uno toca lo suyo; Pablo puede corregir cualquiera)
+function anadirGasto(d, g) { d.gastos.push(g); }
+function editarGasto(d, id, quien, campos) {
+  const g = d.gastos.find((x) => x.id === id);
+  if (!g || !(g.nombre === quien || normalizar(quien) === normalizar(ORGANIZADOR))) return false;
+  Object.assign(g, campos);
+}
+function borrarGasto(d, id, quien) {
+  const antes = d.gastos.length;
+  d.gastos = d.gastos.filter((x) => !(x.id === id && (x.nombre === quien || normalizar(quien) === normalizar(ORGANIZADOR))));
+  if (d.gastos.length === antes) return false;
+}
+function anadirPago(d, pago) { d.pagos.push(pago); }
+function borrarPago(d, id) {
+  const antes = d.pagos.length;
+  d.pagos = d.pagos.filter((x) => x.id !== id);
+  if (d.pagos.length === antes) return false;
+}
+
+// Saldo de cada uno en céntimos: positivo = le deben, negativo = debe
+function saldosBote() {
+  const saldo = {}, puesto = {}, toca = {};
+  const sumar = (o, n, c) => { o[n] = (o[n] || 0) + c; };
+  for (const g of datos.gastos) {
+    const entre = [...g.entre].sort((a, b) => a.localeCompare(b, "es"));
+    if (!entre.length) continue;
+    const parte = Math.floor(g.importe / entre.length);
+    let resto = g.importe - parte * entre.length; // los céntimos sueltos, uno a cada uno por orden
+    sumar(puesto, g.nombre, g.importe); sumar(saldo, g.nombre, g.importe);
+    for (const n of entre) {
+      const c = parte + (resto > 0 ? 1 : 0); if (resto > 0) resto--;
+      sumar(toca, n, c); sumar(saldo, n, -c);
+    }
+  }
+  for (const p of datos.pagos) { sumar(saldo, p.de, p.importe); sumar(saldo, p.para, -p.importe); }
+  return { saldo, puesto, toca };
+}
+// El mínimo de Bizums: el que más debe paga al que más le deben, y así hasta cuadrar
+function bizumsBote(saldo) {
+  const deben = [], cobran = [];
+  for (const [n, c] of Object.entries(saldo)) { if (c < 0) deben.push([n, -c]); if (c > 0) cobran.push([n, c]); }
+  deben.sort((a, b) => b[1] - a[1]); cobran.sort((a, b) => b[1] - a[1]);
+  const lista = [];
+  while (deben.length && cobran.length) {
+    const c = Math.min(deben[0][1], cobran[0][1]);
+    lista.push({ de: deben[0][0], para: cobran[0][0], importe: c });
+    deben[0][1] -= c; cobran[0][1] -= c;
+    if (!deben[0][1]) deben.shift();
+    if (!cobran[0][1]) cobran.shift();
+    deben.sort((a, b) => b[1] - a[1]); cobran.sort((a, b) => b[1] - a[1]);
+  }
+  return lista;
+}
+
+// Casillas de "entre quiénes" y desplegable de "quién pagó": solo se repintan si cambia la gente
+function pintarFormBote() {
+  const gente = genteBote(), clave = gente.join("|");
+  const caja = $("bote-entre");
+  if (caja.dataset.clave !== clave) {
+    const marcados = caja.dataset.clave ? new Set([...caja.querySelectorAll("input:checked")].map((i) => i.value)) : new Set(gente);
+    caja.innerHTML = gente.map((n) => `<label class="bote-chip"><input type="checkbox" value="${esc(n)}" ${marcados.has(n) ? "checked" : ""}> ${esc(n)}</label>`).join("");
+    caja.dataset.clave = clave;
+    const sel = $("bote-quien"), antes = sel.value;
+    sel.innerHTML = gente.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    sel.value = gente.includes(antes) ? antes : (gente.includes(yo) ? yo : gente[0] || "");
+  }
+  $("bote-quien-caja").hidden = !soyOrganizador();
 }
 
 function pintarComida() {
-  // Rellenar el desplegable de categorías una sola vez
-  const sel = $("com-cat");
-  if (!sel.options.length) sel.innerHTML = CATEGORIAS.map((c) => `<option value="${c.id}">${c.emoji} ${c.texto}</option>`).join("");
+  pintarFormBote();
+  const { saldo, puesto, toca } = saldosBote();
+  const total = datos.gastos.reduce((a, g) => a + g.importe, 0);
+  const mio = saldo[yo] || 0;
+  const tuSaldo = !genteBote().includes(yo) ? "" : Math.abs(mio) < 1 ? `<div class="bote-tu ok">✅ Estás en paz</div>`
+    : mio > 0 ? `<div class="bote-tu cobra">💚 Te deben ${euros(mio)}</div>` : `<div class="bote-tu debe">💸 Debes ${euros(-mio)}</div>`;
+  ponerHtml($("bote-resumen"), `<div class="tarjeta bote-cabecera">
+    <h3>💶 Bote de la cena</h3>
+    <div class="bote-total">${euros(total)}</div>
+    <div class="suave" style="text-align:center">${datos.gastos.length ? `gastados en ${datos.gastos.length} ${datos.gastos.length === 1 ? "cosa" : "cosas"}` : "Aún no hay gastos apuntados"}</div>
+    ${tuSaldo}
+    ${genteBote().includes(yo) && total ? `<div class="suave" style="text-align:center">Has puesto ${euros(puesto[yo] || 0)} · te toca ${euros(toca[yo] || 0)}</div>` : ""}
+  </div>`);
 
-  const bloques = CATEGORIAS.map((cat) => {
-    const platos = datos.comida.filter((c) => c.categoria === cat.id);
-    const items = platos.map((c) => `
-      <div class="item">
-        <div class="item-texto">
-          <span class="item-titulo">${esc(c.plato)}</span> <span class="suave">· ${esc(c.nombre)}</span>
-          ${c.notas ? `<br><span class="etiqueta">⚠️ ${esc(c.notas)}</span>` : ""}
-        </div>
-        ${c.nombre === yo ? `<div class="item-botones">
-          <button class="icono" data-com-editar="${esc(c.id)}" aria-label="Editar ${esc(c.plato)}">✏️</button>
-          <button class="icono" data-com-borrar="${esc(c.id)}" aria-label="Borrar ${esc(c.plato)}">🗑️</button>
-        </div>` : ""}
-      </div>`).join("");
-    return `
-      <div class="cat-titulo">${cat.emoji} ${cat.texto} ${platos.length ? `<span class="suave">(${platos.length})</span>` : ""}</div>
-      ${items || `<p class="aviso-vacio suave">⚠️ Nadie trae ${cat.id === "otros" ? "otras cosas" : cat.texto.toLowerCase()} todavía</p>`}`;
-  }).join("");
-  $("comida-lista").innerHTML = `<div class="tarjeta"><h3>🍽️ El menú</h3>${bloques}</div>`;
+  // Bizums para quedar en paz
+  const bizums = bizumsBote(saldo);
+  const puedeMarcar = (b) => b.de === yo || b.para === yo || soyOrganizador();
+  const htmlBizums = bizums.length ? bizums.map((b) => `<div class="item bote-bizum">
+      <div class="item-texto"><b>${esc(b.de)}</b> → <b>${esc(b.para)}</b></div>
+      <span class="bote-importe">${euros(b.importe)}</span>
+      ${puedeMarcar(b) ? `<button class="btn btn-verde btn-peque" data-bote-hecho="${esc(b.de)}|${esc(b.para)}|${b.importe}">✅ Hecho</button>` : ""}
+    </div>`).join("") : `<p class="suave" style="margin:4px 0 0">${datos.gastos.length ? "🎉 Todo el mundo está en paz" : "Cuando haya gastos, aquí saldrá quién paga a quién."}</p>`;
+
+  // Lista de gastos
+  const htmlGastos = datos.gastos.length ? [...datos.gastos].reverse().map((g) => {
+    const todos = genteBote().every((n) => g.entre.includes(n)) && g.entre.length === genteBote().length;
+    return `<div class="item">
+      <div class="item-texto"><span class="item-titulo">${esc(g.concepto)}</span> <span class="bote-importe">${euros(g.importe)}</span><br>
+        <span class="suave">Pagó ${esc(g.nombre)} · ${todos ? "entre todos" : `entre ${g.entre.length}: ${g.entre.map(esc).join(", ")}`}</span></div>
+      ${puedoTocarGasto(g) ? `<div class="item-botones">
+        <button class="icono" data-bote-editar="${esc(g.id)}" aria-label="Editar ${esc(g.concepto)}">✏️</button>
+        <button class="icono" data-bote-borrar="${esc(g.id)}" aria-label="Borrar ${esc(g.concepto)}">🗑️</button></div>` : ""}
+    </div>`;
+  }).join("") : `<p class="suave" style="margin:4px 0 0">Nadie ha apuntado nada todavía.</p>`;
+
+  // Saldos de todos
+  const filas = genteBote().map((n) => [n, saldo[n] || 0]).sort((a, b) => b[1] - a[1]);
+  const htmlSaldos = filas.map(([n, c]) => `<div class="item"><div class="item-texto">${esc(n)}</div>
+    <span class="bote-saldo ${c > 0 ? "cobra" : c < 0 ? "debe" : ""}">${c > 0 ? "+" : ""}${euros(c)}</span></div>`).join("");
+
+  // Bizums ya hechos
+  const htmlPagos = datos.pagos.map((p) => `<div class="item"><div class="item-texto">✅ ${esc(p.de)} → ${esc(p.para)} <span class="suave">${euros(p.importe)}</span></div>
+    ${p.de === yo || p.para === yo || soyOrganizador() ? `<button class="icono" data-bote-deshacer="${esc(p.id)}" aria-label="Deshacer">↩️</button>` : ""}</div>`).join("");
+
+  ponerHtml($("bote-lista"), `
+    <div class="tarjeta"><h3>🤝 Para quedar en paz</h3>${htmlBizums}</div>
+    <div class="tarjeta"><h3>🧾 Gastos</h3>${htmlGastos}</div>
+    ${datos.gastos.length ? `<details class="tarjeta plegable"><summary>📊 Cómo va cada uno</summary>${htmlSaldos}</details>` : ""}
+    ${datos.pagos.length ? `<details class="tarjeta plegable"><summary>✅ Bizums hechos (${datos.pagos.length})</summary>${htmlPagos}</details>` : ""}`);
 }
 
-function limpiarFormComida() {
-  editandoComida = null;
-  $("com-plato").value = "";
-  $("com-notas").value = "";
-  $("com-cat").value = "entrante";
-  $("com-error").textContent = "";
-  $("com-form-titulo").textContent = "🥘 ¿Qué traes?";
-  $("com-form").open = false;
-  $("com-guardar").textContent = "Apuntar";
-  $("com-cancelar").hidden = true;
+function limpiarFormBote() {
+  editandoGasto = null;
+  $("bote-concepto").value = "";
+  $("bote-importe").value = "";
+  $("bote-error").textContent = "";
+  $("bote-entre").querySelectorAll("input").forEach((i) => { i.checked = true; });
+  if (genteBote().includes(yo)) $("bote-quien").value = yo;
+  $("bote-form-titulo").textContent = "➕ Apuntar un gasto";
+  $("bote-form").open = false;
+  $("bote-guardar").textContent = "Apuntar";
+  $("bote-cancelar").hidden = true;
 }
 
-function pulsarGuardarComida() {
-  const plato = $("com-plato").value.trim();
-  const categoria = $("com-cat").value;
-  const notas = $("com-notas").value.trim();
-  if (!plato) { $("com-error").textContent = "Escribe qué traes."; return; }
-  if (editandoComida) {
-    const id = editandoComida;
-    guardar(`${yo} cambia su plato: ${plato}`, (d) => editarComida(d, id, yo, { plato, categoria, notas }));
+function pulsarGuardarGasto() {
+  const concepto = $("bote-concepto").value.trim();
+  const importe = leerImporte($("bote-importe").value);
+  const entre = [...$("bote-entre").querySelectorAll("input:checked")].map((i) => i.value);
+  const nombre = soyOrganizador() ? $("bote-quien").value : yo;
+  const err = $("bote-error");
+  if (!concepto) return (err.textContent = "Escribe qué es.");
+  if (importe === null) return (err.textContent = "Escribe el importe, por ejemplo 45,90.");
+  if (!entre.length) return (err.textContent = "Marca al menos a una persona.");
+  if (!nombre) return (err.textContent = "Elige quién pagó.");
+  if (editandoGasto) {
+    const id = editandoGasto;
+    guardar(`${yo} cambia un gasto: ${concepto}`, (d) => editarGasto(d, id, yo, { nombre, concepto, importe, entre }));
   } else {
-    const nuevo = { id: nuevoId(), nombre: yo, plato, categoria, notas };
-    guardar(`${yo} trae ${plato}`, (d) => anadirComida(d, nuevo));
+    const nuevo = { id: nuevoId(), nombre, concepto, importe, entre, fecha: new Date().toISOString() };
+    guardar(`${nombre} pagó ${concepto}`, (d) => anadirGasto(d, nuevo));
   }
-  limpiarFormComida();
+  limpiarFormBote();
 }
 
 /* =====================================================================
@@ -4163,31 +4293,49 @@ $("carbon-lista").addEventListener("click", (e) => {
   guardar(`${yo} quita un carbón`, (d) => quitarCarbon(d, id, yo));
 });
 
-// --- Comida ---
-$("com-guardar").addEventListener("click", pulsarGuardarComida);
-$("com-cancelar").addEventListener("click", limpiarFormComida);
-$("comida-lista").addEventListener("click", (e) => {
-  const ed = e.target.closest("[data-com-editar]");
+// --- Bote de la cena ---
+$("bote-guardar").addEventListener("click", pulsarGuardarGasto);
+$("bote-cancelar").addEventListener("click", limpiarFormBote);
+$("bote-todos").addEventListener("click", () => $("bote-entre").querySelectorAll("input").forEach((i) => { i.checked = true; }));
+$("bote-nadie").addEventListener("click", () => $("bote-entre").querySelectorAll("input").forEach((i) => { i.checked = false; }));
+$("bote-lista").addEventListener("click", (e) => {
+  const ed = e.target.closest("[data-bote-editar]");
   if (ed) {
-    const c = datos.comida.find((x) => x.id === ed.dataset.comEditar);
-    if (!c) return;
-    editandoComida = c.id;
-    $("com-plato").value = c.plato;
-    $("com-cat").value = c.categoria;
-    $("com-notas").value = c.notas;
-    $("com-form-titulo").textContent = "✏️ Cambia tu plato";
-    $("com-form").open = true;
-    $("com-guardar").textContent = "Guardar cambios";
-    $("com-cancelar").hidden = false;
-    $("com-form").scrollIntoView({ behavior: "smooth", block: "start" });
+    const g = datos.gastos.find((x) => x.id === ed.dataset.boteEditar);
+    if (!g) return;
+    editandoGasto = g.id;
+    $("bote-concepto").value = g.concepto;
+    $("bote-importe").value = (g.importe / 100).toFixed(2).replace(".", ",");
+    $("bote-entre").querySelectorAll("input").forEach((i) => { i.checked = g.entre.includes(i.value); });
+    if (soyOrganizador()) $("bote-quien").value = g.nombre;
+    $("bote-form-titulo").textContent = "✏️ Cambiar el gasto";
+    $("bote-form").open = true;
+    $("bote-guardar").textContent = "Guardar cambios";
+    $("bote-cancelar").hidden = false;
+    $("bote-form").scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
-  const bo = e.target.closest("[data-com-borrar]");
+  const bo = e.target.closest("[data-bote-borrar]");
   if (bo) {
-    const c = datos.comida.find((x) => x.id === bo.dataset.comBorrar);
-    if (!c || !confirm(`¿Borrar "${c.plato}"?`)) return;
-    if (editandoComida === c.id) limpiarFormComida();
-    guardar(`${yo} borra ${c.plato}`, (d) => borrarComida(d, c.id, yo));
+    const g = datos.gastos.find((x) => x.id === bo.dataset.boteBorrar);
+    if (!g || !confirm(`¿Borrar "${g.concepto}" (${euros(g.importe)})?`)) return;
+    if (editandoGasto === g.id) limpiarFormBote();
+    guardar(`${yo} borra el gasto ${g.concepto}`, (d) => borrarGasto(d, g.id, yo));
+    return;
+  }
+  const he = e.target.closest("[data-bote-hecho]");
+  if (he) {
+    const [de, para, imp] = he.dataset.boteHecho.split("|");
+    const importe = Number(imp);
+    if (!confirm(`¿${de} ya ha pagado ${euros(importe)} a ${para}?`)) return;
+    const pago = { id: nuevoId(), de, para, importe, fecha: new Date().toISOString(), apunta: yo };
+    guardar(`${de} paga ${euros(importe)} a ${para}`, (d) => anadirPago(d, pago));
+    return;
+  }
+  const dh = e.target.closest("[data-bote-deshacer]");
+  if (dh && confirm("¿Deshacer este Bizum? Volverá a salir como pendiente.")) {
+    const id = dh.dataset.boteDeshacer;
+    guardar(`${yo} deshace un Bizum`, (d) => borrarPago(d, id));
   }
 });
 
